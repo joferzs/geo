@@ -1,0 +1,257 @@
+@font-face {
+  font-family: 'footable';
+  src: url('fonts/footable.eot');
+  src: url('fonts/footable.eot?#iefix') format('embedded-opentype'), url('fonts/footable.woff') format('woff'), url('fonts/footable.ttf') format('truetype'), url('fonts/footable.svg#footable') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  @font-face {
+    font-family: 'footable';
+    src: url('fonts/footable.svg#footable') format('svg');
+    font-weight: normal;
+    font-style: normal;
+  }
+}
+.footable {
+  width: 100%;
+  /** SORTING **/
+
+  /** PAGINATION **/
+
+}
+.footable.breakpoint > tbody > tr.footable-detail-show > td {
+  border-bottom: none;
+}
+.footable.breakpoint > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e001";
+}
+.footable.breakpoint > tbody > tr:hover:not(.footable-row-detail) {
+  cursor: pointer;
+}
+.footable.breakpoint > tbody > tr > td.footable-cell-detail {
+  background: #eee;
+  border-top: none;
+}
+.footable.breakpoint > tbody > tr > td > span.footable-toggle {
+  display: inline-block;
+  font-family: 'footable';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+  padding-right: 5px;
+  font-size: 14px;
+  color: #888888;
+}
+.footable.breakpoint > tbody > tr > td > span.footable-toggle:before {
+  content: "\e000";
+}
+.footable.breakpoint.toggle-circle > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e005";
+}
+.footable.breakpoint.toggle-circle > tbody > tr > td > span.footable-toggle:before {
+  content: "\e004";
+}
+.footable.breakpoint.toggle-circle-filled > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e003";
+}
+.footable.breakpoint.toggle-circle-filled > tbody > tr > td > span.footable-toggle:before {
+  content: "\e002";
+}
+.footable.breakpoint.toggle-square > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e007";
+}
+.footable.breakpoint.toggle-square > tbody > tr > td > span.footable-toggle:before {
+  content: "\e006";
+}
+.footable.breakpoint.toggle-square-filled > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e009";
+}
+.footable.breakpoint.toggle-square-filled > tbody > tr > td > span.footable-toggle:before {
+  content: "\e008";
+}
+.footable.breakpoint.toggle-arrow > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e00f";
+}
+.footable.breakpoint.toggle-arrow > tbody > tr > td > span.footable-toggle:before {
+  content: "\e011";
+}
+.footable.breakpoint.toggle-arrow-small > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e013";
+}
+.footable.breakpoint.toggle-arrow-small > tbody > tr > td > span.footable-toggle:before {
+  content: "\e015";
+}
+.footable.breakpoint.toggle-arrow-circle > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e01b";
+}
+.footable.breakpoint.toggle-arrow-circle > tbody > tr > td > span.footable-toggle:before {
+  content: "\e01d";
+}
+.footable.breakpoint.toggle-arrow-circle-filled > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e00b";
+}
+.footable.breakpoint.toggle-arrow-circle-filled > tbody > tr > td > span.footable-toggle:before {
+  content: "\e00d";
+}
+.footable.breakpoint.toggle-arrow-tiny > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e01f";
+}
+.footable.breakpoint.toggle-arrow-tiny > tbody > tr > td > span.footable-toggle:before {
+  content: "\e021";
+}
+.footable.breakpoint.toggle-arrow-alt > tbody > tr.footable-detail-show > td > span.footable-toggle:before {
+  content: "\e017";
+}
+.footable.breakpoint.toggle-arrow-alt > tbody > tr > td > span.footable-toggle:before {
+  content: "\e019";
+}
+.footable.breakpoint.toggle-medium > tbody > tr > td > span.footable-toggle {
+  font-size: 18px;
+}
+.footable.breakpoint.toggle-large > tbody > tr > td > span.footable-toggle {
+  font-size: 24px;
+}
+.footable > thead > tr > th {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.footable > thead > tr > th.footable-sortable:hover {
+  cursor: pointer;
+}
+.footable > thead > tr > th.footable-sorted > span.footable-sort-indicator:before {
+  content: "\e013";
+}
+.footable > thead > tr > th.footable-sorted-desc > span.footable-sort-indicator:before {
+  content: "\e012";
+}
+.footable > thead > tr > th > span.footable-sort-indicator {
+  display: inline-block;
+  font-family: 'footable';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+  padding-left: 5px;
+}
+.footable > thead > tr > th > span.footable-sort-indicator:before {
+  content: "\e022";
+}
+.footable > tfoot .pagination {
+  margin: 0;
+}
+.footable.no-paging .hide-if-no-paging {
+  display: none;
+}
+.footable-row-detail-inner {
+  display: table;
+  width: 90%;
+}
+.footable-row-detail-row {
+  display: table-row;
+  float: left;
+  line-height: 1.5em;
+  height: 25px;
+  width: 50%;
+}
+.edit-reg-inside-box .footable-row-detail-row {
+  width: 100%;
+}
+.footable-row-detail-row div:hover {
+  /*border-bottom: 2px solid #001e1f;*/
+}
+.footable-row-detail-row:hover {
+  border-bottom: 2px solid #b57d68;
+  transition: border-bottom 1s;
+}
+.footable-row-detail-group {
+  display: block;
+  line-height: 2em;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.footable-row-detail-name {
+  /*display: table-cell;*/
+  float: left;
+  font-weight: bold;
+  /*padding: .5%;*/
+  padding-left: 3%;
+  width: 50%;
+}
+.edit-reg-inside-box .footable-row-detail-name {
+  float: unset !important;
+}
+.footable-row-detail-value {
+  display: table-cell;
+  width: 50%;
+}
+.footable-last-column {
+  opacity: 1;
+  transition: opacity .6s linear .1s;
+}
+.footable-row-detail-cell {
+  border-bottom: 1px solid #a4a6a9;
+  padding-bottom: 1%;
+}
+.footable-odd {
+  background-color: #d3d3d3;
+  color: #4e4e4e;
+}
+.footable-even {
+  background-color: #e4e2e2;
+  color: #4e4e4e;
+}
+.footable tbody>tr:hover {
+  background: #2f40504f;
+}
+.footable-response{
+  margin-top: 1%;
+}
+.footable th {
+  background-color: #2f4050;
+  border-right: 1px solid white;
+  color: #e7e7e7;
+  text-align: left !important;
+}
+.footable th:first-child {
+  border-radius: 4px 0px 0px 0px;
+}
+
+.footable th:last-child {
+  border-radius: 0px 4px 0px 0px;
+  border-right: none;
+}
+/*EDIT SECTION FOOTABLE*/
+.edit-reg-inside-box .footable-row-detail-row {
+  height: auto;
+}
+.edit-reg-inside-box .footable th {
+  background: url(../../../images/back-texture/o.png);
+  background-color: #e43c00;
+  background-size: contain;
+}
+.edit-reg-inside-box .footable td {
+  /*border-top: unset;*/
+}
+.edit-reg-inside-box .footable-row-detail-row:hover {
+    border-bottom: unset;
+}
+#ListAdminUsers .footable-row-detail-cell>.footable-row-detail-inner>div:not(:last-child) {
+  float: unset;
+  width: 217px;
+  display: table-cell;
+}
+/*#ListAdminUsers .footable-row-detail-cell>.footable-row-detail-inner>div:nth-child(3n+4) {
+  float: unset;
+  width: 217px;
+  display: table-cell;
+}*/
