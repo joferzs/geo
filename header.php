@@ -20,7 +20,7 @@
         <link href="css_sm/plugins/validations/validations.css" rel="stylesheet">
         <link href="css_sm/plugins/autocomplete/jquery-ui.css" rel="stylesheet">
     </head>
-    <body class="pace-done fixed-sidebar" id="app-site-">
+    <body class="fixed-sidebar pace-done mini-navbar" id="app-site-">
         <div id="wrapper">
             <nav class="navbar-default navbar-static-side" role="navigation">
                 <div class="sidebar-collapse">
@@ -36,7 +36,6 @@
                             </div>
                         </li>
                         <li>
-                            <a href="index.php"><i class="fa fa-home"></i> <span class="nav-label">Inicio</span></a>
                         </li>
 
                         <li>
@@ -50,10 +49,10 @@
             <div id="page-wrapper" class="gray-bg">
                 <div class="row border-bottom">
                     <nav class="navbar navbar-static-top" role="navigation">
-                        <div class="navbar-header">
+                        <div class="navbar-header" style="display: none;">
                             <a class="navbar-minimalize minimalize-styl-2 btn btn-main" href="#"><i class="fa fa-bars"></i> </a>
                         </div>
-                        <ul class="nav navbar-top-links navbar-right">
+                        <ul class="nav navbar-top-links navbar-right" style="display: none;">
                             <li>
                                 <span class="m-r-sm text-muted welcome-message">#mnb</span>
                             </li>

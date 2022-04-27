@@ -115,6 +115,9 @@ body.modal-open {
   width: 300px !important;
   max-width: 300px !important;
 }
+.check-indicadores {
+  display: none;
+}
 .content-conductor-info-a>div {
   display: inline-block;
   width: 65%;
@@ -127,6 +130,9 @@ body.modal-open {
 .content-head-service {
   display: none;
   width: 100%;
+}
+.content-filters {
+  display: none;
 }
 .content-filters>div {
   margin: 1%;
@@ -324,7 +330,7 @@ tfoot>tr.footable-editing {
   z-index: 5;
 }
 #footable-list-apart .footable-empty, #footable-list .footable-empty {
-  display: none;
+  /*display: none;*/
 }
 .footable-view {
   height: 0px !important;

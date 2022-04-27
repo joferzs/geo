@@ -9,7 +9,7 @@
                         DERECHOS RESERVADOS
                     </div>
                     <div>
-                    	fdsa
+                    	GEO
                     </div>
                 </div>
         <script src="js_sm/jquery-3.1.1.min.js"></script>

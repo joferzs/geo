@@ -5,10 +5,9 @@ include("header.php");
     <div class="col-lg-10">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="index.php">Inicio</a>
             </li>
             <li class="breadcrumb-item active">
-                <strong>Select</strong>
+                <strong>SERVICIO DE LOCALIDADES RURALES</strong>
             </li>
         </ol>
     </div>
@@ -60,6 +59,7 @@ include("header.php");
                             </form>
                         </div>
                     </div>
+                    <div class="load-data">Cargando información...</div>
                     <div class="content-filters">
                         <div>
                             Seleccione el Estado
@@ -77,11 +77,34 @@ include("header.php");
                             <input type="hidden" name="id_localidad" id="select-localidad-id"> Intenta: Chimixtla
                         </div>
                         <div>
+                            Seleccione el año de consulta
+                            <select name="anio" id=anio>
+                                <option value="2010">2010</option>
+                                <option value="2020">2020</option>
+                            </select>
+                        </div>
+                        <div>
+                            Seleccione un tema
+                            <input name="tema" id="select-tema">
+                            <input type="hidden" name="id_tema" id="select-tema-id">
+                        </div>
+                        <div>
+                            Seleccione un subtema
+                            <input name="subtema" id="select-subtema" disabled>
+                            <input type="hidden" name="id_subtema" id="select-subtema-id">
+                        </div>
+                        <div>
+                            Seleccione los indicadores a consultar
+                            <div id="check-indicadores"></div>
+                        </div>
+                        <div>
                             <button id="btn-buscar">Ver indicadores</button>
                         </div>
                     </div>
+
+
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
-                    <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar por base, dirección..." data-filter-connectors="false" data-paging-limit="3"></table>
+                    <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar" data-filter-connectors="false" data-paging-limit="3"></table>
                 </div>
             </div>
         </div>

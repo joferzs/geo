@@ -57,12 +57,19 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getAllFilterSelect($x) {
+		/*echo "<br>data: "; print_r($x);
+		exit;*/
+		if ($x['anio'] == 2020) {
+			$anio = 2020;
+		}else {
+			$anio = 2010;
+		}
 		$sql = 'SELECT 
-			*
-			FROM ivp.vulnerabilidad_loc_rur_2020
-			WHERE "CGLOC" = :id';
+			' . $x['indicadores'] . '
+			FROM ivp.vulnerabilidad_loc_rur_' . $anio . '
+			WHERE "CGLOC" = :id_localidad';
 		$sth = $this->conn->prepare($sql);
-		$sth->bindValue(':id', $x['id'], PDO::PARAM_INT);
+		$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_INT);
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
@@ -260,6 +267,57 @@ class ApiSelect extends ApiMain {
 			}
 		}else{
 			$this->items_arr['localidades'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getTemas($x) {
+		$sql = 'SELECT * FROM catalogo.tema';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['temas'] = array();//se debe llamar segun nuestro modulo
+			$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {
+				$this->items_arr['temas'][] = $row;
+			}
+		}else{
+			$this->items_arr['temas'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getSubtemas($x) {
+		$sql = 'SELECT * FROM catalogo.subtema';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['subtemas'] = array();//se debe llamar segun nuestro modulo
+			$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {
+				$this->items_arr['subtemas'][] = $row;
+			}
+		}else{
+			$this->items_arr['subtemas'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getIndicadores($x) {
+		$sql = 'SELECT * FROM catalogo.indicadores';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['indicadores'] = array();//se debe llamar segun nuestro modulo
+			$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {
+				$this->items_arr['indicadores'][] = $row;
+			}
+		}else{
+			$this->items_arr['indicadores'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
 	}

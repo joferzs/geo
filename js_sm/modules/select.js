@@ -24,6 +24,9 @@ var select = (function() {
 				'estados': '',
 				'municipios': '',
 				'localidades': '',
+				'temas': '',
+				'subtemas': '',
+				'indicadores': '',
             	'json': ''
             },
 		},
@@ -45,24 +48,29 @@ var select = (function() {
   		headerVal =	[//qué y como se mostrará en la tabla de datos
 			{"name":"id","title":"Id","visible": false, "style":{"width":50,"maxWidth":50}},
 			{"name":"data_edit","type": "object", "visible": false},//Este edita, se encarga de editar
-			{"name":"base","title":"Estrato", "style":{"width":150,"maxWidth":150}},
+			{"name":"base","title":"Indicador", "style":{"width":150,"maxWidth":150}},
 			{"name":"direccion","title":"Límite inferior", "style":{"width":150,"maxWidth":150}},
 			{"name":"activo","title":"Límite superior","style":{"width":125,"maxWidth":125}},
-			{"name":"fecha_registro","title":"Grado de vulnerabilidad","breakpoints":"all","style":{"width":125,"maxWidth":125}},
+			{"name":"fecha_registro","title":"Grado de vulnerabilidad","style":{"width":125,"maxWidth":125}},
 			
 			{"name":"editar","title":"Editar","style":{"width":80,"maxWidth":80}}
 		],
 		all_data_tab,
 		all_estados,
 		all_municipios,
-		all_localidades;
+		all_localidades,
+		all_temas,
+		all_subtemas,
+		all_indicadores,
+		check_indicadores = $("#check-indicadores");
 
 	var getInitResponse = function(json) {
 		console.log("getinit");
 		initMod.apiCall(json).then(function(res){
 			console.log("res de nuestro nuevo modulo" + module_upper);
 			console.log(res);
-			all_data_tab = res.vulnerabilidad;
+
+			all_data_tab = "";
 
 			var $modal = $('#editor-modal'),
 				$editor = $('#editor'),
@@ -330,15 +338,139 @@ var select = (function() {
 	    }
     }
 
+    var selectTema = function(x) {
+		var indata = $.map(all_temas, function( item ) {
+            return {
+             	label: item.tema,
+	            value: item.cve_tem,
+	            //telefono: item.telefono
+            }
+        });
+        $("#select-tema").autocomplete({
+	      	minLength: 0,
+	      	source: indata,
+	      	select: function( event, ui ) {
+	      		if (ui.item.value > 0) {
+	      			$("#select-subtema").prop("disabled", false);
+	      			selectSubtema(ui.item.value);
+	      		}
+		        $("#select-tema").val( ui.item.label );
+		        $("#select-tema-id").val( ui.item.value );
+		        return false;
+	      	},
+	      	change: function( event, ui ) {
+	      		if (ui.item == null) {
+	      			$("#select-tema-id").val("");
+	      		}
+	      	},
+	      	close: function( event, ui ) {
+	      		if ($("#select-tema").val() == "") {
+	      			$("#select-tema-id").val("");
+	      		}
+	      	}
+	    })
+	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
+	      	return $( "<li>" )
+	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
+	        .append( "<div>" + item.label + "</div>" )
+	        .appendTo( ul );
+	    };
+	    if (typeof x !== 'undefined') {
+	    	$("#select-tema").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
+	    }
+    }
+
+    var selectSubtema = function(x) {
+    	console.log("init subb")
+		var indata = $.map(all_subtemas, function( item ) {
+			if (x == item.cve_tem) {
+				return {
+	             	label: item.subtema,
+		            value: item.cve_sub,
+	            }
+			}
+        });
+        $("#select-subtema").autocomplete({
+	      	minLength: 0,
+	      	source: indata,
+	      	select: function( event, ui ) {
+	      		console.log("selll");
+	      		console.log(ui);
+	      		if (ui.item.value != "") {
+	      			//$("#select-localidad").prop("disabled", false);
+	      			indicadores(ui.item.value);
+	      		}
+		        $("#select-subtema").val( ui.item.label );
+		        $("#select-subtema-id").val( ui.item.value );
+		        return false;
+	      	},
+	      	change: function( event, ui ) {
+	      		if (ui.item == null) {
+	      			$("#select-subtema-id").val("");
+	      		}
+	      	},
+	      	close: function( event, ui ) {
+	      		if ($("#select-subtema").val() == "") {
+	      			$("#select-subtema-id").val("");
+	      		}
+	      	}
+	    })
+	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
+	      	return $( "<li>" )
+	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
+	        .append( "<div>" + item.label + "</div>" )
+	        .appendTo( ul );
+	    };
+	    if (typeof x !== 'undefined') {
+	    	//$("#select-subtema").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
+	    }
+    }
+
+    var indicadores = function(x ="") {
+    	console.log("indi xx");
+	    console.log(x);
+	    var indata = $.map(all_indicadores, function( item ) {
+			if (x == item.cve_sub) {
+				return {
+	             	label: item.indicadores,
+		            value: item.cve_ind,
+	            }
+			}
+        });
+        check_indicadores.html("");
+        check_indicadores.hide(300, function() {
+			if (x != "") {
+				$.each(indata, function(i, v) {
+			        console.log("i");
+			        console.log(i);
+			        console.log("v");
+			        console.log(v);
+			        check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '""> ' + v.label + '</div>')
+			    });
+			    check_indicadores.show(600);
+			}
+        });
+    }
+
 	var initAlterData = function() {
 		initMod.apiCall(apiDataLate).then(function(res){
-			console.log("res alter");
+			console.log("res alter a");
 			console.log(res);
         	all_municipios = res.municipios;
         	all_localidades = res.localidades;
         	all_estados = res.estados;
+        	all_temas = res.temas;
+        	all_subtemas = res.subtemas;
+        	all_indicadores = res.indicadores;
 
         	selectEstado();
+
+        	selectTema();
+
+        	$(".load-data").hide(300, function() {
+				console.log("camara hide");
+				$(".content-filters").show(600);
+			});
 
 
         }, function(reason, json){
@@ -349,7 +481,19 @@ var select = (function() {
 
 	var buscarRes = function() {
 
-		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {id: $("#select-localidad-id").val()}
+		var sList = [];
+		$('input[type=checkbox]').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
+		console.log (sList);
+		var in_end= sList.join(",");
+
+		console.log("in_end");
+		console.log(in_end);
+
+		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end}
 		getInitResponse(apiDataAllFilter);//
 	}
 
