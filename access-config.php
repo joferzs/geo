@@ -6,7 +6,7 @@ use ApiControl\Router;//el "use" se refiere al archivo que contiene la clase que
 
 require_once 'Autoload/Autoload.php';
 
-$asa = new Router(array('controller' => 'SessionSecurity', 'methods' => array('validate-session-page-user' => '')));
+//$asa = new Router(array('controller' => 'SessionSecurity', 'methods' => array('validate-session-page-user' => '')));
 
 $fname = explode('/',$_SERVER["SCRIPT_NAME"]);
 
