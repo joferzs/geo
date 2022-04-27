@@ -64,11 +64,11 @@
 				</div>
 			</div>
 		</div>
-		<script src="js_d/jquery-3.1.1.min.js"></script>
-		<script src="js_d/plugins/validations/validations.js"></script>
-		<script src="js_d/plugins/ladda/spin.min.js"></script>
-	    <script src="js_d/plugins/ladda/ladda.min.js"></script>
-	    <script src="js_d/plugins/ladda/ladda.jquery.min.js"></script>
+		<script src="js_sm/jquery-3.1.1.min.js"></script>
+		<script src="js_sm/plugins/validations/validations.js"></script>
+		<script src="js_sm/plugins/ladda/spin.min.js"></script>
+	    <script src="js_sm/plugins/ladda/ladda.min.js"></script>
+	    <script src="js_sm/plugins/ladda/ladda.jquery.min.js"></script>
 		<script type="text/javascript">
 			var myIndex = 0;
 			carousel();

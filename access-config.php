@@ -1,6 +1,6 @@
 <?php
 
-define('BASEPATH', 'http://localhost/geo');
+define('BASEPATH', 'https://superapp1349.herokuapp.com');
 
 use ApiControl\Router;//el "use" se refiere al archivo que contiene la clase que se necesita, en este caso se necesita la clase "Router" que está en el archivo ApiControl/Router.php
 

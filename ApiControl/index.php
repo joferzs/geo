@@ -17,7 +17,7 @@ header("Access-Control-Allow-Credentials: true");
 header('Content-Type: application/json');
 
 
-define('BASEPATH', 'http://localhost/geo');
+define('BASEPATH', 'https://superapp1349.herokuapp.com');
 
 
 
