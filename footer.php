@@ -6,10 +6,9 @@
       			<div class="footer">
                     <div class="float-right">
                         <!--<strong>Servicio de Transportes Electricos de la</strong>.-->
-                        DERECHOS RESERVADOS
                     </div>
                     <div>
-                    	GEO
+                    	CENTRO GEO
                     </div>
                 </div>
         <script src="js_sm/jquery-3.1.1.min.js"></script>
