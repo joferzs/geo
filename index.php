@@ -20,8 +20,8 @@ include("header.php");
                 <div class="ibox-content get-module" data-module="inicio">
                     <h3 class="welcome-title">gfsd.</h3>
                     <?php
-                    print_r($_SESSION);
-                    echo $_ENV['theme'];
+                    /*print_r($_SESSION);
+                    echo $_ENV['theme'];*/
                     ?>
                     <div class="notify-response"></div>
                 </div>

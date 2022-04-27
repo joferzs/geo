@@ -16,7 +16,7 @@ class ApiSelect extends ApiMain {
 	private $asa;
 	
 	function __construct() {
-		$this->asa = new ApiSessionSecurity();
+		//$this->asa = new ApiSessionSecurity();
 		/*$this->asa->sessionValidator();
 		$this->items_arr['security_data_apply'] = $this->asa->evaluatePrivilege(array(1,2));*/
 		parent::__construct();

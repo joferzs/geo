@@ -207,9 +207,9 @@
 
 				var getInitResponse = function() {
 					initMod.apiCall(apiJson).then(function(res){
-						console.log("res iiiii");
-						console.log(res);
-						dataSitesAccess = res.sites_access;
+						/*console.log("res iiiii");
+						console.log(res);*/
+						//dataSitesAccess = res.sites_access;
 						initModule();
 						applyAccessRestrictions();
 					}, function(reason, json){
@@ -218,6 +218,7 @@
 				}
 
 				var applyAccessRestrictions = function() {
+					return;
 					var current_path = document.location.pathname.match(/[^\/]+$/);
 					if (current_path == null) {
 						current_path = ["index.php"];
