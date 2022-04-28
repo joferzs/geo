@@ -23,81 +23,49 @@ include("header.php");
                     </div>
                 </div>
                 <div class="ibox-content">
-                    <div class="fade" id="editor-modal" tabindex="-1" role="dialog" aria-labelledby="editor-title">
-                        <div class="modal-dialog" role="document">
-                            <form class="modal-content form-horizontal" id="editor" enctype="multipart/form-data">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                    <h4 class="modal-title" id="editor-title">Nuevo registro</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <input type="number" id="id_base" name="id_base" class="hidden"/>
-                                    <div class="form-group required">
-                                        <label for="base" class="control-label">Base</label>
-                                        <div class="">
-                                            <input type="text" name="base" class="form-control" id="base" required>
-                                        </div>
-                                    </div>
-                                    <div class="form-group required">
-                                        <label for="direccion" class="control-label">Dirección</label>
-                                        <div class="">
-                                            <input type="text" name="direccion" class="form-control" id="direccion" required>
-                                        </div>
-                                    </div>
-                                    <div class="form-group form-group-custom">
-                                        <label for="dob" class="control-label">Activo</label>
-                                        <div class="">
-                                            No <input type="radio" name="activo" value="N">
-                                            Sí <input type="radio" name="activo" value="S" checked>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button id="btn-guardar" class="btn btn-primary">Guardar registro</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                     <div class="load-data">Cargando información...</div>
                     <div class="content-filters">
                         <div>
-                            Seleccione el Estado
-                            <input name="estado" id="select-estado">
-                            <input type="hidden" name="id_estado" id="select-estado-id"> Intenta: Guerrero
+                            <div class="head-filter">Seleccione el Estado</div>
+                            <select name="id_estado" id=select-estado>
+                                <option value="">Seleccione una opción</option>
+                            </select>
                         </div>
                         <div>
-                            Seleccione el Municipio
+                            <div class="head-filter">Seleccione el Municipio</div>
                             <input name="municipio" id="select-municipio" disabled>
-                            <input type="hidden" name="id_municipio" id="select-municipio-id"> Intenta: Atlixtac
+                            <input type="hidden" name="id_municipio" id="select-municipio-id">
                         </div>
                         <div>
-                            Seleccione el Localidad
+                            <div class="head-filter">Seleccione el Localidad</div>
                             <input name="localidad" id="select-localidad" disabled>
-                            <input type="hidden" name="id_localidad" id="select-localidad-id"> Intenta: Chimixtla
+                            <input type="hidden" name="id_localidad" id="select-localidad-id">
                         </div>
                         <div>
-                            Seleccione el año de consulta
+                            <div class="head-filter">Seleccione el año de consulta</div>
                             <select name="anio" id=anio>
                                 <option value="2010">2010</option>
                                 <option value="2020">2020</option>
                             </select>
                         </div>
                         <div>
-                            Seleccione un tema
-                            <input name="tema" id="select-tema">
-                            <input type="hidden" name="id_tema" id="select-tema-id">
+                            <div class="head-filter">Seleccione un tema</div>
+                            <select name="id_tema" id=select-tema>
+                            </select>
                         </div>
                         <div>
-                            Seleccione un subtema
-                            <input name="subtema" id="select-subtema" disabled>
-                            <input type="hidden" name="id_subtema" id="select-subtema-id">
+                            <div class="head-filter">Seleccione un subtema</div>
+                            <select name="id_subtema" id=select-subtema>
+                            </select>
                         </div>
                         <div>
-                            Seleccione los indicadores a consultar
-                            <div id="check-indicadores"></div>
+                            <div class="head-filter head-indicadores">Seleccione los indicadores a consultar</div>
+                            <div class="content-indicadores">
+                                <div><input type="checkbox" class="indicadores-check" id="check-all">Seleccionar todos</div>
+                                <div id="check-indicadores"></div>
+                            </div>
                         </div>
-                        <div>
+                        <div class="btn-indicadores">
                             <button id="btn-buscar">Ver indicadores</button>
                         </div>
                     </div>

@@ -16,6 +16,11 @@ class Database {
     private $password = "f455b01066c4fd268970adc23f29debbe0d65b3fe81aa0182bd36dee9d41dda9";
     private $db_name = "d1vc15a7k9rv4a";
 
+    /*private $host = "localhost";
+    private $username = "postgres";
+    private $password = "zeppelin";
+    private $db_name = "adesur";*/
+
     private $db_driver = "pgsql";
     public $pdo;
 	

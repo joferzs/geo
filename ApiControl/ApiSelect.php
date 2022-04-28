@@ -97,131 +97,8 @@ class ApiSelect extends ApiMain {
 		$sth = null;
 	}
 
-	public function getAddBase($x) {
-		/*
-			print_r($x);
-			echo "----livelover----";
-			print_r($_FILES);
-			echo "----kalmah----";
-			echo "<br>key: " . key($_FILES);
-			exit;
-		*/
-		$this->items_arr['data-success'] = array();
-		try {
-			$sql = "
-			INSERT INTO
-				bases (
-					base,
-					direccion,
-					activo,
-					fecha_registro
-				)
-			VALUES
-				(?, ?, ?, NOW())";
-			$sth1 = $this->conn->prepare($sql);
-			$sth1->execute(array(
-				strtoupper($x['base']),
-				strtoupper($x['direccion']),
-				$x['activo']
-			));
-			$sth1 = null;
-			$id_insert = $this->conn->lastInsertId();
-
-			//self::logAccess("Agregó cat_bases", $id_insert);
-
-			$this->conn->commit();
-
-			self::getManyBases(array($id_insert), 0);//Cambiamos el nombre de acuerdo a nuestro modulo
-
-			$this->items_arr['data-success'] = 'Done';
-			
-		} catch (PDOException $e) {
-			$this->conn->rollback();
-			$this->items_arr['data-success'] = array("mensaje" => 'err');
-		}
-	}
-
-	public function getUpdateBase($x){
-		//$data_id = self::decUrlData($data['token'], $data['id']);
-		/*print_r($x);
-		echo "----livelover----";
-		print_r($_FILES);
-		echo "----kalmah----";
-		exit;*/
-		$this->items_arr['data-success'] = array();
-		try {
-			$sql = "
-			UPDATE
-				bases
-			SET
-				base = ?,
-				direccion = ?,
-				activo = ?
-			WHERE
-				id_base = ?";
-
-			$sth1 = $this->conn->prepare($sql);
-			//$inst_data = $this->asa->adminPrivilege() ? $data['id_institucion'] : $_SESSION['idUserAdoptInst'];
-			$sth1->execute(	array(
-				strtoupper($x['base']),
-				strtoupper($x['direccion']),
-				$x['activo'],
-				$x['id_base']
-			));
-
-			//self::logAccess("Editó cat_partes", $x['id_parte']);
-			
-			$this->conn->commit();
-
-			self::getManyBases(array($x['id_base']), $x['id_base']);
-
-			$this->items_arr['data-success'] = 'Done';
-
-		} catch (PDOException $e) {
-			$this->conn->rollback();
-			$this->items_arr['data-success'] = array("mensaje" => 'errr');
-		}
-	}
-
-	private function addDataToArr($x, $row) {
-		foreach ($x as $k) {
-			$row['data_edit'][$k] = $row[$k];
-			//unset($row[$k]);
-		}
-		return $row;
-	}
-
-	public function getManyBases($x, $last_id = "") {
-		$in  = str_repeat('?,', count($x) - 1) . '?';
-		$sql = '
-		SELECT 
-			*
-		FROM bases
-		WHERE id_base IN ('. $in . ')';
-		$sth = $this->conn->prepare($sql, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-		$sth->execute($x);
-		if ($sth->rowCount() > 0) {
-
-			$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-			foreach ($result as $row) {
-				$arr_row['editar'] = "";
-				if ($row['id_base'] > $last_id) {
-					$this->items_arr['base-add'][] = $arr_row + $row;
-				}else {
-					$this->items_arr['base-up'][] = $arr_row + $row;
-				}
-		    }
-		}else {
-			$this->items_arr['none-last'] = "none";
-		}
-		$sth = null;
-		/*$res = $this->conn->query("SELECT count(*) AS total, max(id_trolebus) AS max FROM cat_trolebuses")->fetch(PDO::FETCH_ASSOC);
-		$this->items_arr['number-records'] = $res['total'];
-		$this->items_arr['last-id'] = $res['max'];*/
-	}
-
 	public function getEstados($x) {
-		$sql = 'SELECT * FROM edo_mun.estados';
+		$sql = 'SELECT * FROM edo_mun.estados ORDER BY nomgeo ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -238,7 +115,7 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getMunicipios($x) {
-		$sql = 'SELECT nomgeo,cve_mun,cve_ent FROM edo_mun.municipios';
+		$sql = 'SELECT nomgeo,cve_mun,cve_ent FROM edo_mun.municipios ORDER BY nomgeo ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -255,7 +132,7 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getLocalidades($x) {
-		$sql = 'SELECT nom_loc,cve_mun,"CGLOC" FROM loc.localidades';
+		$sql = 'SELECT nom_loc,cve_mun,"CGLOC" FROM loc.localidades ORDER BY nom_loc ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();

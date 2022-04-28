@@ -62,6 +62,12 @@ var select = (function() {
 		all_temas,
 		all_subtemas,
 		all_indicadores,
+		select_estado = $("#select-estado"),
+		select_municipio = $("#select-municipio"),
+		select_localidad = $("#select-localidad"),
+		select_tema = $("#select-tema"),
+		select_subtema = $("#select-subtema"),
+		check_all = $("#check-all"),
 		check_indicadores = $("#check-indicadores");
 
 	var getInitResponse = function(json) {
@@ -118,93 +124,6 @@ var select = (function() {
 			  	focus: false,
 			  	show: false
 			});
-
-			$editorSend.on('click', function(e){
-				//if (this.checkValidity && !this.checkValidity()) return;
-				e.preventDefault();
-				var res = $("#editor :input").validations();
-				var row = $modal.data('row');
-
-				if(res.errors() == 0) {
-			  		var l = $(this).ladda();
-			  		l.ladda( 'start' );
-			  		var formData =  initMod.objectifyForm($("#editor").serializeArray());
-			    	//apiDataForm.methods['add-animal']['data'] = formData;
-			    	var formDataAll = new FormData;
-
-					//formDataAll.append('entrada_pdf', $('.file_pdf')[0].files[0]); //si se requiere un pdf
-					/*jQuery.each(jQuery('.file_pdf'), function(i, value) {
-					    formDataAll.append('documento_'+i, value.files[0]);
-					});*/
-
-					/*var arr = {}, $select = $("#select-anexo"), name = $select.attr("name"), ai = 0;
-					$select.find("option").each(function() {
-					    arr['anexo' + ai] = this.value;
-					    ai++;
-					});*/
-					
-					//formData.id_tipo_anexo = arr;
-
-			  		if (row instanceof FooTable.Row){//If update
-			  			apiDataUp.methods['update-' + module_one]['data'] = formData;
-			  			initMod.getFormData(formDataAll, apiDataUp, 'form');
-						console.log("if instanceof casio");
-						//row.val(values);
-						initMod.apiCallAlter(formDataAll).then(function(res){
-							if (initMod.validateNoAccessUser(res)) return;
-							console.log("res");
-							console.log(res);
-							l.ladda( 'stop' );
-							if (res['data-success'] == 'Done') {
-								var res_row = res[module_one +'-up'][0];
-								//ft.rows.add(res_row);
-								row.val(res_row, false);
-								$modal.modal('hide');
-								/*$modal.on('hidden.bs.modal', function (e) {
-									console.log("opeth hidden");
-									$('table.footable>tbody>tr').addClass("testerman");
-								})*/
-								//initMod.setRealTimeReq('entrada', res_row.fecha_actualizacion, res['number-records'], res['last-id'], ft);
-							}else {
-								$editorSend.attr({'class': "btn-error-connect",'disabled': 'disabled'}).html("Error en el servidor, reinicie la página");
-							}
-						}, function(reason, json){
-							l.ladda( 'stop' );
-							$editorSend.attr({'class': "btn-error-connect",'disabled': 'disabled'}).html("Error en el servidor, reinicie la página");
-							initMod.debugThemes(reason,json);
-						});
-					} else {//else add
-						apiDataForm.methods['add-' + module_one]['data'] = formData;
-						initMod.getFormData(formDataAll, apiDataForm, 'form');
-						console.log("else instanceof casio");
-						initMod.apiCallAlter(formDataAll).then(function(res){
-							if (initMod.validateNoAccessUser(res)) return;
-							console.log("res de add");
-							console.log(res);
-							l.ladda( 'stop' );
-							if (res['data-success'] == 'Done') {
-								var res_row = res[module_one + '-add'][0];
-								ft.rows.add(res_row);
-								$modal.modal('hide');
-								/*$modal.on('hidden.bs.modal', function (e) {
-									console.log("opeth hidden");
-									$('table.footable>tbody>tr').addClass("testerman");
-								})*/
-								//initMod.setRealTimeReq('animales', res_row.fecha_actualizacion, res['number-records'], res['last-id'], ft);
-							}else {
-								$editorSend.attr({'class': "btn-error-connect",'disabled': 'disabled'}).html("Error en el servidor, reinicie la página");
-							}
-						}, function(reason, json){
-							l.ladda( 'stop' );
-							$editorSend.attr({'class': "btn-error-connect",'disabled': 'disabled'}).html("Error en el servidor, reinicie la página");
-							initMod.debugThemes(reason,json);
-						});
-						/*values.id = uid++;
-						ft.rows.add(values);*/
-					}
-		       	}
-			});
-
 		}, function(reason, json){
 			console.log("non");
 		 	initMod.debugThemes(reason, json);
@@ -212,45 +131,19 @@ var select = (function() {
 	}
 
 	var selectEstado = function(x) {
-		var indata = $.map(all_estados, function( item ) {
-            return {
-             	label: item.nomgeo,
-	            value: item.cve_ent,
-	            //telefono: item.telefono
-            }
-        });
-        $("#select-estado").autocomplete({
-	      	minLength: 0,
-	      	source: indata,
-	      	select: function( event, ui ) {
-	      		if (ui.item.value > 0) {
-	      			$("#select-municipio").prop("disabled", false);
-	      			selectMunicipio(ui.item.value);
-	      		}
-		        $("#select-estado").val( ui.item.label );
-		        $("#select-estado-id").val( ui.item.value );
-		        return false;
-	      	},
-	      	change: function( event, ui ) {
-	      		if (ui.item == null) {
-	      			$("#select-estado-id").val("");
-	      		}
-	      	},
-	      	close: function( event, ui ) {
-	      		if ($("#select-estado").val() == "") {
-	      			$("#select-estado-id").val("");
-	      		}
-	      	}
-	    })
-	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-	      	return $( "<li>" )
-	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
-	        .append( "<div>" + item.label + "</div>" )
-	        .appendTo( ul );
-	    };
-	    if (typeof x !== 'undefined') {
-	    	$("#select-estado").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
-	    }
+	    $.each(all_estados, function(i, v) {
+	        select_estado.append(new Option(v.nomgeo, v.cve_ent));
+	    });
+    }
+
+    var changeEstado = function() {
+    	var value = $(this).val();
+    	if (value != "") {
+    		selectMunicipio(value);
+    		select_municipio.prop("disabled", false);
+    	}else {
+    		select_municipio.prop("disabled", true);
+    	}
     }
 
     var selectMunicipio = function(x) {
@@ -339,96 +232,43 @@ var select = (function() {
     }
 
     var selectTema = function(x) {
-		var indata = $.map(all_temas, function( item ) {
-            return {
-             	label: item.tema,
-	            value: item.cve_tem,
-	            //telefono: item.telefono
-            }
-        });
-        $("#select-tema").autocomplete({
-	      	minLength: 0,
-	      	source: indata,
-	      	select: function( event, ui ) {
-	      		if (ui.item.value > 0) {
-	      			$("#select-subtema").prop("disabled", false);
-	      			selectSubtema(ui.item.value);
-	      		}
-		        $("#select-tema").val( ui.item.label );
-		        $("#select-tema-id").val( ui.item.value );
-		        return false;
-	      	},
-	      	change: function( event, ui ) {
-	      		if (ui.item == null) {
-	      			$("#select-tema-id").val("");
-	      		}
-	      	},
-	      	close: function( event, ui ) {
-	      		if ($("#select-tema").val() == "") {
-	      			$("#select-tema-id").val("");
-	      		}
-	      	}
-	    })
-	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-	      	return $( "<li>" )
-	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
-	        .append( "<div>" + item.label + "</div>" )
-	        .appendTo( ul );
-	    };
-	    if (typeof x !== 'undefined') {
-	    	$("#select-tema").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
-	    }
+    	select_tema.html("");
+        $.each(all_temas, function(i, v) {
+	        select_tema.append(new Option(v.tema, v.cve_tem));
+	    });
+
+    }
+
+    var changeTema = function(x) {
+    	var value = $(this).val();
+    	if (value != "") {
+    		selectSubtema(value);
+    		select_subtema.prop("disabled", false);
+    	}else {
+    		select_subtema.prop("disabled", true);
+    	}
+    	select_subtema.val(select_subtema.val()).trigger('change');
     }
 
     var selectSubtema = function(x) {
-    	console.log("init subb")
-		var indata = $.map(all_subtemas, function( item ) {
-			if (x == item.cve_tem) {
-				return {
-	             	label: item.subtema,
-		            value: item.cve_sub,
-	            }
-			}
-        });
-        $("#select-subtema").autocomplete({
-	      	minLength: 0,
-	      	source: indata,
-	      	select: function( event, ui ) {
-	      		console.log("selll");
-	      		console.log(ui);
-	      		if (ui.item.value != "") {
-	      			//$("#select-localidad").prop("disabled", false);
-	      			indicadores(ui.item.value);
-	      		}
-		        $("#select-subtema").val( ui.item.label );
-		        $("#select-subtema-id").val( ui.item.value );
-		        return false;
-	      	},
-	      	change: function( event, ui ) {
-	      		if (ui.item == null) {
-	      			$("#select-subtema-id").val("");
-	      		}
-	      	},
-	      	close: function( event, ui ) {
-	      		if ($("#select-subtema").val() == "") {
-	      			$("#select-subtema-id").val("");
-	      		}
-	      	}
-	    })
-	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-	      	return $( "<li>" )
-	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
-	        .append( "<div>" + item.label + "</div>" )
-	        .appendTo( ul );
-	    };
-	    if (typeof x !== 'undefined') {
-	    	//$("#select-subtema").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
-	    }
+		select_subtema.html("");
+         $.each(all_subtemas, function(i, v) {
+	        if (v.cve_tem == x) {
+	        	select_subtema.append(new Option(v.subtema, v.cve_sub));
+	        }
+	    });
+    }
+
+    var changeSubtema = function() {
+    	var value = $(this).val();
+    	if (value != "") {
+    		indicadores(value);
+    	}else {
+    		//select_subtema.prop("disabled", true);
+    	}
     }
 
     var indicadores = function(x ="") {
-    	console.log("indi xx");
-	    console.log(x);
 	    var indata = $.map(all_indicadores, function( item ) {
 			if (x == item.cve_sub) {
 				return {
@@ -441,15 +281,23 @@ var select = (function() {
         check_indicadores.hide(300, function() {
 			if (x != "") {
 				$.each(indata, function(i, v) {
-			        console.log("i");
-			        console.log(i);
-			        console.log("v");
-			        console.log(v);
 			        check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '""> ' + v.label + '</div>')
 			    });
 			    check_indicadores.show(600);
 			}
         });
+    }
+
+    var checkAllIndicadores = function() {
+    	$('input:checkbox').not(this).prop('checked', this.checked);
+    }
+
+    var checkVisible = function() {
+    	var one_true = false;
+    	$('input[type=checkbox]:not(#check-all)').each(function () {
+		    if (this.checked) one_true = true;
+		});
+		if (!one_true) check_all.prop('checked', false);
     }
 
 	var initAlterData = function() {
@@ -466,9 +314,10 @@ var select = (function() {
         	selectEstado();
 
         	selectTema();
+        	select_tema.val(1).trigger('change');
+        	
 
         	$(".load-data").hide(300, function() {
-				console.log("camara hide");
 				$(".content-filters").show(600);
 			});
 
@@ -498,12 +347,12 @@ var select = (function() {
 	}
 
 	var bindFilters = function() {
-		//$(document).on('click','.footable-edit', preventEdit);
-        //$(document).on('click','#update-animal', editSection);
-        //$(document).on('click','#animales-list>tbody>tr:not([data-expanded]):not(.footable-detail-row)', triggerFooRow);
         $("#btn-buscar").on("click", buscarRes);
-        /*inputFile.on("change", initMod.chooseFileChange);
-        $(document).on('click','.rem-file', initMod.remFile)*/
+        select_estado.on("change", changeEstado);
+        select_tema.on("change", changeTema);
+        select_subtema.on("change", changeSubtema);
+        check_all.on("click", checkAllIndicadores);
+        $(document).on('click','.indicadores-check', checkVisible);
     };
 
 	var init = function () {
