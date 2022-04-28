@@ -47,11 +47,10 @@ var select = (function() {
 		},
   		headerVal =	[//qué y como se mostrará en la tabla de datos
 			{"name":"id","title":"Id","visible": false, "style":{"width":50,"maxWidth":50}},
-			{"name":"data_edit","type": "object", "visible": false},//Este edita, se encarga de editar
-			{"name":"base","title":"Indicador", "style":{"width":150,"maxWidth":150}},
-			{"name":"direccion","title":"Límite inferior", "style":{"width":150,"maxWidth":150}},
-			{"name":"activo","title":"Límite superior","style":{"width":125,"maxWidth":125}},
-			{"name":"fecha_registro","title":"Grado de vulnerabilidad","style":{"width":125,"maxWidth":125}},
+			{"name":"CGLOC","title":"CGLOC", "style":{"width":150,"maxWidth":150}},
+			{"name":"FAD_0201","title":"FAD_0201", "style":{"width":150,"maxWidth":150}},
+			{"name":"FAD_0202","title":"FAD_0202", "style":{"width":150,"maxWidth":150}},
+			
 			
 			{"name":"editar","title":"Editar","style":{"width":80,"maxWidth":80}}
 		],
@@ -76,7 +75,13 @@ var select = (function() {
 			console.log("res de nuestro nuevo modulo" + module_upper);
 			console.log(res);
 
-			all_data_tab = "";
+			if ($("#debug").val() == 'debug') {
+				console.log(res.x);
+				$(".res-x").html("send: " + JSON.stringify(res.x));
+				$(".res-sql").html("sql: " + res.sql);
+			}
+
+			all_data_tab = res.vulnerabilidad;
 
 			var $modal = $('#editor-modal'),
 				$editor = $('#editor'),
@@ -342,7 +347,7 @@ var select = (function() {
 		console.log("in_end");
 		console.log(in_end);
 
-		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end}
+		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
 		getInitResponse(apiDataAllFilter);//
 	}
 

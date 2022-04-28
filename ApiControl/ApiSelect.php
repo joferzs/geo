@@ -64,14 +64,32 @@ class ApiSelect extends ApiMain {
 		}else {
 			$anio = 2010;
 		}
-		$sql = 'SELECT 
-			' . $x['indicadores'] . '
-			FROM ivp.vulnerabilidad_loc_rur_' . $anio . '
-			WHERE "CGLOC" = :id_localidad';
+		if ($x['indicadores'] == "") {
+			$x['indicadores'] = "*";
+		}
+
+		$sql = 'SELECT ' . $x['indicadores'] . ' FROM ivp.vulnerabilidad_loc_rur_' . $anio;
+
+		$sql_loc = "";
+		if ($x['id_localidad'] != "") {
+			$sql_loc = ' WHERE "CGLOC" = :id_localidad';
+		}
+
+		$sql.= $sql_loc . ' LIMIT 1000';
+		
 		$sth = $this->conn->prepare($sql);
-		$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_INT);
+
+		if ($x['id_localidad'] != "") {
+			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_INT);
+		}
+
 		$sth->execute();
 		$rows = $sth->rowCount();
+		if ($x['debug'] == "debug") {
+			$this->items_arr['sql'] = $sql;
+			$this->items_arr['x'] = $x;
+		}
+		
 		if ($rows > 0) {
 			$this->items_arr['vulnerabilidad'] = array();//se debe llamar segun nuestro modulo
 			//$this->items_arr['last-update'] = "";

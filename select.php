@@ -1,5 +1,9 @@
 <?php
 include("header.php");
+$hidden = "";
+if (isset($_GET["x"])) {
+    $hidden = $_GET["x"];
+}
 ?>
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
@@ -25,6 +29,7 @@ include("header.php");
                 <div class="ibox-content">
                     <div class="load-data">Cargando información...</div>
                     <div class="content-filters">
+                        <input type="hidden" name="debug" id="debug" value="<?php echo $hidden ?>">
                         <div>
                             <div class="head-filter">Seleccione el Estado</div>
                             <select name="id_estado" id=select-estado>
@@ -69,6 +74,9 @@ include("header.php");
                             <button id="btn-buscar">Ver indicadores</button>
                         </div>
                     </div>
+
+                    <div class="res-x"></div>
+                    <div class="res-sql"></div>
 
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
