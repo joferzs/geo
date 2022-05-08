@@ -61,8 +61,10 @@ class ApiSelect extends ApiMain {
 		exit;*/
 		if ($x['anio'] == 2020) {
 			$anio = 2020;
-		}else {
+		}elseif ($x['anio'] == 2010) {
 			$anio = 2010;
+		}else {
+			$anio = "2010_2022";
 		}
 		if ($x['indicadores'] == "") {
 			$x['indicadores'] = "*";

@@ -51,6 +51,7 @@ if (isset($_GET["x"])) {
                             <select name="anio" id=anio>
                                 <option value="2010">2010</option>
                                 <option value="2020">2020</option>
+                                <option value="2010-2020">2010-2020</option>
                             </select>
                         </div>
                         <div>

@@ -66,10 +66,12 @@ var select = (function() {
 		select_localidad = $("#select-localidad"),
 		select_tema = $("#select-tema"),
 		select_subtema = $("#select-subtema"),
+		select_anio = $("#anio"),
 		check_all = $("#check-all"),
 		check_indicadores = $("#check-indicadores");
 
-	var getInitResponse = function(json) {
+	var getInitResponse = function(json, l) {
+		
 		console.log("getinit");
 		initMod.apiCall(json).then(function(res){
 			console.log("res de nuestro nuevo modulo" + module_upper);
@@ -84,7 +86,6 @@ var select = (function() {
 			}
 
 			headerVal =	[//qué y como se mostrará en la tabla de datos
-				{"name":"id","title":"Id","visible": false, "style":{"width":50,"maxWidth":50}},
 			]
 
 			$.each(all_data_tab[0], function(i, v) {
@@ -141,8 +142,9 @@ var select = (function() {
 						}
 					}
 				},function(ft){
-			        console.log("lemon tree");
-			        $('table.footable>tbody>tr').addClass("testerman");
+			        console.log("lemon treeccc");
+			        l.ladda( 'stop' );
+			        //$('table.footable>tbody>tr').addClass("testerman");
 			        //initMod.setRealTimeReq('animales', res['last-update'], res['number-records'], res['last-id'], ft);
 			    });
 
@@ -152,6 +154,7 @@ var select = (function() {
 			});
 		}, function(reason, json){
 			console.log("non");
+			l.ladda( 'stop' );
 		 	initMod.debugThemes(reason, json);
 		});
 	}
@@ -263,6 +266,10 @@ var select = (function() {
 	    }
     }
 
+    var changeAnio = function() {
+    	//selectSubtema(select_tema.val());
+    }
+
     var selectTema = function(x) {
     	select_tema.html("");
         $.each(all_temas, function(i, v) {
@@ -283,11 +290,23 @@ var select = (function() {
     }
 
     var selectSubtema = function(x) {
+    	var anio_selected = select_anio.val();
 		select_subtema.html("");
+		console.log("all_subtemas");
+		console.log(all_subtemas);
          $.each(all_subtemas, function(i, v) {
-	        if (v.cve_tem == x) {
-	        	select_subtema.append(new Option(v.subtema, v.cve_sub));
-	        }
+
+         	if (v.subtema != null) {
+	         	var sub_anio = v.subtema.split(' ');
+				var res_anio = sub_anio[sub_anio.length-1];
+				/*console.log("res_aniozzzzzzzzz");
+				console.log(res_anio);*/
+
+		        //if (v.cve_tem == x && anio_selected == res_anio) {
+		        if (v.cve_tem == x) {
+		        	select_subtema.append(new Option(v.subtema, v.cve_sub));
+		        }
+		    }
 	    });
     }
 
@@ -362,7 +381,8 @@ var select = (function() {
 	}
 
 	var buscarRes = function() {
-
+		var l = $(this).ladda();
+		l.ladda( 'start' );
 		var sList = [];
 		$('input[type=checkbox]:not(#check-all)').each(function () {
 		    if (this.checked) {
@@ -376,12 +396,13 @@ var select = (function() {
 		console.log(in_end);
 
 		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
-		getInitResponse(apiDataAllFilter);//
+		getInitResponse(apiDataAllFilter, l);//
 	}
 
 	var bindFilters = function() {
         $("#btn-buscar").on("click", buscarRes);
         select_estado.on("change", changeEstado);
+        select_anio.on("change", changeAnio);
         select_tema.on("change", changeTema);
         select_subtema.on("change", changeSubtema);
         check_all.on("click", checkAllIndicadores);
