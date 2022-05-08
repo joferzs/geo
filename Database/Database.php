@@ -11,10 +11,10 @@ use PDO;
  */
 class Database {
 
-    private $host = "ec2-3-223-213-207.compute-1.amazonaws.com";
-    private $username = "bpmfwulcnpxlbn";
-    private $password = "f455b01066c4fd268970adc23f29debbe0d65b3fe81aa0182bd36dee9d41dda9";
-    private $db_name = "d1vc15a7k9rv4a";
+    private $host = "ec2-3-217-113-25.compute-1.amazonaws.com";
+    private $username = "whhkcobrqzscjy";
+    private $password = "2237c5ae1d9a3ac2814f78bc7b441dc1e443bef6f1a7c1fcbe4c6c1342334cd4";
+    private $db_name = "dfgeeam8oicb0b";
 
     /*private $host = "localhost";
     private $username = "postgres";
