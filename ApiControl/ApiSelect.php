@@ -68,14 +68,14 @@ class ApiSelect extends ApiMain {
 			$x['indicadores'] = "*";
 		}
 
-		$sql = 'SELECT ' . $x['indicadores'] . ' FROM ivp.vulnerabilidad_loc_rur_' . $anio;
+		$sql = 'SELECT ' . $x['indicadores'] . ' FROM ivp.loc_rur_' . $anio;
 
 		$sql_loc = "";
 		if ($x['id_localidad'] != "") {
 			$sql_loc = ' WHERE "CGLOC" = :id_localidad';
 		}
 
-		$sql.= $sql_loc . ' LIMIT 1000';
+		$sql.= $sql_loc . '';
 		
 		$sth = $this->conn->prepare($sql);
 
@@ -98,12 +98,11 @@ class ApiSelect extends ApiMain {
 				/*if (!isset($this->items_arr['last-id'])) {
 					$this->items_arr['last-id'] = $row['id_entrada'];
 				}*/
-				$arr_row['editar'] = "";
 				//$data_edit = array("id_parte");//Se agregan id que se deben editar
 				//$row = self::addDataToArr($data_edit, $row);
 				/*$arr_fotos = self::getFotosFooTab($row['id_entrada']);
 				$arr_row['data_fotos'] = "<div class='swiper-fotos' data-fotos='" . $arr_fotos . "'></div>";*/
-				$this->items_arr['vulnerabilidad'][] = $arr_row + $row;
+				$this->items_arr['vulnerabilidad'][] = $row;
 				/*if ($this->items_arr['last-update'] < $row['fecha_actualizacion']) {
 					$this->items_arr['last-update'] = $row['fecha_actualizacion'];
 				}*/
@@ -116,7 +115,7 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getEstados($x) {
-		$sql = 'SELECT * FROM edo_mun.estados ORDER BY nomgeo ASC';
+		$sql = 'SELECT * FROM edo_mun.estados ORDER BY "NOMGEO" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -133,7 +132,7 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getMunicipios($x) {
-		$sql = 'SELECT nomgeo,cve_mun,cve_ent FROM edo_mun.municipios ORDER BY nomgeo ASC';
+		$sql = 'SELECT "NOMGEO","CVE_MUN","CVE_ENT" FROM edo_mun.municipios ORDER BY "NOMGEO" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -150,7 +149,7 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getLocalidades($x) {
-		$sql = 'SELECT nom_loc,cve_mun,"CGLOC" FROM loc.localidades ORDER BY nom_loc ASC';
+		$sql = 'SELECT "NOM_LOC","CVE_MUN","CGLOC" FROM loc.localidades ORDER BY "NOM_LOC" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();

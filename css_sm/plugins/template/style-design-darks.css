@@ -10583,13 +10583,13 @@ table.footable {
 /*  FOOTABLE MODAL CHANGES  */
 
 .footable:not(.footable-none-edit)>tbody>tr>td:nth-last-child(2) {
-  display: none !important;
+  /*display: none !important;*/
 }
 .footable>thead>tr.footable-header>th:last-child {
-  display: none !important;
+  /*display: none !important;*/
 }
 .footable-none-edit>tbody>tr>td.footable-last-visible:last-child {
-  display: none !important;
+  /*display: none !important;-**/
 }
 .form-group.required .control-label:after {
   content:"*";

@@ -45,7 +45,7 @@ var select = (function() {
             	'json': ''
             },
 		},
-  		headerVal =	[//qué y como se mostrará en la tabla de datos
+  		headerVal/* =	[//qué y como se mostrará en la tabla de datos
 			{"name":"id","title":"Id","visible": false, "style":{"width":50,"maxWidth":50}},
 			{"name":"CGLOC","title":"CGLOC", "style":{"width":150,"maxWidth":150}},
 			{"name":"FAD_0201","title":"FAD_0201", "style":{"width":150,"maxWidth":150}},
@@ -53,7 +53,7 @@ var select = (function() {
 			
 			
 			{"name":"editar","title":"Editar","style":{"width":80,"maxWidth":80}}
-		],
+		]*/,
 		all_data_tab,
 		all_estados,
 		all_municipios,
@@ -75,13 +75,34 @@ var select = (function() {
 			console.log("res de nuestro nuevo modulo" + module_upper);
 			console.log(res);
 
+			all_data_tab = res.vulnerabilidad;
+
 			if ($("#debug").val() == 'debug') {
 				console.log(res.x);
 				$(".res-x").html("send: " + JSON.stringify(res.x));
 				$(".res-sql").html("sql: " + res.sql);
 			}
 
-			all_data_tab = res.vulnerabilidad;
+			headerVal =	[//qué y como se mostrará en la tabla de datos
+				{"name":"id","title":"Id","visible": false, "style":{"width":50,"maxWidth":50}},
+			]
+
+			$.each(all_data_tab[0], function(i, v) {
+				console.log("i");
+				console.log(i);
+				console.log("v");
+				console.log(v);
+		        //check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '""> ' + v.label + '</div>')
+
+		        headerVal.push({ "name": i,"title": i, "style":{"width":150,"maxWidth":150} });
+
+		    });
+
+		    console.log("headerVal");
+		    console.log(headerVal);
+
+
+			
 
 			var $modal = $('#editor-modal'),
 				$editor = $('#editor'),
@@ -137,7 +158,9 @@ var select = (function() {
 
 	var selectEstado = function(x) {
 	    $.each(all_estados, function(i, v) {
-	        select_estado.append(new Option(v.nomgeo, v.cve_ent));
+	    	console.log("v");
+	    	console.log(v);
+	        select_estado.append(new Option(v.NOMGEO, v.CVE_ENT));
 	    });
     }
 
@@ -153,10 +176,10 @@ var select = (function() {
 
     var selectMunicipio = function(x) {
 		var indata = $.map(all_municipios, function( item ) {
-			if (x == item.cve_ent) {
+			if (x == item.CVE_ENT) {
 				return {
-	             	label: item.nomgeo,
-		            value: item.cve_mun,
+	             	label: item.NOMGEO,
+		            value: item.CVE_MUN,
 	            }
 			}
         });
@@ -182,7 +205,9 @@ var select = (function() {
 	      			$("#select-municipio-id").val("");
 	      		}
 	      	}
-	    })
+	    }).focus(function () {
+		    $(this).autocomplete("search");
+		})
 	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
 	      	return $( "<li>" )
 	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
@@ -196,9 +221,9 @@ var select = (function() {
 
     var selectLocalidad = function(x) {
 		var indata = $.map(all_localidades, function( item ) {
-            if (x == item.cve_mun) {
+            if (x == item.CVE_MUN) {
 				return {
-	             	label: item.nom_loc,
+	             	label: item.NOM_LOC,
 		            value: item.CGLOC,
 	            }
 			}
@@ -224,7 +249,9 @@ var select = (function() {
 	      			$("#select-localidad-id").val("");
 	      		}
 	      	}
-	    })
+	    }).focus(function () {
+		    $(this).autocomplete("search");
+		})
 	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
 	      	return $( "<li>" )
 	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
@@ -271,6 +298,7 @@ var select = (function() {
     	}else {
     		//select_subtema.prop("disabled", true);
     	}
+    	check_all.prop('checked', false);
     }
 
     var indicadores = function(x ="") {
@@ -336,7 +364,7 @@ var select = (function() {
 	var buscarRes = function() {
 
 		var sList = [];
-		$('input[type=checkbox]').each(function () {
+		$('input[type=checkbox]:not(#check-all)').each(function () {
 		    if (this.checked) {
 		    	sList.push('"' + $(this).val() + '"');
 		    }
