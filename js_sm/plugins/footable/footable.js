@@ -3596,7 +3596,7 @@
 	 * @type {string}
 	 * @default "No results"
 	 */
-	F.Defaults.prototype.empty = 'Sin resultados';
+	F.Defaults.prototype.empty = 'No results';
 
 	/**
 	 * Whether or not the toggle is appended to each row.
@@ -5935,7 +5935,7 @@
 	 */
 	F.Defaults.prototype.paging = {
 		enabled: false,
-		countFormat: '{CP} de {TP}',
+		countFormat: '{CP} of {TP}',
 		current: 1,
 		limit: 5,
 		position: 'center',
@@ -6700,12 +6700,10 @@
 	 * @returns {jQuery.Deferred}
 	 */
 	F.Row.prototype.add = function(redraw){
-		
 		redraw = F.is.boolean(redraw) ? redraw : true;
 		var self = this;
-		
 		return $.Deferred(function(d){
-			var index = self.ft.rows.all.unshift(self) - 1;
+			var index = self.ft.rows.all.push(self) - 1;
 			if (redraw){
 				return self.ft.draw().then(function(){
 					d.resolve(index);

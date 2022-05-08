@@ -728,3 +728,6 @@ body#app-site-2 {
   background: #214662 !important;
   margin-right: 1% !important;
 }
+.footable-details tr {
+  display: initial;
+}

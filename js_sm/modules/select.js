@@ -45,15 +45,6 @@ var select = (function() {
             	'json': ''
             },
 		},
-  		headerVal/* =	[//qué y como se mostrará en la tabla de datos
-			{"name":"id","title":"Id","visible": false, "style":{"width":50,"maxWidth":50}},
-			{"name":"CGLOC","title":"CGLOC", "style":{"width":150,"maxWidth":150}},
-			{"name":"FAD_0201","title":"FAD_0201", "style":{"width":150,"maxWidth":150}},
-			{"name":"FAD_0202","title":"FAD_0202", "style":{"width":150,"maxWidth":150}},
-			
-			
-			{"name":"editar","title":"Editar","style":{"width":80,"maxWidth":80}}
-		]*/,
 		all_data_tab,
 		all_estados,
 		all_municipios,
@@ -85,24 +76,23 @@ var select = (function() {
 				$(".res-sql").html("sql: " + res.sql);
 			}
 
-			headerVal =	[//qué y como se mostrará en la tabla de datos
-			]
-
+			var headerVal =	[];
+			var count_all = 0;
 			$.each(all_data_tab[0], function(i, v) {
-				console.log("i");
-				console.log(i);
-				console.log("v");
-				console.log(v);
-		        //check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '""> ' + v.label + '</div>')
-
-		        headerVal.push({ "name": i,"title": i, "style":{"width":150,"maxWidth":150} });
-
+		        var yeison = { "name": i,"title": i, "style":{"width":150,"maxWidth":150} };
+		        if (count_all > 10) {
+		        	yeison.breakpoints = "all";
+		        }
+		        console.log("yeison");
+				console.log(yeison);
+		        headerVal.push(yeison);
+		        count_all++;
 		    });
 
 		    console.log("headerVal");
 		    console.log(headerVal);
 
-
+		    $('#footable-list').empty();
 			
 
 			var $modal = $('#editor-modal'),
@@ -120,26 +110,6 @@ var select = (function() {
 						"allowEdit": false,
 						"allowDelete": false,
 						enabled: false,
-						addRow: function(){
-							console.log("addrow click");
-							$modal.removeData('row');
-							$editor[0].reset();
-							$modal.modal('show');
-						},
-						editRow: function(row){
-							console.log("editrow click");
-							var values = row.val();
-							var ed = values.data_edit;
-							$editor.find('#base').val(values.base);
-							$editor.find('#id_base').val(values.id_base);
-							$editor.find('#direccion').val(values.direccion);
-							$("input[name=activo][value="+values.activo+"]").prop('checked', true);
-
-							$modal.data('row', row);
-							$editorTitle.text('Editar información del ' + module_one);
-							$modal.modal('show');
-							$('html,body').animate({scrollTop: 200}, 1000);
-						}
 					}
 				},function(ft){
 			        console.log("lemon treeccc");

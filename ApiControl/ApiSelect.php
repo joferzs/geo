@@ -77,7 +77,7 @@ class ApiSelect extends ApiMain {
 			$sql_loc = ' WHERE "CGLOC" = :id_localidad';
 		}
 
-		$sql.= $sql_loc . '';
+		$sql.= $sql_loc . ' LIMIT 10';
 		
 		$sth = $this->conn->prepare($sql);
 
