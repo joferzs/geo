@@ -25,7 +25,7 @@ var select = (function() {
 			methods: {
 				'estados': '',
 				'municipios': '',
-				'localidades': '',
+				//'localidades': '',
 				'temas': '',
 				'subtemas': '',
 				'indicadores': '',
@@ -374,7 +374,7 @@ var select = (function() {
 			console.log("res alter a");
 			console.log(res);
         	all_municipios = res.municipios;
-        	all_localidades = res.localidades;
+        	//all_localidades = res.localidades;
         	all_estados = res.estados;
         	all_temas = res.temas;
         	all_subtemas = res.subtemas;
@@ -385,7 +385,7 @@ var select = (function() {
         	
         	$(".load-data").hide(300, function() {
 				$(".content-filters").show(600, function() {
-	      			/*initMod.apiCall(apiDataLocalidades).then(function(res){
+	      			initMod.apiCall(apiDataLocalidades).then(function(res){
 	      				console.log("res loccc");
     					console.log(res);
 	      				all_localidades = res.localidades;
@@ -393,7 +393,7 @@ var select = (function() {
 	      			}, function(reason, json){
 						console.log("non");
 					 	initMod.debugThemes(reason, json);
-					});*/
+					});
 				});
 			});
         }, function(reason, json){
