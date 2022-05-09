@@ -183,6 +183,9 @@ body.modal-open {
 }
 .footable .label-default {
   font-size: 14px !important;
+  margin: auto;
+  margin-left: 16px;
+  padding: 10px 15px !important;
 }
 .footable tbody>tr>td {
   color: #282828;

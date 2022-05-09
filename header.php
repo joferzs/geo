@@ -9,16 +9,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
         <title>fdsa / fdsa</title>
-        <link href="css_sm/plugins/font-awesome/css/font-awesome.css" rel="stylesheet">
-        <link href="css_sm/plugins/style.css" rel="stylesheet" type="text/css">
-        <link href="css_sm/plugins/confirm/jquery-confirm.css" rel="stylesheet" type="text/css">
-        <link href="css_sm/plugins/footable/footable.standalone.css" rel="stylesheet" type="text/css">
-        <link href="css_sm/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
-        <link href="css_sm/plugins/selectize/selectize.css" rel="stylesheet">
-        <link href="css_sm/plugins/template/bootstrap.min.css" rel="stylesheet">
-        <link href="css_sm/plugins/template/style-design-darks.css" rel="stylesheet" type="text/css">
-        <link href="css_sm/plugins/validations/validations.css" rel="stylesheet">
-        <link href="css_sm/plugins/autocomplete/jquery-ui.css" rel="stylesheet">
+        <link href="css-geo/plugins/font-awesome/css/font-awesome.css" rel="stylesheet">
+        <link href="css-geo/plugins/style.css" rel="stylesheet" type="text/css">
+        <link href="css-geo/plugins/confirm/jquery-confirm.css" rel="stylesheet" type="text/css">
+        <link href="css-geo/plugins/footable/footable.standalone.css" rel="stylesheet" type="text/css">
+        <link href="css-geo/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
+        <link href="css-geo/plugins/selectize/selectize.css" rel="stylesheet">
+        <link href="css-geo/plugins/template/bootstrap.min.css" rel="stylesheet">
+        <link href="css-geo/plugins/template/style-design-darks.css" rel="stylesheet" type="text/css">
+        <link href="css-geo/plugins/validations/validations.css" rel="stylesheet">
+        <link href="css-geo/plugins/autocomplete/jquery-ui.css" rel="stylesheet">
     </head>
     <body class="fixed-sidebar pace-done mini-navbar" id="app-site-">
         <div id="wrapper">

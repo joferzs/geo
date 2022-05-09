@@ -81,7 +81,11 @@ if (isset($_GET["x"])) {
 
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
-                    <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="false" data-sorting="true" data-filter-placeholder="Buscar" data-filter-connectors="false" data-paging-limit="3"></table>
+                    <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
+
+
+
+
                 </div>
             </div>
         </div>

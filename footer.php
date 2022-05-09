@@ -11,27 +11,28 @@
                     	CENTRO GEO
                     </div>
                 </div>
-        <script src="js_sm/jquery-3.1.1.min.js"></script>
-		<script src="js_sm/plugins/footable/footable.js"></script>
-		<script src="js_sm/plugins/swiper/swiper.js"></script>
-        <script src="js_sm/plugins/popper/popper.min.js"></script>
-        <script src="js_sm/bootstrap.js"></script>
-        <script src="js_sm/plugins/metisMenu/jquery.metisMenu.js"></script>
-        <script src="js_sm/plugins/slimscroll/jquery.slimscroll.min.js"></script>
-        <script src="js_sm/inspinia.js"></script>
-        <script src='js_sm/jquery-ui.min.js'></script>
-        <script src="js_sm/plugins/calendario/ng_all.js" type="text/javascript"></script>
-        <script src="js_sm/plugins/calendario/ng_ui.js" type="text/javascript"></script>
-        <script src="js_sm/plugins/calendario/components/calendar.js" type="text/javascript"></script>
-		<script src="js_sm/plugins/confirm/jquery-confirm.js"></script>
-		<script src="js_sm/plugins/selectize/selectize.js"></script>
-		<script src="js_sm/plugins/validations/validations.js"></script>
-		<script src="js_sm/jquery.cookie.js"></script>
-		<script src="js_sm/plugins/ladda/spin.min.js"></script>
-	    <script src="js_sm/plugins/ladda/ladda.min.js"></script>
-	    <script src="js_sm/plugins/ladda/ladda.jquery.min.js"></script>
-		<script src="js_sm/plugins/graph/highstock.js"></script>
-	    <script src="js_sm/plugins/graph/drilldown.js"></script>
+        <script src="js-geo/jquery-3.6.0.min.js"></script>
+        <script src="js-geo/jquery.min.js"></script>
+		<script src="js-geo/plugins/footable/footable.js"></script>
+		<script src="js-geo/plugins/swiper/swiper.js"></script>
+        <script src="js-geo/plugins/popper/popper.min.js"></script>
+        <script src="js-geo/bootstrap.js"></script>
+        <script src="js-geo/plugins/metisMenu/jquery.metisMenu.js"></script>
+        <script src="js-geo/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+        <script src="js-geo/inspinia.js"></script>
+        <script src='js-geo/jquery-ui.min.js'></script>
+        <script src="js-geo/plugins/calendario/ng_all.js" type="text/javascript"></script>
+        <script src="js-geo/plugins/calendario/ng_ui.js" type="text/javascript"></script>
+        <script src="js-geo/plugins/calendario/components/calendar.js" type="text/javascript"></script>
+		<script src="js-geo/plugins/confirm/jquery-confirm.js"></script>
+		<script src="js-geo/plugins/selectize/selectize.js"></script>
+		<script src="js-geo/plugins/validations/validations.js"></script>
+		<script src="js-geo/jquery.cookie.js"></script>
+		<script src="js-geo/plugins/ladda/spin.min.js"></script>
+	    <script src="js-geo/plugins/ladda/ladda.min.js"></script>
+	    <script src="js-geo/plugins/ladda/ladda.jquery.min.js"></script>
+		<script src="js-geo/plugins/graph/highstock.js"></script>
+	    <script src="js-geo/plugins/graph/drilldown.js"></script>
 	 	<script type="text/javascript">
 	 		var initMod = (function() {
 				"use strict"
@@ -205,11 +206,12 @@
 				}
 
 				var getInitResponse = function() {
+					
 					initMod.apiCall(apiJson).then(function(res){
 						/*console.log("res iiiii");
 						console.log(res);*/
 						//dataSitesAccess = res.sites_access;
-						initModule();
+						
 						applyAccessRestrictions();
 					}, function(reason, json){
 					 	debugThemes(reason, json);
@@ -259,7 +261,7 @@
 					var this_module = $(".get-module").attr('data-module');
 					var script = document.createElement("script");
 				    script.type = "text/javascript";
-				    script.src = 'js_sm/modules/' + this_module + '.js';
+				    script.src = 'js-geo/modules/' + this_module + '.js';
 				    script.onload = function(){
 				        currentModule = window[this_module];
 						if (typeof currentModule === "") {console.log("no existe funcion " + this_module)}
@@ -426,7 +428,9 @@
 			    };
 
 				var init = function () {
-					getInitResponse();
+					initModule();
+					console.log("kalmah")
+					//getInitResponse();
 					bindTheme();
 					//initModule();
 			    };
@@ -459,9 +463,10 @@
 				}
 			})();
 
-			$(document).ready(initMod.init);//este siempre se ejecuta debido a que está en el footer
+			//$(document).ready(initMod.init);//este siempre se ejecuta debido a que está en el footer
+			initMod.init();
 
 	  	</script>
-	  	<script src="js_sm/plugins/lineUp/pace.min.js"></script>
+	  	<script src="js-geo/plugins/lineUp/pace.min.js"></script>
     </body>
 </html>
