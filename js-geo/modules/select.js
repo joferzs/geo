@@ -112,10 +112,11 @@ var select = (function() {
 		initMod.apiCall(apiDataAllFilter).then(function(res){
 			console.log("res de nuestro nuevo modulo" + module_upper);
 			console.log(res);
+			$(".res-error").hide();
 			if ($("#debug").val() == 'debug') {
 				$(".res-x").html("send: " + JSON.stringify(res.x));
 				$(".res-sql").html("sql: " + res.sql);
-				$(".res-error").hide();
+				
 			}
 			var all_data_tab = res.vulnerabilidad, header = [], ii = 0;
 			$.each(all_data_tab[0], function(i, v) {
@@ -144,6 +145,8 @@ var select = (function() {
 			l.ladda( 'stop' );
 			if ($("#debug").val() == 'debug') {
 				$(".res-error").html("Error msg: " + reason.responseText).show(1000);
+			}else {
+				$(".res-error").html("Error en la consulta: ").show(1000);
 			}
 		 	initMod.debugThemes(reason, json);
 		});
