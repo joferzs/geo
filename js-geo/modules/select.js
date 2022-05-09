@@ -146,7 +146,7 @@ var select = (function() {
 			if ($("#debug").val() == 'debug') {
 				$(".res-error").html("Error msg: " + reason.responseText).show(1000);
 			}else {
-				$(".res-error").html("Error en la consulta: ").show(1000);
+				$(".res-error").html("Error en la consulta").show(1000);
 			}
 		 	initMod.debugThemes(reason, json);
 		});
