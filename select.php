@@ -78,6 +78,7 @@ if (isset($_GET["x"])) {
 
                     <div class="res-x"></div>
                     <div class="res-sql"></div>
+                    <div class="res-error"></div>
 
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
