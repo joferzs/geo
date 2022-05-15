@@ -61,6 +61,7 @@ var select = (function() {
 		all_temas,
 		all_subtemas,
 		all_indicadores,
+		nom_ind = {ID: "ID", CGLOC : "LOCALIDAD"},
 		select_estado = $("#select-estado"),
 		select_municipio = $("#select-municipio"),
 		select_localidad = $("#select-localidad"),
@@ -118,10 +119,12 @@ var select = (function() {
 				$(".res-sql").html("sql: " + res.sql);
 				
 			}
+
 			var all_data_tab = res.vulnerabilidad, header = [], ii = 0;
 			$.each(all_data_tab[0], function(i, v) {
-		        var yeison = { "name": i,"title": i, "style":{"width":150,"maxWidth":150} };
-		        if (ii > 10) yeison.breakpoints = "all";
+		        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":100,"maxWidth":100} };
+		        //var yeison = { "name": i,"title": i, "style":{"width":150,"maxWidth":150} };
+		        if (ii > 5) yeison.breakpoints = "all";
 		        header.push(yeison);
 		        ii++;
 		    });
@@ -275,7 +278,7 @@ var select = (function() {
     }
 
     var changeAnio = function() {
-    	//selectSubtema(select_tema.val());
+    	select_tema.val(1).trigger('change');
     }
 
     var selectTema = function(x) {
@@ -318,13 +321,13 @@ var select = (function() {
         var i = 0, len = all_subtemas.length;
 	    while (i < len) {
 	       	if (all_subtemas[i].subtema != null) {
-	         	var sub_anio = all_subtemas[i].subtema.split(' ');
-				var res_anio = sub_anio[sub_anio.length-1];
+	         	/*var sub_anio = all_subtemas[i].subtema.split(' ');
+				var res_anio = sub_anio[sub_anio.length-1];*/
 				/*console.log("res_aniozzzzzzzzz");
 				console.log(res_anio);*/
 
-		        //if (all_subtemas[i].cve_tem == x && anio_selected == res_anio) {
-		        if (all_subtemas[i].cve_tem == x) {
+		        if (all_subtemas[i].cve_tem == x && anio_selected == all_subtemas[i].anio) {
+		        //if (all_subtemas[i].cve_tem == x) {
 		        	select_subtema.append(new Option(all_subtemas[i].subtema, all_subtemas[i].cve_sub));
 		        }
 		    }
@@ -389,6 +392,10 @@ var select = (function() {
         	selectEstado();
         	selectTema();
         	select_tema.val(1).trigger('change');
+
+			for (var i = all_indicadores.length - 1; i >= 0; i--) {
+				nom_ind[all_indicadores[i].cve_ind] = all_indicadores[i].indicadores;
+			}
         	
         	$(".load-data").hide(300, function() {
 				$(".content-filters").show(600, function() {

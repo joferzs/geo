@@ -529,10 +529,11 @@ table.table-condensed > tbody > tr > td > span.footable-toggle {
 	margin-right: 5px;
 }
 table.footable-details > tbody > tr > th:nth-child(1) {
-	min-width: 40px;
-	width: 120px;
+	min-width: 120px;
+	width: 160px;
 }
 table.footable-details > tbody > tr > td:nth-child(2) {
+	text-align: left;
 	word-break: break-all;
 }
 

@@ -732,5 +732,6 @@ body#app-site-2 {
   margin-right: 1% !important;
 }
 .footable-details tr {
-  display: initial;
+  display: inline-block;
+  padding: 15px 15px 5px 15px;
 }
