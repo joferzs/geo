@@ -318,13 +318,13 @@ class ApiSelect extends ApiMain {
 		}
 		$sth = null;
 
-		$res = self::ExportFile($this->items_arr['vulnerabilidad']);
+		/*$res = self::ExportFile($this->items_arr['vulnerabilidad']);
 		$file = "geo-" . self::generateRandomString() .time() . ".xls";
 		$filename = "../temp-excel/" . $file;
 		$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");
-		//file_put_contents($filename, $fileEndEnd);
+		file_put_contents($filename, $fileEndEnd);*/
 
-		echo json_encode(array("file_name" => $file, "deb" => 1349));
+		echo json_encode(array("file_name" => $file, "deb" =>1349));
 	}
 
 	public function ExportFile($records) {
