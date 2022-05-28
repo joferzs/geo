@@ -321,8 +321,8 @@ class ApiSelect extends ApiMain {
 		$res = self::ExportFile($this->items_arr['vulnerabilidad']);
 		$file = "geo-" . self::generateRandomString() .time() . ".xls";
 		$filename = "../temp-excel/" . $file;
-		/*$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");
-		file_put_contents($filename, $fileEndEnd);*/
+		/*$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");*/
+		file_put_contents($filename, $res);
 
 		echo json_encode(array("file_name" => $file, "deb" =>1349));
 	}
