@@ -279,6 +279,15 @@
 			        });
 			    };
 
+			    var apiCallExcel = function(data) {
+			        return $.ajax({
+			            url: 'ApiControl/index.php',
+			            type: 'GET',
+			            contentType: "application/vnd.ms-excel",
+						data: data
+			        });
+			    };
+
 			    var apiCallAlter = function(data) {
 			        return $.ajax({
 			            url: 'ApiControl/index.php',
@@ -440,6 +449,7 @@
 				    affirmFormat: affirmFormat,
 				    apiCall : apiCall,
 				    apiCallAlter: apiCallAlter,
+				    apiCallExcel: apiCallExcel,
 				    breakField: breakField,
 				    callSetTime: callSetTime,
 				    canceledRow: canceledRow,

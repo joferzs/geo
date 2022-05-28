@@ -56,13 +56,15 @@ if (isset($_GET["x"])) {
                         </div>
                         <div>
                             <div class="head-filter">Seleccione un tema</div>
-                            <select name="id_tema" id=select-tema>
+                            <select name="id_tema" id="select-tema">
                             </select>
                         </div>
                         <div>
-                            <div class="head-filter">Seleccione un subtema</div>
-                            <select name="id_subtema" id=select-subtema>
-                            </select>
+                            <div class="head-filter">Seleccione un subtemaa</div>
+                            <!--<select name="id_subtema" id="select-subtema1" disabled>
+                            </select>-->
+                            <input name="subtema" id="select-subtema"  readonly="readonly">
+                            <input type="hidden" name="id_subtema" id="select-subtema-id">
                         </div>
                         <div>
                             <div class="head-filter head-indicadores">Seleccione los indicadores a consultar</div>
@@ -80,6 +82,7 @@ if (isset($_GET["x"])) {
                     <div class="res-sql"></div>
                     <div class="res-error"></div>
 
+                    <div id="icono-excel"><img src="images/excel.png"> Exportar a excel</div>
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
                     <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>

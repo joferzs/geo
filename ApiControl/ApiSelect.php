@@ -7,6 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use PDO;//inicializa clase PDO para usar funciones PDO
 use ApiControl\ApiSessionSecurity;//el "use" se refiere al archivo que contiene la clase que se necesita, en este caso se necesita la clase "ApiSessionSecurity" que está en el archivo ApiSessionSecurity.php
 
+
 /**
  * 
  */
@@ -55,11 +56,11 @@ class ApiSelect extends ApiMain {
 			$this->items_arr['bases'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
+		
 	}
 
 	public function getAllFilterSelect($x) {
-		/*echo "<br>data: "; print_r($x);
-		exit;*/
+		/*exit;*/
 		if ($x['anio'] == 2020) {
 			$anio = 2020;
 		}elseif ($x['anio'] == 2010) {
@@ -68,24 +69,29 @@ class ApiSelect extends ApiMain {
 			$anio = "2010_2020";
 		}
 		if ($x['indicadores'] == "") {
-			$x['indicadores'] = "*";
+			$x['indicadores'] = '';
+		}else {
+			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
-		$sql = 'SELECT ' . $x['indicadores'] . ' FROM ivp.loc_rur_' . $anio;
+		//$sql = 'SELECT a."ID",a."CGLOC",b."CVE_ENT",b."CVE_MUN",b."NOM_LOC" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		$sql = 'SELECT a."ID",b."NOM_LOC" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
+		';
 
 		$sql_loc = "";
 		if ($x['id_localidad'] != "") {
-			$sql_loc = ' WHERE "CGLOC" = :id_localidad';
+			$sql_loc = ' WHERE a."CGLOC" = :id_localidad';
 		}
 
 		//$sql.= $sql_loc . ' LIMIT :limit_in,:limit_data';
-		$sql.= $sql_loc . ' LIMIT :limit_data OFFSET :limit_in';
+		$sql.= $sql_loc . ' ORDER BY a."ID" LIMIT :limit_data OFFSET :limit_in';
 		//$sql.= $sql_loc . ' ';
 		
 		$sth = $this->conn->prepare($sql);
 
 		if ($x['id_localidad'] != "") {
-			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_INT);
+			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
 			
 		}
 
@@ -106,6 +112,8 @@ class ApiSelect extends ApiMain {
 			//$this->items_arr['vulnerabilidad'] = $sth->fetchAll(PDO::FETCH_ASSOC);//se debe llamar segun nuestro modulo
 
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				/*$row['clave_estado'] = $row['CVE_ENT'];
+				$row['clave_municipio'] = $row['CVE_MUN'];*/
 				$this->items_arr['vulnerabilidad'][] = $row;
 			}
 			//$this->items_arr['number-records'] = $rows;
@@ -151,7 +159,7 @@ class ApiSelect extends ApiMain {
 
 	public function getLocalidades($x) {
 		//$sql = 'SELECT "NOM_LOC","CVE_MUN","CGLOC" FROM loc.localidades  WHERE "CVE_MUN" = :id_municipio ORDER BY "NOM_LOC" ASC';
-		$sql = 'SELECT "NOM_LOC","CVE_MUN","CGLOC" FROM loc.localidades ORDER BY "NOM_LOC" ASC';
+		$sql = 'SELECT "NOM_LOC","CVE_MUN","CVE_ENT","CGLOC" FROM loc.localidades ORDER BY "NOM_LOC" ASC';
 		$sth = $this->conn->prepare($sql);
 		//$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_INT);
 		$sth->execute();
@@ -221,5 +229,126 @@ class ApiSelect extends ApiMain {
 			$this->items_arr['indicadores'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
+	}
+
+	public function getEstadosFormat() {
+		$sql = 'SELECT "NOMGEO","CVE_ENT" FROM edo_mun.estados';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$estados_format = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$estados_format[$row['CVE_ENT']] = $row['NOMGEO'];
+			}
+		}else{
+			$estados_format = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+		return $estados_format;
+	}
+
+	public function getMunicipiosFormat() {
+		$sql = 'SELECT "NOMGEO","CVE_MUN","CVE_ENT" FROM edo_mun.municipios';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$municipios_format = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$kee = $row['CVE_ENT'] . "-" . $row['CVE_MUN'];
+				$municipios_format[$kee] = $row['NOMGEO'];
+			}
+		}else{
+			$municipios_format = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+		return $municipios_format;
+	}
+
+	public function getExportExcel($x) {
+
+		if ($x['anio'] == 2020) {
+			$anio = 2020;
+		}elseif ($x['anio'] == 2010) {
+			$anio = 2010;
+		}else {
+			$anio = "2010_2020";
+		}
+		if ($x['indicadores'] == "") {
+			$x['indicadores'] = '';
+		}else {
+			$x['indicadores'] = "," . $x['indicadores'];
+		}
+
+		$sql = 'SELECT a."ID",b."NOM_LOC" ' . $x['indicadores'] . ', "CVE_ENT", "CVE_MUN"  FROM ivp.loc_rur_' . $anio . ' a 
+		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
+		';
+
+		if ($x['id_localidad'] != "") {
+			$sql.= ' WHERE a."CGLOC" = :id_localidad';
+		}
+
+		$sql.= ' ORDER BY a."ID" ';
+
+		$sth = $this->conn->prepare($sql);
+
+		if ($x['id_localidad'] != "") {
+			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
+		}
+
+		$estado = self::getEstadosFormat();
+		$municipio = self::getMunicipiosFormat();;
+
+		$sth->execute();
+		$rows = $sth->rowCount();
+		$this->items_arr['vulnerabilidad'] = array();//se debe llamar segun nuestro modulo
+		if ($rows > 0) {
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$kee = $row['CVE_ENT'] . "-" . $row['CVE_MUN'];
+				$row['Estado'] = $estado[$row['CVE_ENT']];
+				$row['Municipio'] = $municipio[$kee];
+				$row['Localidad'] = $row['NOM_LOC'];
+				$this->items_arr['vulnerabilidad'][] = $row;
+			}
+		}
+		$sth = null;
+
+		$res = self::ExportFile($this->items_arr['vulnerabilidad']);
+		$file = "geo-" . self::generateRandomString() .time() . ".xls";
+		$filename = "../temp-excel/" . $file;
+		$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");
+		file_put_contents($filename, $fileEndEnd);
+
+		echo json_encode(array("file_name" => $file));
+	}
+
+	public function ExportFile($records) {
+		$heading = false;
+		if(!empty($records)) {
+			$a = "";
+		  	foreach($records as $row) {
+				if(!$heading) {
+		  			$a.= implode("\t", array_keys($row)) . "\n";
+		  			$heading = true;
+				}
+				$a.= implode("\t", array_values($row)) . "\n";
+		  	}
+		  	return $a;
+		  }
+	}
+
+	public function generateRandomString($length = 20) {
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $charactersLength = strlen($characters);
+	    $randomString = '';
+	    for ($i = 0; $i < $length; $i++) {
+	        $randomString .= $characters[rand(0, $charactersLength - 1)];
+	    }
+	    return $randomString;
 	}
 }

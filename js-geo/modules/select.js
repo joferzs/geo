@@ -32,6 +32,14 @@ var select = (function() {
             	'json': ''
             },
 		},
+		apiDataLateFormat = {
+			controller: module_upper,
+			methods: {
+				'estados_format': '',
+				'municipios_format': '',
+            	'json': ''
+            },
+		},
 		apiDataLocalidades = {
 			controller: module_upper,
 			methods: {
@@ -54,6 +62,13 @@ var select = (function() {
             	'json': ''
             },
 		},
+		apiDataExcel = {
+			controller: module_upper,
+			methods: {
+            	"export-excel":  { data: ""},
+            	//'json': ''
+            },
+		},
 		all_data_tab,
 		all_estados,
 		all_municipios,
@@ -61,13 +76,18 @@ var select = (function() {
 		all_temas,
 		all_subtemas,
 		all_indicadores,
-		nom_ind = {ID: "ID", CGLOC : "LOCALIDAD"},
+		all_estados_format,
+		all_municipios_format,
+		//nom_ind = {ID: "ID", CGLOC: "CGLOC", NOM_LOC : "LOCALIDAD", CVE_ENT : "estado", clave_estado : "clave estado", CVE_MUN : "municipio", clave_municipio : "clave municipio"},
+		nom_ind = {ID: "ID", NOM_LOC : "LOCALIDAD"},
 		select_estado = $("#select-estado"),
 		select_municipio = $("#select-municipio"),
 		select_localidad = $("#select-localidad"),
 		select_tema = $("#select-tema"),
 		select_subtema = $("#select-subtema"),
+		select_subtema_id = $("#select-subtema-id"),
 		select_anio = $("#anio"),
+		btn_excel = $("#icono-excel"),
 		check_all = $("#check-all"),
 		check_indicadores = $("#check-indicadores");
 
@@ -96,6 +116,7 @@ var select = (function() {
 			}else {
 				l.ladda( 'stop' );
 				post_resp = false;
+				btn_excel.show();
 			}
 		}, function(reason, json){
 			console.log("err post");
@@ -117,17 +138,21 @@ var select = (function() {
 			if ($("#debug").val() == 'debug') {
 				$(".res-x").html("send: " + JSON.stringify(res.x));
 				$(".res-sql").html("sql: " + res.sql);
-				
 			}
 
 			var all_data_tab = res.vulnerabilidad, header = [], ii = 0;
-			$.each(all_data_tab[0], function(i, v) {
-		        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":100,"maxWidth":100} };
-		        //var yeison = { "name": i,"title": i, "style":{"width":150,"maxWidth":150} };
-		        if (ii > 5) yeison.breakpoints = "all";
-		        header.push(yeison);
-		        ii++;
-		    });
+			if (all_data_tab.length > 0) {
+				$.each(all_data_tab[0], function(i, v) {
+			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":100,"maxWidth":100} };
+					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
+					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+			        if (ii > 4) yeison.breakpoints = "all";
+			        header.push(yeison);
+			        ii++;
+			    });
+			}else {
+				header = [{ name: "id", title: "ID", "style":{"width":100,"maxWidth":100} }];
+			}
 
 			$('#footable-list').empty();    
 			
@@ -200,7 +225,8 @@ var select = (function() {
 	      	source: indata,
 	      	select: function( event, ui ) {
 	      		if (ui.item.value > 0) {
-	      			
+	      			console.log("change select");
+	      			console.log(ui.item.value);
 	      			selectLocalidad(ui.item.value);
 	      		}
 		        $("#select-municipio").val( ui.item.label );
@@ -234,7 +260,7 @@ var select = (function() {
     var selectLocalidad = function(x) {
     	$("#select-localidad").html("");
 		var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN) {
+            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
 				return {
 	             	label: item.NOM_LOC,
 		            value: item.CGLOC,
@@ -328,7 +354,12 @@ var select = (function() {
 
 		        if (all_subtemas[i].cve_tem == x && anio_selected == all_subtemas[i].anio) {
 		        //if (all_subtemas[i].cve_tem == x) {
-		        	select_subtema.append(new Option(all_subtemas[i].subtema, all_subtemas[i].cve_sub));
+		        	//select_subtema.append(new Option(all_subtemas[i].subtema, all_subtemas[i].cve_sub));
+		        	select_subtema.val(all_subtemas[i].subtema);
+		        	select_subtema_id.val(all_subtemas[i].cve_sub);
+		        	indicadores(all_subtemas[i].cve_sub);
+		        	check_all.prop('checked', false);
+    				$("#indicadores-0").prop('checked', true);
 		        }
 		    }
 
@@ -345,6 +376,7 @@ var select = (function() {
     		//select_subtema.prop("disabled", true);
     	}
     	check_all.prop('checked', false);
+    	$("#indicadores-0").prop('checked', true);
     }
 
     var indicadores = function(x ="") {
@@ -360,7 +392,9 @@ var select = (function() {
         check_indicadores.hide(300, function() {
 			if (x != "") {
 				$.each(indata, function(i, v) {
-			        check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '""> ' + v.label + '</div>')
+					var che = "";
+					if (i == 0)	che = "checked"; 
+			        check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
 			    });
 			    check_indicadores.show(600);
 			}
@@ -376,7 +410,10 @@ var select = (function() {
     	$('input[type=checkbox]:not(#check-all)').each(function () {
 		    if (this.checked) one_true = true;
 		});
-		if (!one_true) check_all.prop('checked', false);
+		if (!one_true) {
+			check_all.prop('checked', false);
+			$("#indicadores-0").prop('checked', true);
+		}
     }
 
 	var initAlterData = function() {
@@ -410,15 +447,33 @@ var select = (function() {
 					});*/
 				});
 			});
+			/*initMod.apiCall(apiDataLateFormat).then(function(res){
+				console.log("res alter 222");
+				console.log(res);
+				all_municipios_format = res.municipios_format;
+	        	all_estados_format = res.estados_format;
+			}, function(reason, json){
+				console.log("non");
+			 	initMod.debugThemes(reason, json);
+			});*/
         }, function(reason, json){
 			console.log("non");
 		 	initMod.debugThemes(reason, json);
 		});
 	}
 
+	var getEstadoFormat = function(x) {
+		return all_estados_format[x];
+	}
+
+	var getMunicipioFormat = function(x) {
+		return all_municipios_format[x];
+	}
+
 	var l;
 
 	var buscarRes = function() {
+		btn_excel.hide();
 		l = $(this).ladda();
 		l.ladda( 'start' );
 		var sList = [];
@@ -433,6 +488,36 @@ var select = (function() {
 		getInitResponse();//
 	}
 
+	var generateExcel = function() {
+
+		console.log("apiDataExcel");
+		console.log(apiDataExcel);
+
+		var sList = [];
+		$('#check-indicadores input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
+		var in_end= sList.join(",");
+
+		apiDataExcel.methods['export-excel']['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
+
+		
+		
+		initMod.apiCall(apiDataExcel).then(function(res, status, xhr){
+			console.log("res de nuestro nuevo modulo" + module_upper);
+			console.log(res);
+
+			window.open('temp-excel/' + res.file_name, '_blank');
+
+		}, function(reason, json){
+			console.log("non");
+		 	initMod.debugThemes(reason, json);
+		});
+
+	}
+
 	var bindFilters = function() {
         $("#btn-buscar").on("click", buscarRes);
         select_estado.on("change", changeEstado);
@@ -441,6 +526,7 @@ var select = (function() {
         select_subtema.on("change", changeSubtema);
         check_all.on("click", checkAllIndicadores);
         $(document).on('click','.indicadores-check', checkVisible);
+        btn_excel.on('click', generateExcel);
     };
 
 	var init = function () {
@@ -451,6 +537,8 @@ var select = (function() {
 
 	return {
 	    init : init,
-	    this_module: this_module
+	    this_module: this_module,
+	    getEstadoFormat: getEstadoFormat,
+	    getMunicipioFormat: getMunicipioFormat
 	}
 })();
