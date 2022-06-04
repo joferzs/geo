@@ -271,7 +271,11 @@ class ApiSelect extends ApiMain {
 		return $municipios_format;
 	}
 
-	public function getExportExcel($x) {
+	public function getExportExcels($x) {
+
+		echo "1234";
+
+		return;
 
 		if ($x['anio'] == 2020) {
 			$anio = 2020;
@@ -363,80 +367,25 @@ class ApiSelect extends ApiMain {
 			$res_in = self::getIndicadoresRing();
 
 			foreach ($ind as $key => $value) {
-				//$aaa = array($key, $value, '');
 				$bet = $res_in[$value];
-				//$this->items_arr['vulnerabilidad'][] = array($value, utf8_encode($bet), '');
 				$this->items_arr['vulnerabilidad'][] = array($value, utf8_decode($bet), '');
-				/*$this->items_arr['vulnerabilidad'][] = array($value, htmlentities($bet), '');
-				$this->items_arr['vulnerabilidad'][] = array($value, htmlspecialchars($bet), '');
-				$this->items_arr['vulnerabilidad'][] = array($value, html_entity_decode($bet), '');*/
 			}
 		}
 		
 
-		$res = self::ExportFile($this->items_arr['vulnerabilidad']);
-		$file = "geo-" . self::generateRandomString() .time() . ".xls";
-		$filename = "../temp-excel/" . $file;
-
-		/*print_r($this->items_arr['header']);
-		print_r($this->items_arr['vals']);*/
-
-		//$this->items_arr['vals'] = array(array("a"),array("s"),array("d"),array("f"));
-
-		/*print_r($this->items_arr['vulnerabilidad']);
-
-		print_r($this->items_arr['vals']);*/
-
-		//return;
-
 		$pdffile = time()."-sdf.pdf";
 		$urlFile = "../temp-pdf/" . $pdffile;
 
-	   	$pdf = new PDF();
-		// Column headings
+	   	/*$pdf = new PDF();
 		$header = $this->items_arr['header'];
-		// Data loading
-		//$data = $pdf->LoadRow('countries.txt');
 		$pdf->SetFont('Arial','',10);
 		$pdf->AddPage();
 		$pdf->BasicTable($header,$this->items_arr['vals']);
 		$pdf->AddPage();
-		//$pdf->ImprovedTable($header,$this->items_arr['vals']);
 		$pdf->AddPage();
-		//$pdf->FancyTable($header,$this->items_arr['vals']);
-		$pdf->Output($urlFile,'F');
+		$pdf->Output($urlFile,'F');*/
 
-
-
-		return;
-
-		
-
-		//$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");
-		//file_put_contents($filename, $res);
-
-		
-
-		//echo json_encode(array("file_name" => $file, "deb" =>1349));
-
-		//self::getGeneratePdf();
-
-		$pdffile = time()."-sdf.pdf";
-		$urlFile = "../temp-pdf/" . $pdffile;
-
-	   	$pdf = new PDF();
-		// Column headings
-		$header = array('ID', 'NOM_LOC', 'CVE_ENT', 'CVE_MUN', 'Estado', 'Municipio', 'Localidad');
-		// Data loading
-		//$data = $pdf->LoadRow('countries.txt');
-		$pdf->SetFont('Arial','',14);
-		$pdf->AddPage();
-		$pdf->BasicTable($header,$this->items_arr['vulnerabilidad']);
-		$pdf->AddPage();
-		$pdf->ImprovedTable($header,$this->items_arr['vulnerabilidad']);
-		$pdf->AddPage();
-		$pdf->FancyTable($header,$this->items_arr['vulnerabilidad']);
-		$pdf->Output($urlFile,'F');
+		echo json_encode(array("file_name" => $urlFile, "deb" =>1349));
 
 	}
 
