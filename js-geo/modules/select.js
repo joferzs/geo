@@ -512,8 +512,16 @@ var select = (function() {
 			window.open('temp-excel/' + res.file_name, '_blank');
 
 		}, function(reason, json){
-			console.log("non");
+			console.log("non hgdf");
+			l.ladda( 'stop' );
+			if ($("#debug").val() == 'debug') {
+				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
+			}else {
+				$(".res-error-2").html("Error en la consulta").show(1000);
+			}
 		 	initMod.debugThemes(reason, json);
+
+
 		});
 
 	}

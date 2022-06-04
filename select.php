@@ -81,6 +81,7 @@ if (isset($_GET["x"])) {
                     <div class="res-x"></div>
                     <div class="res-sql"></div>
                     <div class="res-error"></div>
+                    <div class="res-error-2"></div>
 
                     <div id="icono-excel"><img src="images/excel.png"> Exportar a excel</div>
 

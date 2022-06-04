@@ -5,6 +5,7 @@ namespace ApiControl;//namespace define el nombre de la carpeta "padre" este arc
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use PDO;//inicializa clase PDO para usar funciones PDO
+use modules\PDF;
 use ApiControl\ApiSessionSecurity;//el "use" se refiere al archivo que contiene la clase que se necesita, en este caso se necesita la clase "ApiSessionSecurity" que está en el archivo ApiSessionSecurity.php
 
 
@@ -282,10 +283,11 @@ class ApiSelect extends ApiMain {
 		if ($x['indicadores'] == "") {
 			$x['indicadores'] = '';
 		}else {
+			$ind_fi = $x['indicadores'];
 			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
-		$sql = 'SELECT a."ID",b."NOM_LOC" ' . $x['indicadores'] . ', "CVE_ENT", "CVE_MUN"  FROM ivp.loc_rur_' . $anio . ' a 
+		$sql = 'SELECT a."ID",b."NOM_LOC" , "CVE_ENT", "CVE_MUN" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
 
@@ -297,8 +299,11 @@ class ApiSelect extends ApiMain {
 
 		$sth = $this->conn->prepare($sql);
 
+		$sth2 = $this->conn->prepare($sql);
+
 		if ($x['id_localidad'] != "") {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
+			$sth2->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
 		}
 
 		$estado = self::getEstadosFormat();
@@ -306,25 +311,133 @@ class ApiSelect extends ApiMain {
 
 		$sth->execute();
 		$rows = $sth->rowCount();
+		$sth2->execute();
+		$rows2 = $sth2->rowCount();
 		$this->items_arr['vulnerabilidad'] = array();//se debe llamar segun nuestro modulo
+		$this->items_arr['header'] = array();//se debe llamar segun nuestro modulo
+		$this->items_arr['vals'] = array();//se debe llamar segun nuestro modulo
 		if ($rows > 0) {
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 				$kee = $row['CVE_ENT'] . "-" . $row['CVE_MUN'];
-				$row['Estado'] = $estado[$row['CVE_ENT']];
-				$row['Municipio'] = $municipio[$kee];
-				$row['Localidad'] = $row['NOM_LOC'];
+				$row['Estado'] = utf8_decode($estado[$row['CVE_ENT']]);
+				$row['Municipio'] = utf8_decode($municipio[$kee]);
+				$row['Localidad'] = utf8_decode($row['NOM_LOC']);
+				$row['NOM_LOC'] = utf8_decode($row['NOM_LOC']);
 				$this->items_arr['vulnerabilidad'][] = $row;
+				$this->items_arr['header'] = array_keys($row);
+			}
+		}
+		//$sth = null;
+
+		if ($rows2 > 0) {
+			while ($row = $sth2->fetch(PDO::FETCH_NUM)) {
+				$kee = $row[2] . "-" . $row[3];
+				$row[] = utf8_decode($estado[$row[2]]);
+				$row[] = utf8_decode($municipio[$kee]);
+				$row[] = utf8_decode($row[1]);
+				$row[1] = utf8_decode($row[1]);
+				$this->items_arr['vals'][] = $row;
 			}
 		}
 		$sth = null;
 
+		$empty = array("");
+		array_push($this->items_arr['vulnerabilidad'], $empty, $empty);
+
+		
+		$arrayName = array('NEMONICO', 'NOMBRE', utf8_decode('DESCRIPCIÓN'));
+		$this->items_arr['vulnerabilidad'][] = $arrayName;
+
+
+		$this->items_arr['vulnerabilidad'][] = array('ID', 'ID', '');
+		$this->items_arr['vulnerabilidad'][] = array('Estado', 'Estado', '');
+		$this->items_arr['vulnerabilidad'][] = array('Municipio', 'Municipio', '');
+		$this->items_arr['vulnerabilidad'][] = array('Localidad', 'Localidad', '');
+		$this->items_arr['vulnerabilidad'][] = array('NOM_LOC', 'Localidad', '');
+		$this->items_arr['vulnerabilidad'][] = array('CVE_ENT', 'Estado', '');
+		$this->items_arr['vulnerabilidad'][] = array('CVE_MUN', 'Municipio', '');
+
+		if ($x['indicadores'] != "") {
+			$ind = explode(",", $ind_fi);
+
+			$res_in = self::getIndicadoresRing();
+
+			foreach ($ind as $key => $value) {
+				//$aaa = array($key, $value, '');
+				$bet = $res_in[$value];
+				//$this->items_arr['vulnerabilidad'][] = array($value, utf8_encode($bet), '');
+				$this->items_arr['vulnerabilidad'][] = array($value, utf8_decode($bet), '');
+				/*$this->items_arr['vulnerabilidad'][] = array($value, htmlentities($bet), '');
+				$this->items_arr['vulnerabilidad'][] = array($value, htmlspecialchars($bet), '');
+				$this->items_arr['vulnerabilidad'][] = array($value, html_entity_decode($bet), '');*/
+			}
+		}
+		
+
 		$res = self::ExportFile($this->items_arr['vulnerabilidad']);
 		$file = "geo-" . self::generateRandomString() .time() . ".xls";
 		$filename = "../temp-excel/" . $file;
-		/*$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");*/
-		file_put_contents($filename, $res);
 
-		echo json_encode(array("file_name" => $file, "deb" =>1349));
+		/*print_r($this->items_arr['header']);
+		print_r($this->items_arr['vals']);*/
+
+		//$this->items_arr['vals'] = array(array("a"),array("s"),array("d"),array("f"));
+
+		/*print_r($this->items_arr['vulnerabilidad']);
+
+		print_r($this->items_arr['vals']);*/
+
+		//return;
+
+		$pdffile = time()."-sdf.pdf";
+		$urlFile = "../temp-pdf/" . $pdffile;
+
+	   	$pdf = new PDF();
+		// Column headings
+		$header = $this->items_arr['header'];
+		// Data loading
+		//$data = $pdf->LoadRow('countries.txt');
+		$pdf->SetFont('Arial','',10);
+		$pdf->AddPage();
+		$pdf->BasicTable($header,$this->items_arr['vals']);
+		$pdf->AddPage();
+		//$pdf->ImprovedTable($header,$this->items_arr['vals']);
+		$pdf->AddPage();
+		//$pdf->FancyTable($header,$this->items_arr['vals']);
+		$pdf->Output($urlFile,'F');
+
+
+
+		return;
+
+		
+
+		//$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");
+		//file_put_contents($filename, $res);
+
+		
+
+		//echo json_encode(array("file_name" => $file, "deb" =>1349));
+
+		//self::getGeneratePdf();
+
+		$pdffile = time()."-sdf.pdf";
+		$urlFile = "../temp-pdf/" . $pdffile;
+
+	   	$pdf = new PDF();
+		// Column headings
+		$header = array('ID', 'NOM_LOC', 'CVE_ENT', 'CVE_MUN', 'Estado', 'Municipio', 'Localidad');
+		// Data loading
+		//$data = $pdf->LoadRow('countries.txt');
+		$pdf->SetFont('Arial','',14);
+		$pdf->AddPage();
+		$pdf->BasicTable($header,$this->items_arr['vulnerabilidad']);
+		$pdf->AddPage();
+		$pdf->ImprovedTable($header,$this->items_arr['vulnerabilidad']);
+		$pdf->AddPage();
+		$pdf->FancyTable($header,$this->items_arr['vulnerabilidad']);
+		$pdf->Output($urlFile,'F');
+
 	}
 
 	public function ExportFile($records) {
@@ -342,6 +455,23 @@ class ApiSelect extends ApiMain {
 		  }
 	}
 
+	public function getIndicadoresRing() {
+		$sql = 'SELECT * FROM catalogo.indicadores WHERE indicadores IS NOT NULL';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$res = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$res['"'.$row['cve_ind'].'"'] = $row['indicadores'];
+			}
+		}
+		$sth = null;
+		return $res;
+	}
+
 	public function generateRandomString($length = 20) {
 	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	    $charactersLength = strlen($characters);
@@ -351,4 +481,175 @@ class ApiSelect extends ApiMain {
 	    }
 	    return $randomString;
 	}
+
+	public function getGeneratePdf() {
+		try {
+			//require('../modules/fpdf.php');
+
+			
+
+			//print_r($res);
+			$html = "
+			<style>
+			    .tab-1 {
+			    	width: 100%;
+			    }
+			</style>
+			<table class='tab-1'>
+				<tr align='center'>
+					<td class='init tit' rowspan='2'>AVALUOS POR DAÑOS AL PARQUE VEHICULAR</td>
+					<td class='init tit-1'>FECHA DE RECEPCIÓN<br>(TN-50)</td>
+					<td class='init tit-2'>FECHA DE ELABORACIÓN</td>
+					<td class='init tit-3'>ORDEN DE TRABAJO</td>
+				</tr>
+			</table>";
+			
+
+
+			//$pdf=new PDF($html, "", "", "", "");
+			//$pdf->AddPage();
+			//$pdf->SetFont('Arial','B',16);
+			//$pdf->WriteHTML($html);
+
+			$pdffile = time()."-sdf.pdf";
+			$urlFile = "../temp-pdf/" . $pdffile;
+
+			//$pdf->run();
+			//$pdf->Output($urlFile,'F');
+
+			//$this->load->library('M_pdf');
+	        /*$pdffile = time()."-sdf.pdf";
+	        $this->pdf_m->mPDF();
+	        echo "<br>333";
+	        $this->pdf_m->WriteHTML($html);
+	        echo "<br>444";
+	        $urlFile = "../temp-pdf/" . $pdffile;
+		   	$this->pdf_m->output($urlFile,'F');*/
+
+		   	$pdf = new PDF();
+			// Column headings
+			$header = array('Country', 'Capital', 'Area (sq km)', 'Pop. (thousands)');
+			// Data loading
+			//$data = $pdf->LoadRow('countries.txt');
+			$pdf->SetFont('Arial','',14);
+			$pdf->AddPage();
+			$pdf->BasicTable($header,$data);
+			$pdf->AddPage();
+			$pdf->ImprovedTable($header,$data);
+			$pdf->AddPage();
+			$pdf->FancyTable($header,$data);
+			$pdf->Output($urlFile,'F');
+
+		   	echo "<br>555";
+
+		   	echo json_encode(array("file_name" => "gfsd", "deb" =>93));
+		} catch (\MpdfException $e) {
+		    echo "Error al crear pdf";
+			//http_response_code(409);
+		}
+	}
+
+	var $B=0;
+    var $I=0;
+    var $U=0;
+    var $HREF='';
+    var $ALIGN='';
+
+    function WriteHTML($html)
+    {
+        //HTML parser
+        $html=str_replace("\n",' ',$html);
+        $a=preg_split('/<(.*)>/U',$html,-1,PREG_SPLIT_DELIM_CAPTURE);
+        foreach($a as $i=>$e)
+        {
+            if($i%2==0)
+            {
+                //Text
+                if($this->HREF)
+                    $this->PutLink($this->HREF,$e);
+                elseif($this->ALIGN=='center')
+                    $this->Cell(0,5,$e,0,1,'C');
+                else
+                    $this->Write(5,$e);
+            }
+            else
+            {
+                //Tag
+                if($e[0]=='/')
+                    $this->CloseTag(strtoupper(substr($e,1)));
+                else
+                {
+                    //Extract properties
+                    $a2=explode(' ',$e);
+                    $tag=strtoupper(array_shift($a2));
+                    $prop=array();
+                    foreach($a2 as $v)
+                    {
+                        if(preg_match('/([^=]*)=["\']?([^"\']*)/',$v,$a3))
+                            $prop[strtoupper($a3[1])]=$a3[2];
+                    }
+                    $this->OpenTag($tag,$prop);
+                }
+            }
+        }
+    }
+
+    function OpenTag($tag,$prop)
+    {
+        //Opening tag
+        if($tag=='B' || $tag=='I' || $tag=='U')
+            $this->SetStyle($tag,true);
+        if($tag=='A')
+            $this->HREF=$prop['HREF'];
+        if($tag=='BR')
+            $this->Ln(5);
+        if($tag=='P')
+            $this->ALIGN=$prop['ALIGN'];
+        if($tag=='HR')
+        {
+            if( !empty($prop['WIDTH']) )
+                $Width = $prop['WIDTH'];
+            else
+                $Width = $this->w - $this->lMargin-$this->rMargin;
+            $this->Ln(2);
+            $x = $this->GetX();
+            $y = $this->GetY();
+            $this->SetLineWidth(0.4);
+            $this->Line($x,$y,$x+$Width,$y);
+            $this->SetLineWidth(0.2);
+            $this->Ln(2);
+        }
+    }
+
+    function CloseTag($tag)
+    {
+        //Closing tag
+        if($tag=='B' || $tag=='I' || $tag=='U')
+            $this->SetStyle($tag,false);
+        if($tag=='A')
+            $this->HREF='';
+        if($tag=='P')
+            $this->ALIGN='';
+    }
+
+    function SetStyle($tag,$enable)
+    {
+        //Modify style and select corresponding font
+        $this->$tag+=($enable ? 1 : -1);
+        $style='';
+        foreach(array('B','I','U') as $s)
+            if($this->$s>0)
+                $style.=$s;
+        $this->SetFont('',$style);
+    }
+
+    function PutLink($URL,$txt)
+    {
+        //Put a hyperlink
+        $this->SetTextColor(0,0,255);
+        $this->SetStyle('U',true);
+        $this->Write(5,$txt,$URL);
+        $this->SetStyle('U',false);
+        $this->SetTextColor(0);
+    }
 }
