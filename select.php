@@ -27,7 +27,7 @@ if (isset($_GET["x"])) {
                     </div>
                 </div>
                 <div class="ibox-content">
-                    <div class="load-data">Cargando información...</div>
+                    <div class="load-data">Cargando información.....</div>
                     <div class="content-filters">
                         <input type="hidden" name="debug" id="debug" value="<?php echo $hidden ?>">
                         <div>
