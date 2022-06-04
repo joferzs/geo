@@ -271,11 +271,7 @@ class ApiSelect extends ApiMain {
 		return $municipios_format;
 	}
 
-	public function getExportExcels($x) {
-
-		echo "1234";
-
-		return;
+	public function getExportExcel($x) {
 
 		if ($x['anio'] == 2020) {
 			$anio = 2020;
