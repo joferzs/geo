@@ -372,14 +372,14 @@ class ApiSelect extends ApiMain {
 		$pdffile = time()."-sdf.pdf";
 		$urlFile = "../temp-pdf/" . $pdffile;
 
-	   	/*$pdf = new PDF();
+	   	$pdf = new PDF();
 		$header = $this->items_arr['header'];
 		$pdf->SetFont('Arial','',10);
 		$pdf->AddPage();
 		$pdf->BasicTable($header,$this->items_arr['vals']);
 		$pdf->AddPage();
 		$pdf->AddPage();
-		$pdf->Output($urlFile,'F');*/
+		$pdf->Output($urlFile,'F');
 
 		echo json_encode(array("file_name" => $urlFile, "deb" =>1349));
 
