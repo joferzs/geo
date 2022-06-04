@@ -83,7 +83,7 @@ if (isset($_GET["x"])) {
                     <div class="res-error"></div>
                     <div class="res-error-2"></div>
 
-                    <div id="icono-excel"><img src="images/excel.png"> Exportar a excel</div>
+                    <div id="icono-excel"><img src="images/pdf.png"> Exportar a pdf</div>
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
                     <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
