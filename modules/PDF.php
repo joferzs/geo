@@ -1,7 +1,7 @@
 <?php
 namespace modules;
 
-class PDF extends FPDF
+class PDF extends FAPDF
 {
 // Load data
 function LoadData($file)

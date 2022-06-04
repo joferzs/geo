@@ -12,7 +12,7 @@ namespace modules;//namespace define el nombre de la carpeta "padre" este archiv
 
 define('FPDF_VERSION','1.84');
 
-class FPDF
+class FAPDF
 {
 protected $page;               // current page number
 protected $n;                  // current object number
