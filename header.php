@@ -8,7 +8,8 @@
         <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
-        <title>fdsa / fdsa</title>
+        <title>Adesur | GEO</title>
+        <link rel="icon" href="images/favicon.ico">
         <link href="css-geo/plugins/font-awesome/css/font-awesome.css" rel="stylesheet">
         <link href="css-geo/plugins/style.css" rel="stylesheet" type="text/css">
         <link href="css-geo/plugins/confirm/jquery-confirm.css" rel="stylesheet" type="text/css">
