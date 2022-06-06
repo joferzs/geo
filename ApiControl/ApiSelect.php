@@ -312,9 +312,9 @@ class ApiSelect extends ApiMain {
 		if ($rows > 0) {
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 				$kee = $row['Estado'] . "-" . $row['Municipio'];
-				$row['Estado'] = $estado[$row['Estado']];
-				$row['Municipio'] = $municipio[$kee];
-				$row['Localidad'] = $row['Localidad'];
+				$row['Estado'] = utf8_decode($estado[$row['Estado']]);
+				$row['Municipio'] = utf8_decode($municipio[$kee]);
+				$row['Localidad'] = utf8_decode($row['Localidad']);
 				$this->items_arr['vulnerabilidad'][] = $row;
 			}
 		}
@@ -367,7 +367,7 @@ class ApiSelect extends ApiMain {
 					$asd = array();
 					for ($i=0; $i < count(array_keys($row)); $i++) {
 						if (array_keys($row)[$i] != "ID" && array_keys($row)[$i] != "Estado" && array_keys($row)[$i] != "Municipio" && array_keys($row)[$i] != "Localidad") {
-							$asd[] = $res_in['"'.array_keys($row)[$i].'"'];
+							$asd[] = utf8_decode($res_in['"'.array_keys($row)[$i].'"']);
 						}else {
 							$asd[] = array_keys($row)[$i];
 						}
