@@ -69,6 +69,13 @@ var select = (function() {
             	//'json': ''
             },
 		},
+		apiDataPdf = {
+			controller: module_upper,
+			methods: {
+            	"export-pdf":  { data: ""},
+            	//'json': ''
+            },
+		},
 		all_data_tab,
 		all_estados,
 		all_municipios,
@@ -88,6 +95,7 @@ var select = (function() {
 		select_subtema_id = $("#select-subtema-id"),
 		select_anio = $("#anio"),
 		btn_excel = $("#icono-excel"),
+		btn_pdf = $("#icono-pdf"),
 		check_all = $("#check-all"),
 		check_indicadores = $("#check-indicadores");
 
@@ -117,6 +125,7 @@ var select = (function() {
 				l.ladda( 'stop' );
 				post_resp = false;
 				btn_excel.show();
+				btn_pdf.show();
 			}
 		}, function(reason, json){
 			console.log("err post");
@@ -474,6 +483,7 @@ var select = (function() {
 
 	var buscarRes = function() {
 		btn_excel.hide();
+		btn_pdf.hide();
 		l = $(this).ladda();
 		l.ladda( 'start' );
 		var sList = [];
@@ -526,6 +536,41 @@ var select = (function() {
 
 	}
 
+	var generatePdf = function() {
+
+		var sList = [];
+		$('#check-indicadores input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
+		var in_end= sList.join(",");
+
+		apiDataPdf.methods['export-pdf']['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
+
+		
+		
+		initMod.apiCall(apiDataPdf).then(function(res, status, xhr){
+			console.log("res de nuestro nuevo modulo" + module_upper);
+			console.log(res);
+
+			window.open('temp-pdf/' + res.file_name, '_blank');
+
+		}, function(reason, json){
+			console.log("non hgdf");
+			l.ladda( 'stop' );
+			if ($("#debug").val() == 'debug') {
+				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
+			}else {
+				$(".res-error-2").html("Error en la consulta").show(1000);
+			}
+		 	initMod.debugThemes(reason, json);
+
+
+		});
+
+	}
+
 	var bindFilters = function() {
         $("#btn-buscar").on("click", buscarRes);
         select_estado.on("change", changeEstado);
@@ -535,6 +580,7 @@ var select = (function() {
         check_all.on("click", checkAllIndicadores);
         $(document).on('click','.indicadores-check', checkVisible);
         btn_excel.on('click', generateExcel);
+        btn_pdf.on('click', generatePdf);
     };
 
 	var init = function () {

@@ -738,12 +738,15 @@ body#app-site-2 {
 #select-subtema {
   width: 45%;
 }
-#icono-excel {
+#icono-excel,#icono-pdf {
   cursor: pointer;
   display: none;
   margin: 0 0 auto auto;
   width: max-content;
 }
-#icono-excel>img {
+#icono-excel>img,#icono-pdf>img {
   width: 30px;
+}
+#icono-excel {
+  margin-bottom: 15px;
 }

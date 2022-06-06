@@ -1,0 +1,14 @@
+					
+15830	Oaxaca	Abejones	Abejones	0.122	3.Medio
+
+
+NEMONICO	NOMBRE	DESCRIPCIÓN
+ID	ID	
+Estado	Estado	
+Municipio	Municipio	
+Localidad	Localidad	
+NOM_LOC	Localidad	
+CVE_ENT	Estado	
+CVE_MUN	Municipio	
+"VUL_0201"	Índice de vulnerabilidad poblacional, 2010	
+"VUL_0202"	Grado de vulnerabilidad poblacional, 2010	

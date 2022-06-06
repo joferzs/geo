@@ -31,11 +31,11 @@ function BasicTable($header, $data)
     $i = 0;
     foreach($header as $col) {
         if ($i == 0) {
-            $this->Cell(15,7,$col,1);
-        }elseif ($i == 2 || $i == 3 || $i == 4) {
-            $this->Cell(20,7,$col,1);
+            $this->Cell(22,7,$col,1);
+        }elseif ($i == 1) {
+            $this->Cell(100,7,$col,1);
         }else {
-            $this->Cell(40,7,$col,1);
+            $this->Cell(70,7,$col,1);
         }
         $i++;
     }
@@ -47,11 +47,11 @@ function BasicTable($header, $data)
         $i = 0;
         foreach($row as $col) {
             if ($i == 0) {
-                $this->Cell(15,7,$col,1);
-            }elseif ($i == 2 || $i == 3 || $i == 4) {
-                $this->Cell(20,7,$col,1);
+                $this->Cell(22,7,$col,1);
+            }elseif ($i == 1) {
+                $this->Cell(100,7,$col,1);
             }else {
-                $this->Cell(40,7,$col,1);
+                $this->Cell(70,7,$col,1);
             }
             $i++;
         }
