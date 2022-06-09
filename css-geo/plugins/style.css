@@ -750,3 +750,6 @@ body#app-site-2 {
 #icono-excel {
   margin-bottom: 15px;
 }
+.footable-filtering {
+  display: none;
+}

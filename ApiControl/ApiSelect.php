@@ -324,8 +324,8 @@ class ApiSelect extends ApiMain {
 		array_push($this->items_arr['vulnerabilidad'], $empty, $empty);
 
 		
-		$arrayName = array('NEMONICO', 'NOMBRE', utf8_decode('DESCRIPCIÓN'));
-		$this->items_arr['vulnerabilidad'][] = $arrayName;
+		$arrayName = array('', '', utf8_decode(''));
+		/*$this->items_arr['vulnerabilidad'][] = $arrayName;
 
 
 		$this->items_arr['vulnerabilidad'][] = array('ID', 'ID', '');
@@ -345,7 +345,7 @@ class ApiSelect extends ApiMain {
 				$bet = $res_in[$value];
 				$this->items_arr['vulnerabilidad'][] = array($value, utf8_decode($bet), '');
 			}
-		}
+		}*/
 
 		$res = self::ExportFile($this->items_arr['vulnerabilidad']);
 		$file = "geo-" . self::generateRandomString() .time() . ".xls";
