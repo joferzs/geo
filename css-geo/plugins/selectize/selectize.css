@@ -150,7 +150,7 @@
 .selectize-input input {
   color: #303030;
   font-family: inherit;
-  font-size: 17px;
+  font-size: 15px;
   line-height: 18px;
   -webkit-font-smoothing: inherit;
 }
@@ -164,7 +164,7 @@
   border: 1px solid #d0d0d0;
   padding: 3px;
   display: inline-block;
-  width: 100%;
+  width: 205px;
   /*overflow: hidden;*/
   position: relative;
   z-index: 1;
@@ -400,6 +400,7 @@
   background-image: -webkit-linear-gradient(top, #a75151, #e91748);
   background-image: -o-linear-gradient(top, #a75151, #e91748);
   background-image: linear-gradient(to bottom, #a75151, #e91748);
+  background-image: linear-gradient(to bottom, #6a6e95, #25506e) !important;
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff1da7ee', endColorstr='#ff178ee9', GradientType=0);
   -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.2),inset 0 1px rgba(255,255,255,0.03);

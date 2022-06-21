@@ -76,6 +76,13 @@ var select = (function() {
             	//'json': ''
             },
 		},
+		apiDataExport = {
+			controller: module_upper,
+			methods: {
+            	"export":  { data: ""},
+            	'json': ''
+            },
+		},
 		all_data_tab,
 		all_estados,
 		all_municipios,
@@ -96,6 +103,7 @@ var select = (function() {
 		select_anio = $("#anio"),
 		btn_excel = $("#icono-excel"),
 		btn_pdf = $("#icono-pdf"),
+		btn_export = $("#icono-export"),
 		check_all = $("#check-all"),
 		check_indicadores = $("#check-indicadores");
 
@@ -124,8 +132,9 @@ var select = (function() {
 			}else {
 				l.ladda( 'stop' );
 				post_resp = false;
-				btn_excel.show();
-				btn_pdf.show();
+				/*btn_excel.show();
+				btn_pdf.show();*/
+				btn_export.show();
 			}
 		}, function(reason, json){
 			console.log("err post");
@@ -152,7 +161,11 @@ var select = (function() {
 			var all_data_tab = res.vulnerabilidad, header = [], ii = 0;
 			if (all_data_tab.length > 0) {
 				$.each(all_data_tab[0], function(i, v) {
-			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":100,"maxWidth":100} };
+					var width = 100; 
+					if (i == "ID") {
+						width = 20;
+					}
+			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
 					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
 					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
 			        if (ii > 4) yeison.breakpoints = "all";
@@ -160,7 +173,7 @@ var select = (function() {
 			        ii++;
 			    });
 			}else {
-				header = [{ name: "id", title: "ID", "style":{"width":100,"maxWidth":100} }];
+				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
 			}
 
 			$('#footable-list').empty();    
@@ -266,7 +279,32 @@ var select = (function() {
 	    }
     }
 
-    var selectLocalidad = function(x) {
+    var availableTags = [
+			"ActionScript",
+			"AppleScript",
+			"Asp",
+			"BASIC",
+			"C",
+			"C++",
+			"Clojure",
+			"COBOL",
+			"ColdFusion",
+			"Erlang",
+			"Fortran",
+			"Groovy",
+			"Haskell",
+			"Java",
+			"JavaScript",
+			"Lisp",
+			"Perl",
+			"PHP",
+			"Python",
+			"Ruby",
+			"Scala",
+			"Scheme"
+		];
+
+    var selectLocalidad_ = function(x) {
     	$("#select-localidad").html("");
 		var indata = $.map(all_localidades, function( item ) {
             if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
@@ -276,13 +314,36 @@ var select = (function() {
 	            }
 			}
         });
-        $("#select-localidad").autocomplete({
+        $("#select-localidad").on( "keydown", function( event ) {
+				if ( event.keyCode === $.ui.keyCode.TAB &&
+						$( this ).autocomplete( "instance" ).menu.active ) {
+					event.preventDefault();
+				}
+			}).autocomplete({
 	      	minLength: 0,
-	      	source: indata,
+	      	source: function( request, response ) {
+					// delegate back to autocomplete, but extract the last term
+					response( $.ui.autocomplete.filter(
+						indata, extractLast( request.term ) ) );
+				},
+	      	//source: indata,
 	      	select: function( event, ui ) {
 	      		if (ui.item.value > 0) {
 	      			//selectAutoDirec(x, ui.item.value);
 	      		}
+	      		console.log("this.valuesss");
+	      		console.log(this.value);
+	      		var terms = split( this.value );
+				// remove the current input
+				terms.pop();
+				// add the selected item
+				terms.push( ui.item.label );
+				// add placeholder to get the comma-and-space at the end
+				terms.push( "" );
+				this.value = terms.join( ", " );
+				return false;
+
+
 		        $("#select-localidad").val( ui.item.label );
 		        $("#select-localidad-id").val( ui.item.value );
 		        return false;
@@ -310,6 +371,82 @@ var select = (function() {
 	    	//$("#select-localidad").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
 	    }
 	    $("#select-localidad").prop("disabled", false);
+    }
+
+    select_localidad = $('#select-localidad');
+    var selectLocalidad = function(x) {
+    	var indata = $.map(all_localidades, function( item ) {
+            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
+				return {
+	             	localidad: item.NOM_LOC,
+		            id_localidad: item.CGLOC,
+	            }
+			}
+        });
+        $("#select-localidad").prop("disabled", false);
+        var keys = ['id_localidad', 'localidad', select_localidad,indata];
+        var selectForm = resetSelect(keys[2]);
+        selectForm.selectize({
+            plugins: ["remove_button"],
+            delimiter: ",1349,",
+            valueField: keys[0],labelField: keys[1],searchField: keys[1], options: keys[3],
+            persist: false,
+            create: false,
+            sortField: "id_localidad",
+            render: { option: function(item, escape) { return '<div><span class="name">' + escape(item[keys[1]]) + '</span></div>' } },
+            onInitialize: function () {
+                var selectize = this;
+                selectize.addOption({id_localidad: -1, localidad: 'Todos'});
+                callSetTime(selectize, -1);
+            },
+			onChange: function(value) {
+				console.log("valll");
+				console.log(value);
+				var selectize = this;
+				if (value == null) {
+					console.log("vacio");
+					selectize.addOption({id_localidad: -1, localidad: 'Todos'});
+				}else if (value.indexOf(-1) != -1 && value.length == 1) {
+					console.log("encontrado");
+					/*$('#select-submarca').prop("disabled", false);
+					selectSubmarcas(y);*/
+				}else if (value.length > 1) {
+					console.log("tiene 2");
+					selectize.removeItem(-1);
+					/*var selectize = this;
+	                selectize.addOption({id_localidad: "burzum", localidad: 'Todosss'});*/
+				}
+          	},
+        });
+    };
+
+    var split = function( val ) {
+		return val.split( /,\s*/ );
+	}
+	var extractLast = function( term ) {
+		return split( term ).pop();
+	}
+
+	var resetSelect = function(x) {
+        var sf = "";
+        $.each(x, function(i) {
+            var sel = $(this);
+            if(sel[0].selectize) {
+                sel[0].selectize.destroy();
+            }
+            if (i == 0) sf = sel;
+        });
+        return sf;
+    }
+
+    var callSetTime = function(sel, val) {
+        setTimeout(function(){
+            if (typeof val !== 'undefined') {
+                sel.setValue(val);
+            }else {
+                //sel.setValue();
+            }
+        },100);
     }
 
     var changeAnio = function() {
@@ -482,8 +619,9 @@ var select = (function() {
 	var l;
 
 	var buscarRes = function() {
-		btn_excel.hide();
-		btn_pdf.hide();
+		/*btn_excel.hide();
+		btn_pdf.hide();*/
+		btn_export.hide();
 		l = $(this).ladda();
 		l.ladda( 'start' );
 		var sList = [];
@@ -494,7 +632,13 @@ var select = (function() {
 		});
 		var in_end= sList.join(",");
 
-		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
+		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {
+			//id_localidad: $("#select-localidad-id").val(),
+			anio: $("#anio").val(),
+			indicadores: in_end,
+			debug: $("#debug").val(),
+			localidades: $("#select-localidad").val()
+		}
 		getInitResponse();//
 	}
 
@@ -533,7 +677,6 @@ var select = (function() {
 
 
 		});
-
 	}
 
 	var generatePdf = function() {
@@ -568,7 +711,46 @@ var select = (function() {
 
 
 		});
+	}
 
+	var generateExport = function() {
+		var sList = [];
+		$('#check-indicadores input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
+		var in_end= sList.join(",");
+		apiDataExport.methods['export']['data'] = {
+			id_localidad: $("#select-localidad-id").val(),
+			anio: $("#anio").val(),
+			indicadores: in_end,
+			debug: $("#debug").val(),
+			localidades: $("#select-localidad").val()
+		}
+		var l = $(this).ladda();
+		l.ladda( 'start' );
+		initMod.apiCall(apiDataExport).then(function(res, status, xhr){
+			console.log("res de nuestro nuevo modulo" + module_upper);
+			console.log(res);
+			//return;
+
+			window.open('temp-excel/' + res.excel.file_name, '_blank');
+			window.open('temp-pdf/' + res.pdf.file_name, '_blank');
+			l.ladda( 'stop' )
+
+		}, function(reason, json){
+			console.log("non hgdf");
+			l.ladda( 'stop' );
+			if ($("#debug").val() == 'debug') {
+				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
+			}else {
+				$(".res-error-2").html("Error en la consulta").show(1000);
+			}
+		 	initMod.debugThemes(reason, json);
+
+
+		});
 	}
 
 	var bindFilters = function() {
@@ -579,8 +761,9 @@ var select = (function() {
         select_subtema.on("change", changeSubtema);
         check_all.on("click", checkAllIndicadores);
         $(document).on('click','.indicadores-check', checkVisible);
-        btn_excel.on('click', generateExcel);
-        btn_pdf.on('click', generatePdf);
+        /*btn_excel.on('click', generateExcel);
+        btn_pdf.on('click', generatePdf);*/
+        btn_export.on('click', generateExport);
     };
 
 	var init = function () {

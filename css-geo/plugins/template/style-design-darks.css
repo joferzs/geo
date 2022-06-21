@@ -899,11 +899,14 @@ h5 {
   background-color: #1d1d1e;
 }
 .footable th.footable-sortable {
-  color: #3a3a3a;
+  background: #c74b4b;
+  border-left: 2px solid #9f9f9f;
+  color: #ffffff;
   font-family: 'BebasNeue-Regular';
-  font-size: 34px;
+  font-size: 22px;
   line-height: 38px;
   text-align: center;
+  letter-spacing: 1px;
   padding: 5px !important;
 }
 #logs-list.footable th.footable-sortable {
@@ -10681,7 +10684,7 @@ table.footable>tbody>tr.testerman {
   transition: background 1s linear;
 }
 table.footable>tbody>tr {
-  background: #ffffff;
+  background: #f5f7ff;
   transition: background .5s linear;
 }
 table.footable>tbody>tr>td.footable-editing {

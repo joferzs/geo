@@ -189,7 +189,7 @@ body.modal-open {
 }
 .footable tbody>tr>td {
   color: #282828;
-  font-size: 19px;
+  font-size: 16px;
   padding: 8px 10px;
   text-align: center;
   text-transform: uppercase;
@@ -293,13 +293,13 @@ table.footable {
   /*margin-bottom: 8%;
   margin-top: 3%;*/
 }
-table.footable>tbody>tr {
+table.footable>tbody>tr:not(.footable-detail-row) {
   border-bottom: 1px solid #cdcdcd;
   height: 34px;
   line-height: 22px;
 }
-table.footable>tbody>tr:not(.is-full-apartado):nth-child(even) {
-    background: #d5d8eb;
+table.footable>tbody>tr:not(.footable-detail-row):nth-child(even) {
+    background: #d5e6eb;
 }
 tfoot>tr.footable-editing {
   position: absolute;
@@ -714,6 +714,7 @@ body#app-site-2 {
   display: inline-block;
   padding-right: 1%;
   text-align: right;
+  vertical-align: top;
   width: 20%;
 }
 .head-indicadores {
@@ -738,13 +739,22 @@ body#app-site-2 {
 #select-subtema {
   width: 45%;
 }
-#icono-excel,#icono-pdf {
-  cursor: pointer;
-  display: none;
-  margin: 0 0 auto auto;
-  width: max-content;
+#icono-excel,#icono-pdf,#icono-export {
+  background: #ffffff;
+    border-radius: 4px;
+    border: 1px solid #b97474;
+    /* color: white; */
+    cursor: pointer;
+    display: none;
+    font-size: 17px;
+    margin: 0 0 10px auto;
+    padding: 6px 15px;
+    width: max-content;
 }
-#icono-excel>img,#icono-pdf>img {
+#icono-export:hover {
+  background: #e7f4f5;
+}
+#icono-excel>img,#icono-pdf>img,#icono-export img {
   width: 30px;
 }
 #icono-excel {
@@ -752,4 +762,16 @@ body#app-site-2 {
 }
 .footable-filtering {
   display: none;
+}
+#select-localidad {
+  background: #f8f8f8;
+  border: 1px solid #d0d0d0;
+  height: 28px;
+  width: 205px;
+}
+#select-municipio {
+  width: 205px;
+}
+#select-estado {
+  width: 205px;
 }

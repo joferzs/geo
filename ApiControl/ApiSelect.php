@@ -61,6 +61,8 @@ class ApiSelect extends ApiMain {
 	}
 
 	public function getAllFilterSelect($x) {
+		//print_r($x);
+		//exit;
 		/*exit;*/
 		if ($x['anio'] == 2020) {
 			$anio = 2020;
@@ -81,8 +83,22 @@ class ApiSelect extends ApiMain {
 		';
 
 		$sql_loc = "";
-		if ($x['id_localidad'] != "") {
+		/*if ($x['id_localidad'] != "") {
 			$sql_loc = ' WHERE a."CGLOC" = :id_localidad';
+		}*/
+
+		if ($x['localidades'] != "") {
+
+			if ($x['localidades'][0] == "-1") {
+				# code...
+			}else {
+				$lll = array();
+				foreach ($x['localidades'] as $key => $value) {
+					$lll[] = "'" . $value ."'";
+				}
+				$loc_join = join(",", $lll);
+				$sql_loc.= ' WHERE a."CGLOC" IN (' . $loc_join . ')';
+			}
 		}
 
 		//$sql.= $sql_loc . ' LIMIT :limit_in,:limit_data';
@@ -91,10 +107,10 @@ class ApiSelect extends ApiMain {
 		
 		$sth = $this->conn->prepare($sql);
 
-		if ($x['id_localidad'] != "") {
+		/*if ($x['id_localidad'] != "") {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
 			
-		}
+		}*/
 
 		$sth->bindValue(':limit_in', intval($x['limit_in']), PDO::PARAM_INT);
 		$sth->bindValue(':limit_data', intval($x['limit_data']), PDO::PARAM_INT);
@@ -271,6 +287,13 @@ class ApiSelect extends ApiMain {
 		return $municipios_format;
 	}
 
+	public function getExport($x) {
+		$this->items_arr['export'] = array();
+		$this->items_arr['export']['excel'] = self::getExportExcel($x);
+		$this->items_arr['export']['pdf'] = self::getExportPdf($x);
+		echo json_encode($this->items_arr['export']);
+	}
+
 	public function getExportExcel($x) {
 
 		if ($x['anio'] == 2020) {
@@ -291,17 +314,31 @@ class ApiSelect extends ApiMain {
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
 
-		if ($x['id_localidad'] != "") {
+		/*if ($x['id_localidad'] != "") {
 			$sql.= ' WHERE a."CGLOC" = :id_localidad';
+		}*/
+
+		if ($x['localidades'] != "") {
+
+			if ($x['localidades'][0] == "-1") {
+				# code...
+			}else {
+				$lll = array();
+				foreach ($x['localidades'] as $key => $value) {
+					$lll[] = "'" . $value ."'";
+				}
+				$loc_join = join(",", $lll);
+				$sql.= ' WHERE a."CGLOC" IN (' . $loc_join . ')';
+			}
 		}
 
 		$sql.= ' ORDER BY a."ID" ';
 
 		$sth = $this->conn->prepare($sql);
 
-		if ($x['id_localidad'] != "") {
+		/*if ($x['id_localidad'] != "") {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
-		}
+		}*/
 
 		$estado = self::getEstadosFormat();
 		$municipio = self::getMunicipiosFormat();;
@@ -353,7 +390,8 @@ class ApiSelect extends ApiMain {
 		/*$fileEndEnd = mb_convert_encoding($res, 'ISO-8859-1', "UTF-8");*/
 		file_put_contents($filename, $res);
 
-		echo json_encode(array("file_name" => $file, "deb" =>1349));
+		//echo json_encode(array("file_name" => $file, "deb" =>1349));
+		return array("file_name" => $file, "deb" =>1349);
 	}
 
 	public function ExportFile($records) {
@@ -428,9 +466,9 @@ class ApiSelect extends ApiMain {
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
 
-		if ($x['id_localidad'] != "") {
+		/*if ($x['id_localidad'] != "") {
 			$sql.= ' WHERE a."CGLOC" = :id_localidad';
-		}
+		}*/
 
 		$sql.= ' ORDER BY a."ID" ';
 
@@ -438,10 +476,10 @@ class ApiSelect extends ApiMain {
 
 		$sth2 = $this->conn->prepare($sql);
 
-		if ($x['id_localidad'] != "") {
+		/*if ($x['id_localidad'] != "") {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
 			$sth2->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
-		}
+		}*/
 
 		$estado = self::getEstadosFormat();
 		$municipio = self::getMunicipiosFormat();;
@@ -518,7 +556,8 @@ class ApiSelect extends ApiMain {
 		$pdf->AddPage();
 		$pdf->Output($urlFile,'F');
 
-		echo json_encode(array("file_name" => $urlFile, "deb" =>1349));
+		//echo json_encode(array("file_name" => $urlFile, "deb" =>1349));
+		return array("file_name" => $urlFile, "deb" =>1349);
 	}
 
 	var $B=0;

@@ -32,19 +32,23 @@ if (isset($_GET["x"])) {
                         <input type="hidden" name="debug" id="debug" value="<?php echo $hidden ?>">
                         <div>
                             <div class="head-filter">Seleccione el Estado</div>
-                            <select name="id_estado" id=select-estado>
+                            <select name="id_estado" id=select-estado placeholder=" Municipio">
                                 <option value="">Seleccione una opción</option>
                             </select>
                         </div>
                         <div>
                             <div class="head-filter">Seleccione el Municipio</div>
-                            <input name="municipio" id="select-municipio" disabled>
-                            <input type="hidden" name="id_municipio" id="select-municipio-id">
+                            <input name="municipio" id="select-municipio" disabled placeholder=" Municipio">
+                            <input type="hidden" name="id_municipio" id="select-municipio-id" placeholder=" Municipio">
                         </div>
-                        <div>
+                        <!--<div>
                             <div class="head-filter">Seleccione el Localidad</div>
                             <input name="localidad" id="select-localidad" disabled>
                             <input type="hidden" name="id_localidad" id="select-localidad-id">
+                        </div>-->
+                        <div>
+                            <div class="head-filter">Seleccione la Localidad</div>
+                            <select name="id_localidad" id="select-localidad" placeholder="Localidad" multiple ></select>
                         </div>
                         <div>
                             <div class="head-filter">Seleccione el año de consulta</div>
@@ -60,7 +64,7 @@ if (isset($_GET["x"])) {
                             </select>
                         </div>
                         <div>
-                            <div class="head-filter">Seleccione un subtemaa</div>
+                            <div class="head-filter">Subtema</div>
                             <!--<select name="id_subtema" id="select-subtema1" disabled>
                             </select>-->
                             <input name="subtema" id="select-subtema"  readonly="readonly">
@@ -83,8 +87,10 @@ if (isset($_GET["x"])) {
                     <div class="res-error"></div>
                     <div class="res-error-2"></div>
 
-                    <div id="icono-excel"><img src="images/excel.png"> Exportar a excel</div>
-                    <div id="icono-pdf"><img src="images/pdf.png"> Exportar a pdf</div>
+                    <!--<div id="icono-excel"><img src="images/excel.png"> Exportar a excel</div>
+                    <div id="icono-pdf"><img src="images/pdf.png"> Exportar a pdf</div>-->
+
+                    <button id="icono-export"> Exportar  <img src="images/export.png"></button>
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
                     <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
