@@ -1,9 +1,9 @@
-var select = (function() {
+var selectDes = (function() {
 	"use strict"
 
-	var this_module = "select",
-		module_upper = "Select",
-		module_one = "select",
+	var this_module = "selectDes",
+		module_upper = "SelectDes",
+		module_one = "selectDes",
 		apiDataAll = {
 			controller: module_upper,
 			methods: {
@@ -29,8 +29,6 @@ var select = (function() {
 				'temas': '',
 				'subtemas': '',
 				'indicadores': '',
-				'desc_subtemas': '',
-				'desc_indicadores': '',
             	'json': ''
             },
 		},
@@ -92,8 +90,6 @@ var select = (function() {
 		all_temas,
 		all_subtemas,
 		all_indicadores,
-		all_descsubtemas,
-		all_descindicadores,
 		all_estados_format,
 		all_municipios_format,
 		//nom_ind = {ID: "ID", CGLOC: "CGLOC", NOM_LOC : "LOCALIDAD", CVE_ENT : "estado", clave_estado : "clave estado", CVE_MUN : "municipio", clave_municipio : "clave municipio"},
@@ -102,7 +98,6 @@ var select = (function() {
 		select_municipio = $("#select-municipio"),
 		select_localidad = $("#select-localidad"),
 		select_tema = $("#select-tema"),
-		select_descsubtema = $("#select-descsubtema"),
 		select_subtema = $("#select-subtema"),
 		select_subtema_id = $("#select-subtema-id"),
 		select_anio = $("#anio"),
@@ -181,70 +176,9 @@ var select = (function() {
 				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
 			}
 
-			$('#footable-list').empty();
-			$('#footable-list-cube').empty();
+			$('#footable-list').empty();    
 			
 			var ft = FooTable.init('#footable-list', {
-				"columns": header,
-				"rows": all_data_tab,
-                'on': {
-                    'postdraw.ft.table': function(e, ft) {
-                    	console.log("kam");
-                        getPostResponse(ft);
-                    }
-                }
-			},function(ft){
-				console.log("human fates");
-		    });
-		}, function(reason, json){
-			console.log("non");
-			l.ladda( 'stop' );
-			if ($("#debug").val() == 'debug') {
-				$(".res-error").html("Error msg: " + reason.responseText).show(1000);
-			}else {
-				$(".res-error").html("Error en la consulta").show(1000);
-			}
-		 	initMod.debugThemes(reason, json);
-		});
-	}
-
-	var getInitResponseCube = function() {
-		limit_in = 0;
-		post_resp = true;
-
-		limitConfig();
-
-		initMod.apiCall(apiDataAllFilter).then(function(res){
-			console.log("res de nuestro nuevo modulo" + module_upper);
-			console.log(res);
-			$(".res-error").hide();
-			if ($("#debug").val() == 'debug') {
-				$(".res-x").html("send: " + JSON.stringify(res.x));
-				$(".res-sql").html("sql: " + res.sql);
-			}
-
-			var all_data_tab = res.vulnerabilidad, header = [], ii = 0;
-			if (all_data_tab.length > 0) {
-				$.each(all_data_tab[0], function(i, v) {
-					var width = 100; 
-					if (i == "ID") {
-						width = 20;
-					}
-			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
-					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
-					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
-			        if (ii > 4) yeison.breakpoints = "all";
-			        header.push(yeison);
-			        ii++;
-			    });
-			}else {
-				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
-			}
-
-			$('#footable-list').empty();
-			$('#footable-list-cube').empty();
-			
-			var ft = FooTable.init('#footable-list-cube', {
 				"columns": header,
 				"rows": all_data_tab,
                 'on': {
@@ -344,6 +278,31 @@ var select = (function() {
 	    	//$("#select-municipio").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
 	    }
     }
+
+    var availableTags = [
+			"ActionScript",
+			"AppleScript",
+			"Asp",
+			"BASIC",
+			"C",
+			"C++",
+			"Clojure",
+			"COBOL",
+			"ColdFusion",
+			"Erlang",
+			"Fortran",
+			"Groovy",
+			"Haskell",
+			"Java",
+			"JavaScript",
+			"Lisp",
+			"Perl",
+			"PHP",
+			"Python",
+			"Ruby",
+			"Scala",
+			"Scheme"
+		];
 
     var selectLocalidad_ = function(x) {
     	$("#select-localidad").html("");
@@ -491,7 +450,6 @@ var select = (function() {
     }
 
     var changeAnio = function() {
-    	selectTema();
     	select_tema.val(1).trigger('change');
     }
 
@@ -502,40 +460,22 @@ var select = (function() {
 	       	select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
 	        i++
 	    }
-	    if ($("#anio").val() == 2020) {
-	    	select_tema.append(new Option("Desarrollo local", "desarrollo_local"));
-	    }
     }
 
-    var choice_tab = "";
     var changeTema = function(x) {
     	var value = $(this).val();
     	if (value != "") {
-    		
-    		
-    		//if (value == "desarrollo_local") {
-    			console.log("choice_tab");
-    			choice_tab = value;
-    			console.log(choice_tab);
-    		//}else {
-    			//choice_tab = "";
-    		//}
     		selectSubtema(value);
     		select_subtema.prop("disabled", false);
     	}else {
     		select_subtema.prop("disabled", true);
     	}
-    	if (value != "desarrollo_local") {
-			select_subtema.val(select_subtema.val()).trigger('change');
-		}else {
-			select_descsubtema.val(select_descsubtema.val()).trigger('change');
-		}
+    	select_subtema.val(select_subtema.val()).trigger('change');
     }
 
     var selectSubtema = function(x) {
     	var anio_selected = select_anio.val();
 		select_subtema.html("");
-		select_descsubtema.html("");
         /*$.each(all_subtemas, function(i, v) {
 
          	if (v.subtema != null) {
@@ -550,45 +490,26 @@ var select = (function() {
 		        }
 		    }
 	    });*/
-
-	    if (choice_tab == "desarrollo_local") {
-	    	console.log("dessss");
-	    	var res_subtema = all_descsubtemas;
-	    	$(".subtema").hide();
-	    	$(".descsubtema").show();
-	    }else {
-	    	var res_subtema = all_subtemas;
-	    	$(".subtema").show();
-	    	$(".descsubtema").hide();
-	    }
-
-        var i = 0, len = res_subtema.length;
-
-        console.log("res_subtema");
-        console.log(res_subtema);
-
+        var i = 0, len = all_subtemas.length;
 	    while (i < len) {
-	    	if (choice_tab == "desarrollo_local") {
-	    		/*select_descsubtema.val(res_subtema[i].subtema);
-	        	indicadores(res_subtema[i].cve_sub);
-	        	check_all.prop('checked', false);
-				$("#indicadores-0").prop('checked', true);*/
+	       	if (all_subtemas[i].subtema != null) {
+	         	/*var sub_anio = all_subtemas[i].subtema.split(' ');
+				var res_anio = sub_anio[sub_anio.length-1];*/
+				/*console.log("res_aniozzzzzzzzz");
+				console.log(res_anio);*/
 
-			    select_descsubtema.append(new Option(res_subtema[i].subtema, res_subtema[i].cve_sub));
-			    //indicadores(res_subtema[i].cve_sub);
-	        	/*check_all.prop('checked', false);
-				$("#indicadores-0").prop('checked', true);*/
-	    	}else {
-		       	if (res_subtema[i].subtema != null) {
-			        if (res_subtema[i].cve_tem == x && anio_selected == res_subtema[i].anio) {
-			        	select_subtema.val(res_subtema[i].subtema);
-			        	select_subtema_id.val(res_subtema[i].cve_sub);
-			        	indicadores(res_subtema[i].cve_sub);
-			        	check_all.prop('checked', false);
-	    				$("#indicadores-0").prop('checked', true);
-			        }
-			    }
-			}
+		        if (all_subtemas[i].cve_tem == x && anio_selected == all_subtemas[i].anio) {
+		        //if (all_subtemas[i].cve_tem == x) {
+		        	//select_subtema.append(new Option(all_subtemas[i].subtema, all_subtemas[i].cve_sub));
+		        	select_subtema.val(all_subtemas[i].subtema);
+		        	select_subtema_id.val(all_subtemas[i].cve_sub);
+		        	indicadores(all_subtemas[i].cve_sub);
+		        	check_all.prop('checked', false);
+    				$("#indicadores-0").prop('checked', true);
+		        }
+		    }
+
+
 	        i++
 	    }
     }
@@ -596,19 +517,6 @@ var select = (function() {
     var changeSubtema = function() {
     	var value = $(this).val();
     	if (value != "") {
-
-    		indicadores(value);
-    	}else {
-    		//select_subtema.prop("disabled", true);
-    	}
-    	check_all.prop('checked', false);
-    	$("#indicadores-0").prop('checked', true);
-    }
-
-    var changeDescSubtema = function() {
-    	var value = $(this).val();
-    	if (value != "") {
-    		console.log("fdsafdsafds");
     		indicadores(value);
     	}else {
     		//select_subtema.prop("disabled", true);
@@ -618,15 +526,7 @@ var select = (function() {
     }
 
     var indicadores = function(x ="") {
-    	if (choice_tab == "desarrollo_local") {
-	    	console.log("des llll");
-	    	console.log(x);
-	    	var res_indi = all_descindicadores;
-	    	console.log(res_indi);
-	    }else {
-	    	var res_indi = all_indicadores;
-	    }
-	    var indata = $.map(res_indi, function( item ) {
+	    var indata = $.map(all_indicadores, function( item ) {
 			if (x == item.cve_sub) {
 				return {
 	             	label: item.indicadores,
@@ -672,18 +572,12 @@ var select = (function() {
         	all_temas = res.temas;
         	all_subtemas = res.subtemas;
         	all_indicadores = res.indicadores;
-        	all_descsubtemas = res.descsubtemas;
-        	all_descindicadores = res.descindicadores;
         	selectEstado();
         	selectTema();
         	select_tema.val(1).trigger('change');
 
 			for (var i = all_indicadores.length - 1; i >= 0; i--) {
 				nom_ind[all_indicadores[i].cve_ind] = all_indicadores[i].indicadores;
-			}
-
-			for (var i = all_descindicadores.length - 1; i >= 0; i--) {
-				nom_ind[all_descindicadores[i].cve_ind] = all_descindicadores[i].indicadores;
 			}
         	
         	$(".load-data").hide(300, function() {
@@ -743,14 +637,9 @@ var select = (function() {
 			anio: $("#anio").val(),
 			indicadores: in_end,
 			debug: $("#debug").val(),
-			tab: choice_tab,
 			localidades: $("#select-localidad").val()
 		}
-		if (choice_tab == "desarrollo_local") {
-			getInitResponseCube();//
-		}else {
-			getInitResponse();//
-		}
+		getInitResponse();//
 	}
 
 	var generateExcel = function() {
@@ -870,7 +759,6 @@ var select = (function() {
         select_anio.on("change", changeAnio);
         select_tema.on("change", changeTema);
         select_subtema.on("change", changeSubtema);
-        select_descsubtema.on("change", changeDescSubtema);
         check_all.on("click", checkAllIndicadores);
         $(document).on('click','.indicadores-check', checkVisible);
         /*btn_excel.on('click', generateExcel);

@@ -21,9 +21,6 @@
         <script src="js-geo/plugins/slimscroll/jquery.slimscroll.min.js"></script>
         <script src="js-geo/inspinia.js"></script>
         <script src='js-geo/jquery-ui.min.js'></script>
-        <script src="js-geo/plugins/calendario/ng_all.js" type="text/javascript"></script>
-        <script src="js-geo/plugins/calendario/ng_ui.js" type="text/javascript"></script>
-        <script src="js-geo/plugins/calendario/components/calendar.js" type="text/javascript"></script>
 		<script src="js-geo/plugins/confirm/jquery-confirm.js"></script>
 		<script src="js-geo/plugins/selectize/selectize.js"></script>
 		<script src="js-geo/plugins/validations/validations.js"></script>
@@ -31,8 +28,7 @@
 		<script src="js-geo/plugins/ladda/spin.min.js"></script>
 	    <script src="js-geo/plugins/ladda/ladda.min.js"></script>
 	    <script src="js-geo/plugins/ladda/ladda.jquery.min.js"></script>
-		<script src="js-geo/plugins/graph/highstock.js"></script>
-	    <script src="js-geo/plugins/graph/drilldown.js"></script>
+	    <script src="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.js"></script>
 	 	<script type="text/javascript">
 	 		var initMod = (function() {
 				"use strict"

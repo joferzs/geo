@@ -11,7 +11,7 @@ if (isset($_GET["x"])) {
             <li class="breadcrumb-item">
             </li>
             <li class="breadcrumb-item active">
-                <strong>SERVICIO DE LOCALIDADES RURALES</strong>
+                <strong>SERVICIO MAP</strong>
             </li>
         </ol>
     </div>
@@ -41,23 +41,31 @@ if (isset($_GET["x"])) {
                             <input name="municipio" id="select-municipio" disabled placeholder=" Municipio">
                             <input type="hidden" name="id_municipio" id="select-municipio-id" placeholder=" Municipio">
                         </div>
-                        <!--<div>
-                            <div class="head-filter">Seleccione el Localidad</div>
-                            <input name="localidad" id="select-localidad" disabled>
-                            <input type="hidden" name="id_localidad" id="select-localidad-id">
-                        </div>-->
                         <div>
-                            <div class="head-filter">Seleccione la Localidad</div>
-                            <select name="id_localidad" id="select-localidad" placeholder="Localidad" multiple ></select>
+                            <div class="head-filter">Seleccione el método de consulta</div>
+                            <select name="id_metodo" id="select-metodo" placeholder="metodo">
+                                <option value="">Seleccione una opción</option>
+                                <option value="1">Por núcleo agrario</option>
+                                <option value="2">Por área de control</option>
+                            </select>
                         </div>
-                        <div>
+                        <div class="na hide-depend-nucleo">
+                            <div class="head-filter">Seleccione el Núcleo agrario</div>
+                            <select name="id_na" id=select-na placeholder=" Municipio">
+                                <option value="">Seleccione una opción</option>
+                            </select>
+                        </div>
+                        <div class="mapats hide-depend-nucleo">
+                            <div id="poligonos-maps"> meipin</div>
+                        </div>
+                        <!--<div>
                             <div class="head-filter">Seleccione el año de consulta</div>
                             <select name="anio" id=anio>
                                 <option value="2010">2010</option>
                                 <option value="2020">2020</option>
                                 <option value="20102020">2010-2020</option>
                             </select>
-                        </div>
+                        </div>-->
                         <div>
                             <div class="head-filter">Seleccione un tema</div>
                             <select name="id_tema" id="select-tema">
@@ -98,12 +106,7 @@ if (isset($_GET["x"])) {
                     <button id="icono-export"> Exportar  <img src="images/export.png"></button>
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
-                    <table id="footable-list" class="tab-list get-module" data-module="select" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
-
-                    <table id="footable-list-cube" class="tab-lis" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
-
-
-
+                    <table id="footable-list" class="tab-list get-module" data-module="servicioMap" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
 
                 </div>
             </div>

@@ -20,6 +20,7 @@
         <link href="css-geo/plugins/template/style-design-darks.css" rel="stylesheet" type="text/css">
         <link href="css-geo/plugins/validations/validations.css" rel="stylesheet">
         <link href="css-geo/plugins/autocomplete/jquery-ui.css" rel="stylesheet">
+        <link href="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.css" rel="stylesheet" />
     </head>
     <body class="fixed-sidebar pace-done mini-navbar" id="app-site-">
         <div id="wrapper">

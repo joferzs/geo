@@ -1,9 +1,9 @@
-var select = (function() {
+var servicioMap = (function() {
 	"use strict"
 
-	var this_module = "select",
-		module_upper = "Select",
-		module_one = "select",
+	var this_module = "servicioMap",
+		module_upper = "ServicioMap",
+		module_one = "servicioMap",
 		apiDataAll = {
 			controller: module_upper,
 			methods: {
@@ -20,6 +20,13 @@ var select = (function() {
             	'json': ''
             },
 		},
+		apiDataCoords = {
+			controller: module_upper,
+			methods: {
+            	['coords']: { data: ""},
+            	'json': ''
+            },
+		},
 		apiDataLate = {
 			controller: module_upper,
 			methods: {
@@ -29,8 +36,7 @@ var select = (function() {
 				'temas': '',
 				'subtemas': '',
 				'indicadores': '',
-				'desc_subtemas': '',
-				'desc_indicadores': '',
+				'na': '',
             	'json': ''
             },
 		},
@@ -92,7 +98,7 @@ var select = (function() {
 		all_temas,
 		all_subtemas,
 		all_indicadores,
-		all_descsubtemas,
+		all_na,
 		all_descindicadores,
 		all_estados_format,
 		all_municipios_format,
@@ -106,6 +112,8 @@ var select = (function() {
 		select_subtema = $("#select-subtema"),
 		select_subtema_id = $("#select-subtema-id"),
 		select_anio = $("#anio"),
+		select_metodo = $("#select-metodo"),
+		select_na = $("#select-na"),
 		btn_excel = $("#icono-excel"),
 		btn_pdf = $("#icono-pdf"),
 		btn_export = $("#icono-export"),
@@ -286,10 +294,10 @@ var select = (function() {
     	var value = $(this).val();
     	console.log("value");
 	    console.log(value);
-	    $("#select-municipio").val("");
-	    $("#select-localidad").val("");
+	    select_municipio.val("");
+	    /*$("#select-localidad").val("");
 	    $("#select-localidad-id").val("");
-	    select_localidad.prop("disabled", true);
+	    select_localidad.prop("disabled", true);*/
     	if (value != "") {
     		selectMunicipio(value);
     		select_municipio.prop("disabled", false);
@@ -308,16 +316,16 @@ var select = (function() {
 	            }
 			}
         });
-        $("#select-municipio").autocomplete({
+        select_municipio.autocomplete({
 	      	minLength: 0,
 	      	source: indata,
 	      	select: function( event, ui ) {
 	      		if (ui.item.value > 0) {
 	      			console.log("change select");
 	      			console.log(ui.item.value);
-	      			selectLocalidad(ui.item.value);
+	      			selectNa();
 	      		}
-		        $("#select-municipio").val( ui.item.label );
+		        select_municipio.val( ui.item.label );
 		        $("#select-municipio-id").val( ui.item.value );
 		        return false;
 	      	},
@@ -327,7 +335,7 @@ var select = (function() {
 	      		}
 	      	},
 	      	close: function( event, ui ) {
-	      		if ($("#select-municipio").val() == "") {
+	      		if (select_municipio.val() == "") {
 	      			$("#select-municipio-id").val("");
 	      		}
 	      	}
@@ -341,7 +349,7 @@ var select = (function() {
 	        .appendTo( ul );
 	    };
 	    if (typeof x !== 'undefined') {
-	    	//$("#select-municipio").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
+	    	//select_municipio.data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
 	    }
     }
 
@@ -495,6 +503,104 @@ var select = (function() {
     	select_tema.val(1).trigger('change');
     }
 
+    var changeMetodo = function() {
+    	//selectTema();
+    	//select_tema.val(1).trigger('change');
+    	console.log("thisss valor");
+    	console.log($(this).val());
+    	var id_n = $(this).val();
+    	if (id_n == 1) {
+    		$(".na").show();
+	    	$(".mapats").hide();
+	    	selectNa();
+    	}else if (id_n == 2) {
+    		$(".na").hide();
+	    	$(".mapats").show();
+	    	mapProp = {
+		      	container: 'poligonos-maps',
+		        style: 'mapbox://styles/mapbox/streets-v10',
+		        //center: [-99.1344835, 19.4288867],
+		        //center: [-68.137343, 45.137451],
+		        //center: [-71.177684852, 42.390289651],
+		        center: [-91.97363682, 17.91143118],
+				zoom: 5
+		    };
+	    	map = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+
+	        if ($("#select-municipio-id").val() != "" && select_estado.val() != "") {
+	        	apiDataCoords.methods['coords']['data'] = {
+					id_municipio: $("#select-municipio-id").val(),
+					id_estado: select_estado.val(),
+				}
+	        	initMod.apiCall(apiDataCoords).then(function(res){
+					console.log("ress coords");
+    				console.log(res);
+    				var est_coords = res.estados[0].COORDS.coordinates[0];
+    				var g_coords = res.estados_g[0].COORDS.coordinates[0];
+    				var mun_coords = res.municipios[0].COORDS.coordinates[0];
+    				console.log("est_coords");
+    				console.log(est_coords);
+    				console.log("mun_coords");
+    				console.log(mun_coords);
+    				setTimeout(function() {
+			          	getPoligonShapes(est_coords, mun_coords);
+			        }, 500);
+				}, function(reason, json){
+				 	initMod.debugThemes(reason, json);
+				});
+	        	
+	        }
+	        
+    	}
+    }
+
+    select_na = $('#select-na');
+    var selectNa = function() {
+    	console.log("municipio  aaaaaaaa");
+    	console.log($("#select-municipio-id").val());
+    	console.log("select_estado.val()bbbbb");
+    	console.log(select_estado.val());
+    	var indata = $.map(all_na, function( item ) {
+            if ($("#select-municipio-id").val() == item.cve_mun && select_estado.val() == item.cve_ent) {
+				return {
+	             	nucleo: item.nom_nucleo,
+		            id_nucleo: item.cve_nucleo,
+	            }
+			}
+        });
+        console.log("indata.val()cccc");
+    	console.log(indata);
+        select_na.prop("disabled", false);
+        var keys = ['id_nucleo', 'nucleo', select_na,indata];
+        var selectForm = resetSelect(keys[2]);
+        selectForm.selectize({
+            valueField: keys[0],labelField: keys[1],searchField: keys[1], options: keys[3],
+            persist: false,
+            create: false,
+            sortField: "id_localidad",
+            render: { option: function(item, escape) { return '<div><span class="name">' + escape(item[keys[1]]) + '</span></div>' } },
+            onInitialize: function () {
+                var selectize = this;
+                //selectize.addOption({id_localidad: -1, localidad: 'Todos'});
+                //callSetTime(selectize, -1);
+            },
+			onChange: function(value) {
+				/*console.log("valll");
+				console.log(value);
+				var selectize = this;
+				if (value == null) {
+					console.log("vacio");
+					selectize.addOption({id_localidad: -1, localidad: 'Todos'});
+				}else if (value.indexOf(-1) != -1 && value.length == 1) {
+					console.log("encontrado");
+				}else if (value.length > 1) {
+					console.log("tiene 2");
+					selectize.removeItem(-1);
+				}*/
+          	},
+        });
+    };
+
     var selectTema = function(x) {
     	select_tema.html("");
 	    var i = 0, len = all_temas.length;
@@ -553,7 +659,7 @@ var select = (function() {
 
 	    if (choice_tab == "desarrollo_local") {
 	    	console.log("dessss");
-	    	var res_subtema = all_descsubtemas;
+	    	var res_subtema = all_na;
 	    	$(".subtema").hide();
 	    	$(".descsubtema").show();
 	    }else {
@@ -672,8 +778,7 @@ var select = (function() {
         	all_temas = res.temas;
         	all_subtemas = res.subtemas;
         	all_indicadores = res.indicadores;
-        	all_descsubtemas = res.descsubtemas;
-        	all_descindicadores = res.descindicadores;
+        	all_na = res.na;
         	selectEstado();
         	selectTema();
         	select_tema.val(1).trigger('change');
@@ -682,10 +787,6 @@ var select = (function() {
 				nom_ind[all_indicadores[i].cve_ind] = all_indicadores[i].indicadores;
 			}
 
-			for (var i = all_descindicadores.length - 1; i >= 0; i--) {
-				nom_ind[all_descindicadores[i].cve_ind] = all_descindicadores[i].indicadores;
-			}
-        	
         	$(".load-data").hide(300, function() {
 				$(".content-filters").show(600, function() {
 	      			/*initMod.apiCall(apiDataLocalidades).then(function(res){
@@ -721,6 +822,156 @@ var select = (function() {
 	var getMunicipioFormat = function(x) {
 		return all_municipios_format[x];
 	}
+
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVhbm9ycmFuZ2VsIiwiYSI6ImNrNnIxYzVmdzAwdWszaHFpcndyandwbmcifQ.0yZCD9xMEiLEAzeut0pzuw';
+
+	var mapProp; /*= {
+      	container: 'poligonos-maps',
+        style: 'mapbox://styles/mapbox/streets-v10',
+        //center: [-99.1344835, 19.4288867],
+        //center: [-68.137343, 45.137451],
+        //center: [-71.177684852, 42.390289651],
+        center: [-91.97363682, 17.91143118],
+		zoom: 5
+    };*/
+
+    var map;// = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+
+    var hoveredStateId = null;
+
+    var id_source_collection = { type: 'FeatureCollection', features: [] };
+
+    var getPoligonShapes = function(est_coords,mun_coords) {
+		    		console.log("enter dheippp");
+        			map.addSource('diamolical-pal', {
+		                'type': 'geojson',
+		                'data': {
+							'type': 'Feature',
+							'geometry': {
+								'type': 'Polygon',
+								// These coordinates outline Maine.
+								"coordinates": 
+							    
+							      	/*[
+										[-67.13734, 45.13745],
+										[-66.96466, 44.8097],
+										[-68.03252, 44.3252],
+										[-69.06, 43.98],
+										[-70.11617, 43.68405],
+										[-70.64573, 43.09008],
+										[-70.75102, 43.08003],
+										[-70.79761, 43.21973],
+										[-70.98176, 43.36789],
+										[-70.94416, 43.46633],
+										[-71.08482, 45.30524],
+										[-70.66002, 45.46022],
+										[-70.30495, 45.91479],
+										[-70.00014, 46.69317],
+										[-69.23708, 47.44777],
+										[-68.90478, 47.18479],
+										[-68.2343, 47.35462],
+										[-67.79035, 47.06624],
+										[-67.79141, 45.70258],
+										[-67.13734, 45.13745]
+									]*/
+									est_coords
+							}
+						}
+		                //'generateId': true
+		            });
+
+		            map.addLayer({
+						'id': 'poligono-patrimonial',
+						'type': 'fill',
+						'source': 'diamolical-pal',
+						'layout': {},
+						'paint': {
+							'fill-color': '#e22624',
+							'fill-opacity': [
+								'case',
+								['boolean', ['feature-state', 'hover'], false],
+								0.9,
+								0.6
+							]
+						}
+					});
+
+					
+
+				  	 
+
+				  	console.log("enter dheippp 22");
+
+				  	id_source_collection.features = id_source_collection.features.concat(mun_coords);
+
+				  	console.log(id_source_collection);
+
+				  	var teee = {
+						'type': 'Polygon',
+						'coordinates': mun_coords
+					}
+
+					map.addSource('bbb', {
+				    	type: 'geojson',
+					    data: {
+					      "type": "FeatureCollection",
+					      "features": []
+					    }
+				  	});
+
+				  	return;
+				  	setTimeout(function() {
+			          	map.getSource('diamolical-pal').setData(
+			          		{
+						      "type": "FeatureCollection",
+						      "features": mun_coords
+					  	});
+			          	console.log("fuckkk bit");
+			          	/*map.addSource('bbb', {
+					    	type: 'geojson',
+						    data: {
+						      "type": "FeatureCollection",
+						      "features": mun_coords
+						    }
+					  	});*/
+
+					  	map.addLayer({
+							/*'id': 'poligono-borders',
+							'type': 'line',
+							'source': 'diamolical-pal',
+							'layout': {},
+							'paint': {
+								'line-color': '#ec4242',
+								'line-width': 0.1,
+							}*/
+							"id": "poligono-borders",
+						    "source": "diamolical-pal",
+						    'type': 'line',
+						    'paint': {
+						    	'line-color': '#4924dc',
+						      'line-width': 2
+						    }
+						});
+			        }, 2000);
+		            /*map.addLayer({
+						'id': 'poligono-borders',
+						'type': 'line',
+						'source': 'diamolical-pal',
+						'layout': {},
+						'paint': {
+							'line-color': '#ec4242',
+							'line-width': 0.1,
+						}
+						"id": "poligono-borders",
+					    "source": "bbb",
+					    'type': 'line',
+					    'paint': {
+					    	'line-color': '#4924dc',
+					      'line-width': 2
+					    }
+					});*/
+					console.log("enter dheippp 333");
+			    }
 
 	var l;
 
@@ -868,6 +1119,7 @@ var select = (function() {
         $("#btn-buscar").on("click", buscarRes);
         select_estado.on("change", changeEstado);
         select_anio.on("change", changeAnio);
+        select_metodo.on("change", changeMetodo);
         select_tema.on("change", changeTema);
         select_subtema.on("change", changeSubtema);
         select_descsubtema.on("change", changeDescSubtema);

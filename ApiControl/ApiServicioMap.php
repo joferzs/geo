@@ -12,7 +12,7 @@ use ApiControl\ApiSessionSecurity;//el "use" se refiere al archivo que contiene 
 /**
  * 
  */
-class ApiSelect extends ApiMain {
+class ApiServicioMap extends ApiMain {
 
 	//private $conn;
 	private $asa;
@@ -267,6 +267,84 @@ class ApiSelect extends ApiMain {
 			}
 		}else{
 			$this->items_arr['indicadores'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getNa($x) {
+		$sql = 'SELECT "nom_nucleo","cve_nucleo","cve_mun","cve_ent" FROM public.na';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['na'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$this->items_arr['na'][] = $row;
+			}
+		}else{
+			$this->items_arr['na'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getCoords($x) {
+		$sql = 'SELECT "NOMGEO","CVE_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.estados WHERE "CVE_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['estados'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$row['COORDS'] = json_decode($row['COORDS']);
+				$this->items_arr['estados'][] = $row;
+			}
+		}else{
+			$this->items_arr['estados'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+
+		$sql = 'SELECT "NOMGEO","CVE_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.estados WHERE "CVE_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', "20", PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['estados_g'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$row['COORDS'] = json_decode($row['COORDS']);
+				$this->items_arr['estados_g'][] = $row;
+			}
+		}else{
+			$this->items_arr['estados_g'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+
+		$sql = 'SELECT "NOMGEO","CVE_MUN",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.municipios WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ORDER BY "NOMGEO" ASC';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['municipios'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$row['COORDS'] = json_decode($row['COORDS']);
+				$this->items_arr['municipios'][] = $row;
+			}
+		}else{
+			$this->items_arr['municipios'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
 	}

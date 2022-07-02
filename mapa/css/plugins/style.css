@@ -775,10 +775,3 @@ body#app-site-2 {
 #select-estado {
   width: 205px;
 }
-.hide-depend-nucleo {
-  display: none;
-}
-#poligonos-maps {
-  height: 500px;
-  width: 100%;
-}
