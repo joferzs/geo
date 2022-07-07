@@ -32,7 +32,7 @@ if (isset($_GET["x"])) {
                         <input type="hidden" name="debug" id="debug" value="<?php echo $hidden ?>">
                         <div>
                             <div class="head-filter">Seleccione el Estado</div>
-                            <select name="id_estado" id=select-estado placeholder=" Municipio">
+                            <select name="id_estado" id="select-estado" placeholder="Estado">
                                 <option value="">Seleccione una opción</option>
                             </select>
                         </div>
@@ -51,16 +51,16 @@ if (isset($_GET["x"])) {
                             <select name="id_localidad" id="select-localidad" placeholder="Localidad" multiple ></select>
                         </div>
                         <div>
+                            <div class="head-filter">Seleccione un tema</div>
+                            <select name="id_tema" id="select-tema">
+                            </select>
+                        </div>
+                        <div class="anio">
                             <div class="head-filter">Seleccione el año de consulta</div>
                             <select name="anio" id=anio>
                                 <option value="2010">2010</option>
                                 <option value="2020">2020</option>
-                                <option value="20102020">2010-2020</option>
-                            </select>
-                        </div>
-                        <div>
-                            <div class="head-filter">Seleccione un tema</div>
-                            <select name="id_tema" id="select-tema">
+                                <!--<option value="20102020">2010-2020</option>-->
                             </select>
                         </div>
                         <div class="subtema">
@@ -78,8 +78,14 @@ if (isset($_GET["x"])) {
                         <div>
                             <div class="head-filter head-indicadores">Seleccione los indicadores a consultar</div>
                             <div class="content-indicadores">
-                                <div><input type="checkbox" class="indicadores-check" id="check-all">Seleccionar todos</div>
-                                <div id="check-indicadores"></div>
+                                <div id="check-ind-var">
+                                    <div><input type="checkbox" class="indicadores-check-var" id="check-all-var">Seleccionar todos</div>
+                                    <div id="check-indicadores-var"></div>
+                                </div>
+                                <div id="check-ind-none">
+                                    <div><input type="checkbox" class="indicadores-check" id="check-all">Seleccionar todos</div>
+                                    <div id="check-indicadores"></div>
+                                </div>
                             </div>
                         </div>
                         <div class="btn-indicadores">

@@ -1,9 +1,9 @@
-var selectDes = (function() {
+var mapa = (function() {
 	"use strict"
 
-	var this_module = "selectDes",
-		module_upper = "SelectDes",
-		module_one = "selectDes",
+	var this_module = "mapa",
+		module_upper = "Mapa",
+		module_one = "mapa",
 		apiDataAll = {
 			controller: module_upper,
 			methods: {
@@ -11,12 +11,17 @@ var selectDes = (function() {
             	'json': ''
             },
 		},
-		/*limit_in = 0,
-		limit_data = 200,*/
 		apiDataAllFilter = {
 			controller: module_upper,
 			methods: {
             	['all_filter_' + this_module]: { data: ""},
+            	'json': ''
+            },
+		},
+		apiDataCoords = {
+			controller: module_upper,
+			methods: {
+            	'coords': { data: ""},
             	'json': ''
             },
 		},
@@ -29,6 +34,8 @@ var selectDes = (function() {
 				'temas': '',
 				'subtemas': '',
 				'indicadores': '',
+				'desc_subtemas': '',
+				'desc_indicadores': '',
             	'json': ''
             },
 		},
@@ -37,13 +44,6 @@ var selectDes = (function() {
 			methods: {
 				'estados_format': '',
 				'municipios_format': '',
-            	'json': ''
-            },
-		},
-		apiDataLocalidades = {
-			controller: module_upper,
-			methods: {
-				'localidades': '',
             	'json': ''
             },
 		},
@@ -90,22 +90,30 @@ var selectDes = (function() {
 		all_temas,
 		all_subtemas,
 		all_indicadores,
+		all_descsubtemas,
+		all_descindicadores,
 		all_estados_format,
 		all_municipios_format,
 		//nom_ind = {ID: "ID", CGLOC: "CGLOC", NOM_LOC : "LOCALIDAD", CVE_ENT : "estado", clave_estado : "clave estado", CVE_MUN : "municipio", clave_municipio : "clave municipio"},
 		nom_ind = {ID: "ID", NOM_LOC : "LOCALIDAD"},
 		select_estado = $("#select-estado"),
 		select_municipio = $("#select-municipio"),
-		select_localidad = $("#select-localidad"),
 		select_tema = $("#select-tema"),
+		select_descsubtema = $("#select-descsubtema"),
 		select_subtema = $("#select-subtema"),
 		select_subtema_id = $("#select-subtema-id"),
 		select_anio = $("#anio"),
+		select_metodo = $("#select-metodo"),
+		select_na = $("#select-na"),
 		btn_excel = $("#icono-excel"),
 		btn_pdf = $("#icono-pdf"),
 		btn_export = $("#icono-export"),
+		check_ind_var = $("#check-ind-var"),
+		check_ind_none = $("#check-ind-none"),
 		check_all = $("#check-all"),
-		check_indicadores = $("#check-indicadores");
+		check_all_var = $("#check-all-var"),
+		check_indicadores = $("#check-indicadores"),
+		check_indicadores_var = $("#check-indicadores-var");
 
 	var limit_in,
 		long_data = 10000,		//set max res for request
@@ -150,8 +158,6 @@ var selectDes = (function() {
 		limitConfig();
 
 		initMod.apiCall(apiDataAllFilter).then(function(res){
-			console.log("res de nuestro nuevo modulo" + module_upper);
-			console.log(res);
 			$(".res-error").hide();
 			if ($("#debug").val() == 'debug') {
 				$(".res-x").html("send: " + JSON.stringify(res.x));
@@ -176,22 +182,75 @@ var selectDes = (function() {
 				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
 			}
 
-			$('#footable-list').empty();    
+			$('#footable-list').empty();
+			$('#footable-list-cube').empty();
 			
 			var ft = FooTable.init('#footable-list', {
 				"columns": header,
 				"rows": all_data_tab,
                 'on': {
                     'postdraw.ft.table': function(e, ft) {
-                    	console.log("kam");
                         getPostResponse(ft);
                     }
                 }
 			},function(ft){
-				console.log("human fates");
 		    });
 		}, function(reason, json){
-			console.log("non");
+			l.ladda( 'stop' );
+			if ($("#debug").val() == 'debug') {
+				$(".res-error").html("Error msg: " + reason.responseText).show(1000);
+			}else {
+				$(".res-error").html("Error en la consulta").show(1000);
+			}
+		 	initMod.debugThemes(reason, json);
+		});
+	}
+
+	var getInitResponseCube = function() {
+		limit_in = 0;
+		post_resp = true;
+
+		limitConfig();
+
+		initMod.apiCall(apiDataAllFilter).then(function(res){
+			$(".res-error").hide();
+			if ($("#debug").val() == 'debug') {
+				$(".res-x").html("send: " + JSON.stringify(res.x));
+				$(".res-sql").html("sql: " + res.sql);
+			}
+
+			var all_data_tab = res.vulnerabilidad, header = [], ii = 0;
+			if (all_data_tab.length > 0) {
+				$.each(all_data_tab[0], function(i, v) {
+					var width = 100; 
+					if (i == "ID") {
+						width = 20;
+					}
+			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
+					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
+					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+			        if (ii > 4) yeison.breakpoints = "all";
+			        header.push(yeison);
+			        ii++;
+			    });
+			}else {
+				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
+			}
+
+			$('#footable-list').empty();
+			$('#footable-list-cube').empty();
+			
+			var ft = FooTable.init('#footable-list-cube', {
+				"columns": header,
+				"rows": all_data_tab,
+                'on': {
+                    'postdraw.ft.table': function(e, ft) {
+                        getPostResponse(ft);
+                    }
+                }
+			},function(ft){
+		    });
+		}, function(reason, json){
 			l.ladda( 'stop' );
 			if ($("#debug").val() == 'debug') {
 				$(".res-error").html("Error msg: " + reason.responseText).show(1000);
@@ -209,8 +268,6 @@ var selectDes = (function() {
 
 	    var i = 0, len = all_estados.length;
 	    while (i < len) {
-	    	console.log("esttta oo");
-	    	console.log(all_estados[i]);
 	       	select_estado.append(new Option(all_estados[i].NOMGEO, all_estados[i].CVE_ENT));
 	        i++
 	    }
@@ -218,12 +275,7 @@ var selectDes = (function() {
 
     var changeEstado = function() {
     	var value = $(this).val();
-    	console.log("value");
-	    console.log(value);
 	    $("#select-municipio").val("");
-	    $("#select-localidad").val("");
-	    $("#select-localidad-id").val("");
-	    select_localidad.prop("disabled", true);
     	if (value != "") {
     		selectMunicipio(value);
     		select_municipio.prop("disabled", false);
@@ -247,9 +299,6 @@ var selectDes = (function() {
 	      	source: indata,
 	      	select: function( event, ui ) {
 	      		if (ui.item.value > 0) {
-	      			console.log("change select");
-	      			console.log(ui.item.value);
-	      			selectLocalidad(ui.item.value);
 	      		}
 		        $("#select-municipio").val( ui.item.label );
 		        $("#select-municipio-id").val( ui.item.value );
@@ -278,147 +327,6 @@ var selectDes = (function() {
 	    	//$("#select-municipio").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
 	    }
     }
-
-    var availableTags = [
-			"ActionScript",
-			"AppleScript",
-			"Asp",
-			"BASIC",
-			"C",
-			"C++",
-			"Clojure",
-			"COBOL",
-			"ColdFusion",
-			"Erlang",
-			"Fortran",
-			"Groovy",
-			"Haskell",
-			"Java",
-			"JavaScript",
-			"Lisp",
-			"Perl",
-			"PHP",
-			"Python",
-			"Ruby",
-			"Scala",
-			"Scheme"
-		];
-
-    var selectLocalidad_ = function(x) {
-    	$("#select-localidad").html("");
-		var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
-				return {
-	             	label: item.NOM_LOC,
-		            value: item.CGLOC,
-	            }
-			}
-        });
-        $("#select-localidad").on( "keydown", function( event ) {
-				if ( event.keyCode === $.ui.keyCode.TAB &&
-						$( this ).autocomplete( "instance" ).menu.active ) {
-					event.preventDefault();
-				}
-			}).autocomplete({
-	      	minLength: 0,
-	      	source: function( request, response ) {
-					// delegate back to autocomplete, but extract the last term
-					response( $.ui.autocomplete.filter(
-						indata, extractLast( request.term ) ) );
-				},
-	      	//source: indata,
-	      	select: function( event, ui ) {
-	      		if (ui.item.value > 0) {
-	      			//selectAutoDirec(x, ui.item.value);
-	      		}
-	      		console.log("this.valuesss");
-	      		console.log(this.value);
-	      		var terms = split( this.value );
-				// remove the current input
-				terms.pop();
-				// add the selected item
-				terms.push( ui.item.label );
-				// add placeholder to get the comma-and-space at the end
-				terms.push( "" );
-				this.value = terms.join( ", " );
-				return false;
-
-
-		        $("#select-localidad").val( ui.item.label );
-		        $("#select-localidad-id").val( ui.item.value );
-		        return false;
-	      	},
-	      	change: function( event, ui ) {
-	      		if (ui.item == null) {
-	      			$("#select-localidad-id").val("");
-	      		}
-	      	},
-	      	close: function( event, ui ) {
-	      		if ($("#select-localidad").val() == "") {
-	      			$("#select-localidad-id").val("");
-	      		}
-	      	}
-	    }).focus(function () {
-		    $(this).autocomplete("search");
-		})
-	    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-	      	return $( "<li>" )
-	        //.append( "<div>" + item.label + "<br>" + item.telefono + "</div>" )
-	        .append( "<div>" + item.label + "</div>" )
-	        .appendTo( ul );
-	    };
-	    if (typeof x !== 'undefined') {
-	    	//$("#select-localidad").data('ui-autocomplete')._trigger('select', 'autocompleteselect', {item:{value:x}});
-	    }
-	    $("#select-localidad").prop("disabled", false);
-    }
-
-    select_localidad = $('#select-localidad');
-    var selectLocalidad = function(x) {
-    	var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
-				return {
-	             	localidad: item.NOM_LOC,
-		            id_localidad: item.CGLOC,
-	            }
-			}
-        });
-        $("#select-localidad").prop("disabled", false);
-        var keys = ['id_localidad', 'localidad', select_localidad,indata];
-        var selectForm = resetSelect(keys[2]);
-        selectForm.selectize({
-            plugins: ["remove_button"],
-            delimiter: ",1349,",
-            valueField: keys[0],labelField: keys[1],searchField: keys[1], options: keys[3],
-            persist: false,
-            create: false,
-            sortField: "id_localidad",
-            render: { option: function(item, escape) { return '<div><span class="name">' + escape(item[keys[1]]) + '</span></div>' } },
-            onInitialize: function () {
-                var selectize = this;
-                selectize.addOption({id_localidad: -1, localidad: 'Todos'});
-                callSetTime(selectize, -1);
-            },
-			onChange: function(value) {
-				console.log("valll");
-				console.log(value);
-				var selectize = this;
-				if (value == null) {
-					console.log("vacio");
-					selectize.addOption({id_localidad: -1, localidad: 'Todos'});
-				}else if (value.indexOf(-1) != -1 && value.length == 1) {
-					console.log("encontrado");
-					/*$('#select-submarca').prop("disabled", false);
-					selectSubmarcas(y);*/
-				}else if (value.length > 1) {
-					console.log("tiene 2");
-					selectize.removeItem(-1);
-					/*var selectize = this;
-	                selectize.addOption({id_localidad: "burzum", localidad: 'Todosss'});*/
-				}
-          	},
-        });
-    };
 
     var split = function( val ) {
 		return val.split( /,\s*/ );
@@ -449,8 +357,185 @@ var selectDes = (function() {
         },100);
     }
 
+    var changeMetodo = function() {
+    	//selectTema();
+    	//select_tema.val(1).trigger('change');
+    	var id_n = $(this).val();
+    	if (id_n == 1) {
+    		$(".na").show();
+	    	$(".mapats").hide();
+	    	selectNa();
+    	}else if (id_n == 2) {
+    		$(".na").hide();
+	    	$(".mapats").show();
+	    	mapProp = {
+		      	container: 'poligonos-maps',
+		        style: 'mapbox://styles/mapbox/streets-v10',
+		        //center: [-99.1344835, 19.4288867],
+		        //center: [-68.137343, 45.137451],
+		        //center: [-71.177684852, 42.390289651],
+		        center: [-91.97363682, 17.91143118],
+				zoom: 5
+		    };
+	    	map = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+
+	        if ($("#select-municipio-id").val() != "" && select_estado.val() != "") {
+	        	apiDataCoords.methods['coords']['data'] = {
+					id_municipio: $("#select-municipio-id").val(),
+					id_estado: select_estado.val(),
+				}
+	        	initMod.apiCall(apiDataCoords).then(function(res){
+					console.log("ress coords");
+    				console.log(res);
+    				var est_coords = res.estados[0].COORDS.coordinates[0];
+    				/*var g_coords = res.estados_add[0].COORDS.coordinates[0];
+    				var mun_coords = res.municipios[0].COORDS.coordinates[0];*/
+    				console.log("est_coords");
+    				console.log(est_coords);
+    				setTimeout(function() {
+    					var apiJsonAllPol = res.test_coords;
+						id_source_collection.features = id_source_collection.features.concat(apiJsonAllPol);
+			          	getPoligonShapes(est_coords);
+			        }, 500);
+
+			        setTimeout(function() {
+			        	
+			        	var apiJsonAllPol = res.municipios_coords.features;
+						id_source_collection.features = id_source_collection.features.concat(apiJsonAllPol);
+
+			          	map.getSource('diamolical-pal').setData(id_source_collection);
+			        }, 4000);
+				}, function(reason, json){
+				 	initMod.debugThemes(reason, json);
+				});
+	        	
+	        }
+	        
+    	}
+    }
+
+    var id_source_collection = { type: 'FeatureCollection', features: [] }
+
+    select_na = $('#select-na');
+    var selectNa = function() {
+    	var indata = $.map(all_na, function( item ) {
+            if ($("#select-municipio-id").val() == item.cve_mun && select_estado.val() == item.cve_ent) {
+				return {
+	             	nucleo: item.nom_nucleo,
+		            id_nucleo: item.cve_nucleo,
+	            }
+			}
+        });
+        select_na.prop("disabled", false);
+        var keys = ['id_nucleo', 'nucleo', select_na,indata];
+        var selectForm = resetSelect(keys[2]);
+        selectForm.selectize({
+            valueField: keys[0],labelField: keys[1],searchField: keys[1], options: keys[3],
+            persist: false,
+            create: false,
+            sortField: "id_localidad",
+            render: { option: function(item, escape) { return '<div><span class="name">' + escape(item[keys[1]]) + '</span></div>' } },
+            onInitialize: function () {
+                var selectize = this;
+                //selectize.addOption({id_localidad: -1, localidad: 'Todos'});
+                //callSetTime(selectize, -1);
+            },
+			onChange: function(value) {
+				/*console.log("valll");
+				console.log(value);
+				var selectize = this;
+				if (value == null) {
+					console.log("vacio");
+					selectize.addOption({id_localidad: -1, localidad: 'Todos'});
+				}else if (value.indexOf(-1) != -1 && value.length == 1) {
+					console.log("encontrado");
+				}else if (value.length > 1) {
+					console.log("tiene 2");
+					selectize.removeItem(-1);
+				}*/
+          	},
+        });
+    };
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZmVhbm9ycmFuZ2VsIiwiYSI6ImNrNnIxYzVmdzAwdWszaHFpcndyandwbmcifQ.0yZCD9xMEiLEAzeut0pzuw';
+
+	var mapProp; /*= {
+      	container: 'poligonos-maps',
+        style: 'mapbox://styles/mapbox/streets-v10',
+        //center: [-99.1344835, 19.4288867],
+        //center: [-68.137343, 45.137451],
+        //center: [-71.177684852, 42.390289651],
+        center: [-91.97363682, 17.91143118],
+		zoom: 5
+    };*/
+
+    var map;// = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+
+
+
+    var getPoligonShapes = function(est_coords,mun_coords) {
+		console.log("enter dheippp");
+		map.addSource('diamolical-pal', {
+            'type': 'geojson',
+            'data': {
+				'type': 'Feature',
+				'geometry': {
+					'type': 'Polygon',
+					// These coordinates outline Maine.
+					"coordinates": 
+						est_coords
+				}
+			}
+            //'generateId': true
+        });
+
+        map.addLayer({
+			'id': 'poligono-patrimonial',
+			'type': 'fill',
+			'source': 'diamolical-pal',
+			'layout': {},
+			'paint': {
+				'fill-color': '#e22624',
+				'fill-opacity': [
+					'case',
+					['boolean', ['feature-state', 'hover'], false],
+					0.9,
+					0.6
+				]
+			}
+		});
+
+	  	map.addSource('bbb', {
+	    	type: 'geojson',
+		    data: {
+		      "type": "FeatureCollection",
+		      "features": []
+		    }
+	  	});
+        map.addLayer({
+			/*'id': 'poligono-borders',
+			'type': 'line',
+			'source': 'diamolical-pal',
+			'layout': {},
+			'paint': {
+				'line-color': '#ec4242',
+				'line-width': 0.1,
+			}*/
+			"id": "poligono-borders",
+		    "source": "bbb",
+		    'type': 'line',
+		    'paint': {
+		    	'line-color': '#4924dc',
+		      'line-width': 2
+		    }
+		});
+    }
+
+	var l;
+
     var changeAnio = function() {
-    	select_tema.val(1).trigger('change');
+    	selectSubtema(1);
+    	//selectSubtema.val(1).trigger('change');
     }
 
     var selectTema = function(x) {
@@ -460,22 +545,46 @@ var selectDes = (function() {
 	       	select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
 	        i++
 	    }
+	    /*if ($("#anio").val() == 2020) {
+	    	select_tema.append(new Option("Desarrollo local", "desarrollo_local"));
+	    }*/
+	    select_tema.append(new Option("Desarrollo local", "desarrollo_local"));
     }
 
+    var choice_tab = "";
     var changeTema = function(x) {
     	var value = $(this).val();
     	if (value != "") {
+    		
+    		
+    		//if (value == "desarrollo_local") {
+
+    			choice_tab = value;
+
+    		//}else {
+    			//choice_tab = "";
+    		//}
     		selectSubtema(value);
     		select_subtema.prop("disabled", false);
     	}else {
     		select_subtema.prop("disabled", true);
     	}
-    	select_subtema.val(select_subtema.val()).trigger('change');
+    	if (value != "desarrollo_local") {
+    		$(".anio").show();
+			select_subtema.val(select_subtema.val()).trigger('change');
+		}else {
+			$(".anio").hide();
+			select_descsubtema.val(select_descsubtema.val()).trigger('change');
+		}
     }
 
     var selectSubtema = function(x) {
+
     	var anio_selected = select_anio.val();
-		select_subtema.html("");
+
+		select_subtema.val("");
+		select_subtema_id.val("");
+		select_descsubtema.html("");
         /*$.each(all_subtemas, function(i, v) {
 
          	if (v.subtema != null) {
@@ -490,31 +599,61 @@ var selectDes = (function() {
 		        }
 		    }
 	    });*/
-        var i = 0, len = all_subtemas.length;
+
+	    if (choice_tab == "desarrollo_local") {
+
+	    	var res_subtema = all_descsubtemas;
+	    	$(".subtema").hide();
+	    	$(".descsubtema").show();
+	    }else {
+	    	var res_subtema = all_subtemas;
+	    	$(".subtema").show();
+	    	$(".descsubtema").hide();
+	    }
+
+        var i = 0, len = res_subtema.length;
+
 	    while (i < len) {
-	       	if (all_subtemas[i].subtema != null) {
-	         	/*var sub_anio = all_subtemas[i].subtema.split(' ');
-				var res_anio = sub_anio[sub_anio.length-1];*/
-				/*console.log("res_aniozzzzzzzzz");
-				console.log(res_anio);*/
+	    	if (choice_tab == "desarrollo_local") {
+	    		/*select_descsubtema.val(res_subtema[i].subtema);
+	        	indicadores(res_subtema[i].cve_sub);
+	        	check_all.prop('checked', false);
+				$("#indicadores-0").prop('checked', true);*/
 
-		        if (all_subtemas[i].cve_tem == x && anio_selected == all_subtemas[i].anio) {
-		        //if (all_subtemas[i].cve_tem == x) {
-		        	//select_subtema.append(new Option(all_subtemas[i].subtema, all_subtemas[i].cve_sub));
-		        	select_subtema.val(all_subtemas[i].subtema);
-		        	select_subtema_id.val(all_subtemas[i].cve_sub);
-		        	indicadores(all_subtemas[i].cve_sub);
-		        	check_all.prop('checked', false);
-    				$("#indicadores-0").prop('checked', true);
-		        }
-		    }
+			    select_descsubtema.append(new Option(res_subtema[i].subtema, res_subtema[i].cve_sub));
+			    //indicadores(res_subtema[i].cve_sub);
+	        	/*check_all.prop('checked', false);
+				$("#indicadores-0").prop('checked', true);*/
+	    	}else {
+		       	if (res_subtema[i].subtema != null) {
+			        if (res_subtema[i].cve_tem == x && anio_selected == res_subtema[i].anio) {
 
-
+			        	select_subtema.val(res_subtema[i].subtema);
+			        	select_subtema_id.val(res_subtema[i].cve_sub);
+			        	indicadores(res_subtema[i].cve_sub);
+			        	check_all.prop('checked', false);
+	    				$("#indicadores-0").prop('checked', true);
+			        }
+			    }
+			}
 	        i++
 	    }
     }
 
     var changeSubtema = function() {
+    	var value = $(this).val();
+    	if (value != "") {
+
+    		//indicadores(value);
+    	}else {
+    		//select_subtema.prop("disabled", true);
+    	}
+    	check_all.prop('checked', false);
+    	check_all_var.prop('checked', false);
+    	$("#indicadores-0").prop('checked', true);
+    }
+
+    var changeDescSubtema = function() {
     	var value = $(this).val();
     	if (value != "") {
     		indicadores(value);
@@ -526,32 +665,56 @@ var selectDes = (function() {
     }
 
     var indicadores = function(x ="") {
-	    var indata = $.map(all_indicadores, function( item ) {
+    	if (choice_tab == "desarrollo_local") {
+	    	var res_indi = all_descindicadores;
+	    }else {
+	    	var res_indi = all_indicadores;
+	    }
+	    var indata = $.map(res_indi, function( item ) {
 			if (x == item.cve_sub) {
 				return {
 	             	label: item.indicadores,
 		            value: item.cve_ind,
+		            type: item.type,
 	            }
 			}
         });
         check_indicadores.html("");
-        check_indicadores.hide(300, function() {
+        check_indicadores_var.html("");
+
+        check_ind_var.hide(300);
+        check_ind_none.hide(300, function() {
 			if (x != "") {
 				$.each(indata, function(i, v) {
 					var che = "";
-					if (i == 0)	che = "checked"; 
-			        check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
+					if (i == 0)	che = "checked";
+
+					if (v.type == "var") {
+						check_indicadores_var.append('<div><input type="checkbox" class="indicadores-check-var" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
+					}else {
+						check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
+					}
+			        
 			    });
-			    check_indicadores.show(600);
+			    if ($(".indicadores-check").length > 1) check_ind_none.show(600);
+			    if ($(".indicadores-check-var").length > 1) check_ind_var.show(600);
+			    
 			}
         });
     }
 
     var checkAllIndicadores = function() {
-    	$('input:checkbox').not(this).prop('checked', this.checked);
+    	$('#check-ind-none input:checkbox').not(this).prop('checked', this.checked);
+    	$('#check-ind-var input:checkbox').prop('checked', false);
+    }
+
+    var checkAllIndicadoresVar = function() {
+    	$('#check-ind-var input:checkbox').not(this).prop('checked', this.checked);
+    	$('#check-ind-none input:checkbox').prop('checked', false);
     }
 
     var checkVisible = function() {
+    	$('#check-ind-var input:checkbox').prop('checked', false);
     	var one_true = false;
     	$('input[type=checkbox]:not(#check-all)').each(function () {
 		    if (this.checked) one_true = true;
@@ -560,24 +723,49 @@ var selectDes = (function() {
 			check_all.prop('checked', false);
 			$("#indicadores-0").prop('checked', true);
 		}
+
+    }
+
+    var checkVisibleVar = function() {
+    	$('#check-ind-none input:checkbox').prop('checked', false);
+    	var one_true = false;
+    	$('input[type=checkbox]:not(#check-all-var)').each(function () {
+		    if (this.checked) one_true = true;
+		});
+		if (!one_true) {
+			check_all_var.prop('checked', false);
+			$("#indicadores-0").prop('checked', true);
+		}
+    }
+
+    var checkOne = function() {
+    	
+    }
+
+    var checkOneVar = function() {
+    	
     }
 
 	var initAlterData = function() {
 		initMod.apiCall(apiDataLate).then(function(res){
-			console.log("res alter a");
-			console.log(res);
         	all_municipios = res.municipios;
         	all_localidades = res.localidades;
         	all_estados = res.estados;
         	all_temas = res.temas;
         	all_subtemas = res.subtemas;
         	all_indicadores = res.indicadores;
+        	all_descsubtemas = res.descsubtemas;
+        	all_descindicadores = res.descindicadores;
         	selectEstado();
         	selectTema();
         	select_tema.val(1).trigger('change');
 
 			for (var i = all_indicadores.length - 1; i >= 0; i--) {
 				nom_ind[all_indicadores[i].cve_ind] = all_indicadores[i].indicadores;
+			}
+
+			for (var i = all_descindicadores.length - 1; i >= 0; i--) {
+				nom_ind[all_descindicadores[i].cve_ind] = all_descindicadores[i].indicadores;
 			}
         	
         	$(".load-data").hide(300, function() {
@@ -630,6 +818,11 @@ var selectDes = (function() {
 		    	sList.push('"' + $(this).val() + '"');
 		    }
 		});
+		$('#check-indicadores-var input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
 		var in_end= sList.join(",");
 
 		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {
@@ -637,80 +830,15 @@ var selectDes = (function() {
 			anio: $("#anio").val(),
 			indicadores: in_end,
 			debug: $("#debug").val(),
-			localidades: $("#select-localidad").val()
+			tab: choice_tab,
+			id_estado: $("#select-estado").val(),
+			id_municipio: $("#select-municipio-id").val()
 		}
-		getInitResponse();//
-	}
-
-	var generateExcel = function() {
-
-		console.log("apiDataExcel");
-		console.log(apiDataExcel);
-
-		var sList = [];
-		$('#check-indicadores input').each(function () {
-		    if (this.checked) {
-		    	sList.push('"' + $(this).val() + '"');
-		    }
-		});
-		var in_end= sList.join(",");
-
-		apiDataExcel.methods['export-excel']['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
-
-		
-		
-		initMod.apiCall(apiDataExcel).then(function(res, status, xhr){
-			console.log("res de nuestro nuevo modulo" + module_upper);
-			console.log(res);
-
-			window.open('temp-excel/' + res.file_name, '_blank');
-
-		}, function(reason, json){
-			console.log("non hgdf");
-			l.ladda( 'stop' );
-			if ($("#debug").val() == 'debug') {
-				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
-			}else {
-				$(".res-error-2").html("Error en la consulta").show(1000);
-			}
-		 	initMod.debugThemes(reason, json);
-
-
-		});
-	}
-
-	var generatePdf = function() {
-
-		var sList = [];
-		$('#check-indicadores input').each(function () {
-		    if (this.checked) {
-		    	sList.push('"' + $(this).val() + '"');
-		    }
-		});
-		var in_end= sList.join(",");
-
-		apiDataPdf.methods['export-pdf']['data'] = {id_localidad: $("#select-localidad-id").val(), anio: $("#anio").val(), indicadores: in_end, debug: $("#debug").val()}
-
-		
-		
-		initMod.apiCall(apiDataPdf).then(function(res, status, xhr){
-			console.log("res de nuestro nuevo modulo" + module_upper);
-			console.log(res);
-
-			window.open('temp-pdf/' + res.file_name, '_blank');
-
-		}, function(reason, json){
-			console.log("non hgdf");
-			l.ladda( 'stop' );
-			if ($("#debug").val() == 'debug') {
-				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
-			}else {
-				$(".res-error-2").html("Error en la consulta").show(1000);
-			}
-		 	initMod.debugThemes(reason, json);
-
-
-		});
+		if (choice_tab == "desarrollo_local") {
+			getInitResponseCube();//
+		}else {
+			getInitResponse();//
+		}
 	}
 
 	var generateExport = function() {
@@ -720,19 +848,24 @@ var selectDes = (function() {
 		    	sList.push('"' + $(this).val() + '"');
 		    }
 		});
+		$('#check-indicadores-var input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
 		var in_end= sList.join(",");
 		apiDataExport.methods['export']['data'] = {
-			id_localidad: $("#select-localidad-id").val(),
 			anio: $("#anio").val(),
 			indicadores: in_end,
 			debug: $("#debug").val(),
-			localidades: $("#select-localidad").val()
+			tab: choice_tab,
+			localidades: $("#select-localidad").val(),
+			id_estado: $("#select-estado").val(),
+			id_municipio: $("#select-municipio-id").val()
 		}
 		var l = $(this).ladda();
 		l.ladda( 'start' );
 		initMod.apiCall(apiDataExport).then(function(res, status, xhr){
-			console.log("res de nuestro nuevo modulo" + module_upper);
-			console.log(res);
 			//return;
 
 			window.open('temp-excel/' + res.excel.file_name, '_blank');
@@ -740,7 +873,6 @@ var selectDes = (function() {
 			l.ladda( 'stop' )
 
 		}, function(reason, json){
-			console.log("non hgdf");
 			l.ladda( 'stop' );
 			if ($("#debug").val() == 'debug') {
 				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
@@ -759,10 +891,15 @@ var selectDes = (function() {
         select_anio.on("change", changeAnio);
         select_tema.on("change", changeTema);
         select_subtema.on("change", changeSubtema);
+        select_descsubtema.on("change", changeDescSubtema);
+        select_metodo.on("change", changeMetodo);
         check_all.on("click", checkAllIndicadores);
+        check_all_var.on("click", checkAllIndicadoresVar);
         $(document).on('click','.indicadores-check', checkVisible);
-        /*btn_excel.on('click', generateExcel);
-        btn_pdf.on('click', generatePdf);*/
+        $(document).on('click','.indicadores-check-var', checkVisibleVar);
+
+        $(document).on('click','#check-ind-none input:checkbox', checkOne);
+        $(document).on('click','#check-ind-var input:checkbox', checkOneVar);
         btn_export.on('click', generateExport);
     };
 

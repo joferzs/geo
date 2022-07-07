@@ -109,8 +109,12 @@ var select = (function() {
 		btn_excel = $("#icono-excel"),
 		btn_pdf = $("#icono-pdf"),
 		btn_export = $("#icono-export"),
+		check_ind_var = $("#check-ind-var"),
+		check_ind_none = $("#check-ind-none"),
 		check_all = $("#check-all"),
-		check_indicadores = $("#check-indicadores");
+		check_all_var = $("#check-all-var"),
+		check_indicadores = $("#check-indicadores"),
+		check_indicadores_var = $("#check-indicadores-var");
 
 	var limit_in,
 		long_data = 10000,		//set max res for request
@@ -491,8 +495,8 @@ var select = (function() {
     }
 
     var changeAnio = function() {
-    	selectTema();
-    	select_tema.val(1).trigger('change');
+    	selectSubtema(1);
+    	//selectSubtema.val(1).trigger('change');
     }
 
     var selectTema = function(x) {
@@ -502,9 +506,10 @@ var select = (function() {
 	       	select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
 	        i++
 	    }
-	    if ($("#anio").val() == 2020) {
+	    /*if ($("#anio").val() == 2020) {
 	    	select_tema.append(new Option("Desarrollo local", "desarrollo_local"));
-	    }
+	    }*/
+	    select_tema.append(new Option("Desarrollo local", "desarrollo_local"));
     }
 
     var choice_tab = "";
@@ -526,15 +531,20 @@ var select = (function() {
     		select_subtema.prop("disabled", true);
     	}
     	if (value != "desarrollo_local") {
+    		$(".anio").show();
 			select_subtema.val(select_subtema.val()).trigger('change');
 		}else {
+			$(".anio").hide();
 			select_descsubtema.val(select_descsubtema.val()).trigger('change');
 		}
     }
 
     var selectSubtema = function(x) {
+    	console.log("tesbit select subbb");
     	var anio_selected = select_anio.val();
-		select_subtema.html("");
+    	console.log(anio_selected);
+		select_subtema.val("");
+		select_subtema_id.val("");
 		select_descsubtema.html("");
         /*$.each(all_subtemas, function(i, v) {
 
@@ -580,7 +590,9 @@ var select = (function() {
 				$("#indicadores-0").prop('checked', true);*/
 	    	}else {
 		       	if (res_subtema[i].subtema != null) {
+		       		console.log("okeyyy nullbit");
 			        if (res_subtema[i].cve_tem == x && anio_selected == res_subtema[i].anio) {
+
 			        	select_subtema.val(res_subtema[i].subtema);
 			        	select_subtema_id.val(res_subtema[i].cve_sub);
 			        	indicadores(res_subtema[i].cve_sub);
@@ -597,11 +609,12 @@ var select = (function() {
     	var value = $(this).val();
     	if (value != "") {
 
-    		indicadores(value);
+    		//indicadores(value);
     	}else {
     		//select_subtema.prop("disabled", true);
     	}
     	check_all.prop('checked', false);
+    	check_all_var.prop('checked', false);
     	$("#indicadores-0").prop('checked', true);
     }
 
@@ -631,27 +644,52 @@ var select = (function() {
 				return {
 	             	label: item.indicadores,
 		            value: item.cve_ind,
+		            type: item.type,
 	            }
 			}
         });
+        console.log("indataindataindataindata");
+	    console.log(indata);
         check_indicadores.html("");
-        check_indicadores.hide(300, function() {
+        check_indicadores_var.html("");
+
+        check_ind_var.hide(300);
+        check_ind_none.hide(300, function() {
 			if (x != "") {
 				$.each(indata, function(i, v) {
 					var che = "";
-					if (i == 0)	che = "checked"; 
-			        check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
+					if (i == 0)	che = "checked";
+
+					if (v.type == "var") {
+						check_indicadores_var.append('<div><input type="checkbox" class="indicadores-check-var" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
+					}else {
+						check_indicadores.append('<div><input type="checkbox" class="indicadores-check" name="indicadores-' + i + '" id="indicadores-' + i + '" value="' + v.value + '" ' + che + '> ' + v.label + '</div>')
+					}
+			        
 			    });
-			    check_indicadores.show(600);
+			    console.log("sssssss");
+			    console.log($(".indicadores-check"));
+			    console.log("sssssssvvvvvvv");
+			    console.log($(".indicadores-check-var"));
+			    if ($(".indicadores-check").length > 1) check_ind_none.show(600);
+			    if ($(".indicadores-check-var").length > 1) check_ind_var.show(600);
+			    
 			}
         });
     }
 
     var checkAllIndicadores = function() {
-    	$('input:checkbox').not(this).prop('checked', this.checked);
+    	$('#check-ind-none input:checkbox').not(this).prop('checked', this.checked);
+    	$('#check-ind-var input:checkbox').prop('checked', false);
+    }
+
+    var checkAllIndicadoresVar = function() {
+    	$('#check-ind-var input:checkbox').not(this).prop('checked', this.checked);
+    	$('#check-ind-none input:checkbox').prop('checked', false);
     }
 
     var checkVisible = function() {
+    	$('#check-ind-var input:checkbox').prop('checked', false);
     	var one_true = false;
     	$('input[type=checkbox]:not(#check-all)').each(function () {
 		    if (this.checked) one_true = true;
@@ -660,6 +698,27 @@ var select = (function() {
 			check_all.prop('checked', false);
 			$("#indicadores-0").prop('checked', true);
 		}
+
+    }
+
+    var checkVisibleVar = function() {
+    	$('#check-ind-none input:checkbox').prop('checked', false);
+    	var one_true = false;
+    	$('input[type=checkbox]:not(#check-all-var)').each(function () {
+		    if (this.checked) one_true = true;
+		});
+		if (!one_true) {
+			check_all_var.prop('checked', false);
+			$("#indicadores-0").prop('checked', true);
+		}
+    }
+
+    var checkOne = function() {
+    	
+    }
+
+    var checkOneVar = function() {
+    	
     }
 
 	var initAlterData = function() {
@@ -736,6 +795,11 @@ var select = (function() {
 		    	sList.push('"' + $(this).val() + '"');
 		    }
 		});
+		$('#check-indicadores-var input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
 		var in_end= sList.join(",");
 
 		apiDataAllFilter.methods['all_filter_' + this_module]['data'] = {
@@ -744,7 +808,9 @@ var select = (function() {
 			indicadores: in_end,
 			debug: $("#debug").val(),
 			tab: choice_tab,
-			localidades: $("#select-localidad").val()
+			localidades: $("#select-localidad").val(),
+			id_estado: $("#select-estado").val(),
+			id_municipio: $("#select-municipio-id").val()
 		}
 		if (choice_tab == "desarrollo_local") {
 			getInitResponseCube();//
@@ -831,13 +897,20 @@ var select = (function() {
 		    	sList.push('"' + $(this).val() + '"');
 		    }
 		});
+		$('#check-indicadores-var input').each(function () {
+		    if (this.checked) {
+		    	sList.push('"' + $(this).val() + '"');
+		    }
+		});
 		var in_end= sList.join(",");
 		apiDataExport.methods['export']['data'] = {
-			id_localidad: $("#select-localidad-id").val(),
 			anio: $("#anio").val(),
 			indicadores: in_end,
 			debug: $("#debug").val(),
-			localidades: $("#select-localidad").val()
+			tab: choice_tab,
+			localidades: $("#select-localidad").val(),
+			id_estado: $("#select-estado").val(),
+			id_municipio: $("#select-municipio-id").val()
 		}
 		var l = $(this).ladda();
 		l.ladda( 'start' );
@@ -872,7 +945,12 @@ var select = (function() {
         select_subtema.on("change", changeSubtema);
         select_descsubtema.on("change", changeDescSubtema);
         check_all.on("click", checkAllIndicadores);
+        check_all_var.on("click", checkAllIndicadoresVar);
         $(document).on('click','.indicadores-check', checkVisible);
+        $(document).on('click','.indicadores-check-var', checkVisibleVar);
+
+        $(document).on('click','#check-ind-none input:checkbox', checkOne);
+        $(document).on('click','#check-ind-var input:checkbox', checkOneVar);
         /*btn_excel.on('click', generateExcel);
         btn_pdf.on('click', generatePdf);*/
         btn_export.on('click', generateExport);

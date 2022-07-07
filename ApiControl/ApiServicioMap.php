@@ -24,42 +24,6 @@ class ApiServicioMap extends ApiMain {
 		parent::__construct();
 	}
 
-	public function getAllSelect() {
-		$sql = 'SELECT 
-			*
-			FROM ivp.vulnerabilidad_loc_rur_2020
-			WHERE id_cliente = :id_cliente GROUP BY direccion ORDER BY a.fecha_registro DESC';
-		$sth = $this->conn->prepare($sql);
-		$sth->bindValue(':id_cliente', $x['id_cliente'], PDO::PARAM_INT);
-		$sth->execute();
-		$rows = $sth->rowCount();
-		if ($rows > 0) {
-			$this->items_arr['bases'] = array();//se debe llamar segun nuestro modulo
-			//$this->items_arr['last-update'] = "";
-			//$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-			//foreach ($result as $row) {
-			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				/*if (!isset($this->items_arr['last-id'])) {
-					$this->items_arr['last-id'] = $row['id_entrada'];
-				}*/
-				$arr_row['editar'] = "";
-				//$data_edit = array("id_parte");//Se agregan id que se deben editar
-				//$row = self::addDataToArr($data_edit, $row);
-				/*$arr_fotos = self::getFotosFooTab($row['id_entrada']);
-				$arr_row['data_fotos'] = "<div class='swiper-fotos' data-fotos='" . $arr_fotos . "'></div>";*/
-				$this->items_arr['bases'][] = $arr_row + $row;
-				/*if ($this->items_arr['last-update'] < $row['fecha_actualizacion']) {
-					$this->items_arr['last-update'] = $row['fecha_actualizacion'];
-				}*/
-			}
-			//$this->items_arr['number-records'] = $rows;
-		}else{
-			$this->items_arr['bases'] = array("mensaje" => "Sin coincidencias encontradas.");
-		}
-		$sth = null;
-		
-	}
-
 	public function getAllFilterSelect($x) {
 		//print_r($x);
 		//exit;

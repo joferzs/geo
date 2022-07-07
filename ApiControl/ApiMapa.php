@@ -12,7 +12,7 @@ use ApiControl\ApiSessionSecurity;//el "use" se refiere al archivo que contiene 
 /**
  * 
  */
-class ApiSelectDes extends ApiMain {
+class ApiMapa extends ApiMain {
 
 	//private $conn;
 	private $asa;
@@ -41,12 +41,23 @@ class ApiSelectDes extends ApiMain {
 			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
+		if ($x['tab'] == 'desarrollo_local') {
+			//$tab = ' ivp.des_local_' . $anio;
+			$tab = ' ivp.des_local_2020';
+			$id = '"id"';
+			$filed_d = ' ,"PRP_0101" ';
+		}else {
+			$tab = ' ivp.loc_rur_' . $anio;
+			$id = '"ID"';
+			$filed_d = '';
+		}
+
 		//$sql = 'SELECT a."ID",a."CGLOC",b."CVE_ENT",b."CVE_MUN",b."NOM_LOC" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
-		$sql = 'SELECT a."ID",b."NOM_LOC" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		$sql = 'SELECT a.' . $id . ' AS "ID",b."NOM_LOC" ' . $filed_d . ' ' . $x['indicadores'] . '   FROM ' . $tab . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
 
-		$sql_loc = "";
+		$sql_loc = 'WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ';
 		/*if ($x['id_localidad'] != "") {
 			$sql_loc = ' WHERE a."CGLOC" = :id_localidad';
 		}*/
@@ -61,12 +72,12 @@ class ApiSelectDes extends ApiMain {
 					$lll[] = "'" . $value ."'";
 				}
 				$loc_join = join(",", $lll);
-				$sql_loc.= ' WHERE a."CGLOC" IN (' . $loc_join . ')';
+				$sql_loc.= ' AND  a."CGLOC" IN (' . $loc_join . ')';
 			}
 		}
 
 		//$sql.= $sql_loc . ' LIMIT :limit_in,:limit_data';
-		$sql.= $sql_loc . ' ORDER BY a."ID" LIMIT :limit_data OFFSET :limit_in';
+		$sql.= $sql_loc . ' ORDER BY a.' . $id . ' LIMIT :limit_data OFFSET :limit_in';
 		//$sql.= $sql_loc . ' ';
 		
 		$sth = $this->conn->prepare($sql);
@@ -75,9 +86,11 @@ class ApiSelectDes extends ApiMain {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
 			
 		}*/
-
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
 		$sth->bindValue(':limit_in', intval($x['limit_in']), PDO::PARAM_INT);
 		$sth->bindValue(':limit_data', intval($x['limit_data']), PDO::PARAM_INT);
+		
 
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -138,6 +151,124 @@ class ApiSelectDes extends ApiMain {
 		$sth = null;
 	}
 
+	public function getNa($x) {
+		$sql = 'SELECT "nom_nucleo","cve_nucleo","cve_mun","cve_ent" FROM public.na';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['na'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$this->items_arr['na'][] = $row;
+			}
+		}else{
+			$this->items_arr['na'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getCoords($x) {
+		$sql = 'SELECT "NOMGEO","CVE_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.estados WHERE "CVE_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['estados'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$row['COORDS'] = json_decode($row['COORDS']);
+				$this->items_arr['estados'][] = $row;
+			}
+		}else{
+			$this->items_arr['estados'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+
+		$sql = 'SELECT "NOMGEO","CVE_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.estados WHERE "CVE_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', "07", PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['estados_add'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$aaa = json_decode($row['COORDS']);
+				$aaa =  json_decode(json_decode(json_encode($row['COORDS']), true), true);
+				$coords = $aaa['coordinates'];
+				$this->items_arr['estados_add'][] = $row;
+			}
+			$format = array(
+				array(
+					"type" => "Feature",
+			        "properties" => array(
+			          	//"id_poligono" => 7552,
+			          	"featureclass" => "Urban area"
+			        ),
+			        "geometry" => array(
+			          	"type" => "Polygon",
+			          	"coordinates" => 
+			            	$coords[0]
+			          	
+			        )
+			    )
+			);
+			$this->items_arr['test_coords'] = array('features' => $format);//se debe llamar segun nuestro modulo
+		}else{
+			$this->items_arr['estados_add'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+
+		$sql = 'SELECT "NOMGEO","CVE_MUN",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.municipios WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ORDER BY "NOMGEO" ASC';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['municipios'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			//$coords = array();
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$aaa = json_decode($row['COORDS']);
+				$aaa =  json_decode(json_decode(json_encode($row['COORDS']), true), true);
+				$coords = $aaa['coordinates'];
+				$this->items_arr['municipios'][] = $row;
+			}
+			$format = array(
+				array(
+					"type" => "Feature",
+			        "properties" => array(
+			          	//"id_poligono" => 7552,
+			          	"featureclass" => "Urban area"
+			        ),
+			        "geometry" => array(
+			          	"type" => "Polygon",
+			          	"coordinates" => 
+			            	$coords[0]
+			          	
+			        )
+			    )
+			);
+			$this->items_arr['municipios_coords'] = array('features' => $format);//se debe llamar segun nuestro modulo
+
+			//print_r($this->items_arr['municipios_coords']);
+
+		}else{
+			$this->items_arr['municipios'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
 	public function getLocalidades($x) {
 		//$sql = 'SELECT "NOM_LOC","CVE_MUN","CGLOC" FROM loc.localidades  WHERE "CVE_MUN" = :id_municipio ORDER BY "NOM_LOC" ASC';
 		$sql = 'SELECT "NOM_LOC","CVE_MUN","CVE_ENT","CGLOC" FROM loc.localidades ORDER BY "NOM_LOC" ASC';
@@ -159,7 +290,7 @@ class ApiSelectDes extends ApiMain {
 	}
 
 	public function getTemas($x) {
-		$sql = 'SELECT * FROM catalogo.des_soc_tema WHERE tema IS NOT NULL';
+		$sql = 'SELECT * FROM catalogo.tema WHERE tema IS NOT NULL';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -174,10 +305,23 @@ class ApiSelectDes extends ApiMain {
 			$this->items_arr['temas'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
+
+		/*$sql = 'SELECT * FROM catalogo.des_soc_tema WHERE tema IS NOT NULL';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$this->items_arr['temas'][] = $row;
+			}
+		}else{
+			$this->items_arr['temas'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;*/
 	}
 
 	public function getSubtemas($x) {
-		$sql = 'SELECT * FROM catalogo.des_soc_subtema WHERE subtema IS NOT NULL';
+		$sql = 'SELECT * FROM catalogo.subtema WHERE subtema IS NOT NULL';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -195,7 +339,7 @@ class ApiSelectDes extends ApiMain {
 	}
 
 	public function getIndicadores($x) {
-		$sql = 'SELECT * FROM catalogo.des_soc_indicadores WHERE indicadores IS NOT NULL';
+		$sql = 'SELECT * FROM catalogo.indicadores WHERE indicadores IS NOT NULL';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -204,10 +348,53 @@ class ApiSelectDes extends ApiMain {
 			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 			foreach ($result as $row) {*/
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$main = explode(" ", $row['indicadores']);
+				if ($main[0] == "Índice" || $main[0] == "Grado" || $main[0] == "Nivel") {
+					$row['type'] = "var";
+				}else {
+					$row['type'] = "none";
+				}
+				
 				$this->items_arr['indicadores'][] = $row;
 			}
 		}else{
 			$this->items_arr['indicadores'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getDescSubtemas($x) {
+		$sql = 'SELECT * FROM catalogo.des_soc_subtema WHERE subtema IS NOT NULL';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['descsubtemas'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$this->items_arr['descsubtemas'][] = $row;
+			}
+		}else{
+			$this->items_arr['descsubtemas'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+	}
+
+	public function getDescIndicadores($x) {
+		$sql = 'SELECT * FROM catalogo.des_soc_indicadores WHERE indicadores IS NOT NULL';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$this->items_arr['descindicadores'] = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$this->items_arr['descindicadores'][] = $row;
+			}
+		}else{
+			$this->items_arr['descindicadores'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
 	}
@@ -274,10 +461,22 @@ class ApiSelectDes extends ApiMain {
 			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
-		$sql = 'SELECT a."ID",b."CVE_ENT" AS "Estado",b."CVE_MUN" AS "Municipio",b."NOM_LOC" AS "Localidad" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		if ($x['tab'] == 'desarrollo_local') {
+			//$tab = ' ivp.des_local_' . $anio;
+			$tab = ' ivp.des_local_2020';
+			$id = '"id"';
+			$filed_d = ' ,"PRP_0101" ';
+		}else {
+			$tab = ' ivp.loc_rur_' . $anio;
+			$id = '"ID"';
+			$filed_d = '';
+		}
+
+		$sql = 'SELECT a.' . $id . ' AS "ID",b."CVE_ENT" AS "Estado",b."CVE_MUN" AS "Municipio",b."NOM_LOC" AS "Localidad" ' . $filed_d . ' ' . $x['indicadores'] . '   FROM ' . $tab . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
 
+		$sql.= 'WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ';
 		/*if ($x['id_localidad'] != "") {
 			$sql.= ' WHERE a."CGLOC" = :id_localidad';
 		}*/
@@ -292,13 +491,16 @@ class ApiSelectDes extends ApiMain {
 					$lll[] = "'" . $value ."'";
 				}
 				$loc_join = join(",", $lll);
-				$sql.= ' WHERE a."CGLOC" IN (' . $loc_join . ')';
+				$sql.= ' AND  a."CGLOC" IN (' . $loc_join . ')';
 			}
 		}
 
-		$sql.= ' ORDER BY a."ID" ';
+		$sql.= ' ORDER BY a.' . $id;
 
 		$sth = $this->conn->prepare($sql);
+
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
 
 		/*if ($x['id_localidad'] != "") {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
@@ -359,7 +561,9 @@ class ApiSelectDes extends ApiMain {
 	}
 
 	public function ExportFile($records) {
-		$res_in = self::getIndicadoresRing();
+		$inddd = self::getIndicadoresRing();
+		$desinddd = self::getDescIndicadoresRing();
+		$res_in = array_merge($inddd,$desinddd);
 		$heading = false;
 		if(!empty($records)) {
 			$a = "";
@@ -368,7 +572,7 @@ class ApiSelectDes extends ApiMain {
 					//$a.= implode("\t", array_keys($row)) . "\n";
 					$asd = array();
 					for ($i=0; $i < count(array_keys($row)); $i++) {
-						if (array_keys($row)[$i] != "ID" && array_keys($row)[$i] != "Estado" && array_keys($row)[$i] != "Municipio" && array_keys($row)[$i] != "Localidad") {
+						if (array_keys($row)[$i] != "ID" && array_keys($row)[$i] != "Estado" && array_keys($row)[$i] != "Municipio" && array_keys($row)[$i] != "Localidad" && array_keys($row)[$i] != "PRP_0101") {
 							$asd[] = utf8_decode($res_in['"'.array_keys($row)[$i].'"']);
 						}else {
 							$asd[] = array_keys($row)[$i];
@@ -385,6 +589,23 @@ class ApiSelectDes extends ApiMain {
 	}
 
 	public function getIndicadoresRing() {
+		$sql = 'SELECT * FROM catalogo.indicadores WHERE indicadores IS NOT NULL';
+		$sth = $this->conn->prepare($sql);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$res = array();//se debe llamar segun nuestro modulo
+			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $row) {*/
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$res['"'.$row['cve_ind'].'"'] = $row['indicadores'];
+			}
+		}
+		$sth = null;
+		return $res;
+	}
+
+	public function getDescIndicadoresRing() {
 		$sql = 'SELECT * FROM catalogo.des_soc_indicadores WHERE indicadores IS NOT NULL';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
@@ -426,19 +647,38 @@ class ApiSelectDes extends ApiMain {
 			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
-		$sql = 'SELECT a."ID",b."NOM_LOC" , "CVE_ENT", "CVE_MUN" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		if ($x['tab'] == 'desarrollo_local') {
+			//$tab = ' ivp.des_local_' . $anio;
+			$tab = ' ivp.des_local_2020';
+			$id = '"id"';
+			$filed_d = ' ,"PRP_0101" ';
+		}else {
+			$tab = ' ivp.loc_rur_' . $anio;
+			$id = '"ID"';
+			$filed_d = '';
+		}
+
+		$sql = 'SELECT a.' . $id . ' AS "ID",b."NOM_LOC" , "CVE_ENT", "CVE_MUN" ' . $filed_d . ' ' . $x['indicadores'] . '  FROM ' . $tab . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
+
+		$sql.= ' WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ';
 
 		/*if ($x['id_localidad'] != "") {
 			$sql.= ' WHERE a."CGLOC" = :id_localidad';
 		}*/
 
-		$sql.= ' ORDER BY a."ID" ';
+		$sql.= ' ORDER BY a.' . $id;
 
 		$sth = $this->conn->prepare($sql);
 
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
+
 		$sth2 = $this->conn->prepare($sql);
+
+		$sth2->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth2->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
 
 		/*if ($x['id_localidad'] != "") {
 			$sth->bindValue(':id_localidad', $x['id_localidad'], PDO::PARAM_STR);
@@ -499,7 +739,9 @@ class ApiSelectDes extends ApiMain {
 		if ($x['indicadores'] != "") {
 			$ind = explode(",", $ind_fi);
 
-			$res_in = self::getIndicadoresRing();
+			$inddd = self::getIndicadoresRing();
+			$desinddd = self::getDescIndicadoresRing();
+			$res_in = array_merge($inddd,$desinddd);
 
 			foreach ($ind as $key => $value) {
 				$bet = $res_in[$value];
