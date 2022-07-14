@@ -291,6 +291,10 @@ var servicioMap = (function() {
     }
 
     var changeEstado = function() {
+    	id_source_collection = "";
+    	$(".na").hide(400);
+	    $(".mapats").hide(400);
+	    select_metodo.val("");
     	var value = $(this).val();
     	console.log("value");
 	    console.log(value);
@@ -321,6 +325,9 @@ var servicioMap = (function() {
 	      	source: indata,
 	      	select: function( event, ui ) {
 	      		if (ui.item.value > 0) {
+	      			$(".na").hide(400);
+	    			$(".mapats").hide(400);
+	    			select_metodo.val("");
 	      			console.log("change select");
 	      			console.log(ui.item.value);
 	      			selectNa();
@@ -503,55 +510,185 @@ var servicioMap = (function() {
     	select_tema.val(1).trigger('change');
     }
 
+    var id_source_collection;
+
     var changeMetodo = function() {
-    	//selectTema();
-    	//select_tema.val(1).trigger('change');
-    	console.log("thisss valor");
-    	console.log($(this).val());
     	var id_n = $(this).val();
+    	$(".na").hide();
+	    $(".mapats").hide();
     	if (id_n == 1) {
-    		$(".na").show();
-	    	$(".mapats").hide();
+    		$(".na").show(500);
 	    	selectNa();
     	}else if (id_n == 2) {
-    		$(".na").hide();
-	    	$(".mapats").show();
-	    	mapProp = {
-		      	container: 'poligonos-maps',
-		        style: 'mapbox://styles/mapbox/streets-v10',
-		        //center: [-99.1344835, 19.4288867],
-		        //center: [-68.137343, 45.137451],
-		        //center: [-71.177684852, 42.390289651],
-		        center: [-91.97363682, 17.91143118],
-				zoom: 5
-		    };
-	    	map = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+	    	$(".mapats").show(500, function() {
+	    		console.log("bout");
+		    	mapProp = {
+			      	container: 'poligonos-maps',
+			        style: 'mapbox://styles/mapbox/streets-v10',
+			        center: [-91.97363682, 17.91143118],
+					zoom: 5
+			    };
+		    	map = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
 
-	        if ($("#select-municipio-id").val() != "" && select_estado.val() != "") {
-	        	apiDataCoords.methods['coords']['data'] = {
-					id_municipio: $("#select-municipio-id").val(),
-					id_estado: select_estado.val(),
-				}
-	        	initMod.apiCall(apiDataCoords).then(function(res){
-					console.log("ress coords");
-    				console.log(res);
-    				var est_coords = res.estados[0].COORDS.coordinates[0];
-    				var g_coords = res.estados_g[0].COORDS.coordinates[0];
-    				var mun_coords = res.municipios[0].COORDS.coordinates[0];
-    				console.log("est_coords");
-    				console.log(est_coords);
-    				console.log("mun_coords");
-    				console.log(mun_coords);
-    				setTimeout(function() {
-			          	getPoligonShapes(est_coords, mun_coords);
-			        }, 500);
-				}, function(reason, json){
-				 	initMod.debugThemes(reason, json);
-				});
-	        	
-	        }
-	        
+		    	var coords_estados;
+		    	var coords_municipios;
+		    	var coords_pp;
+
+		        if ($("#select-municipio-id").val() != "" && select_estado.val() != "") {
+		        	apiDataCoords.methods['coords']['data'] = {
+						id_municipio: $("#select-municipio-id").val(),
+						id_estado: select_estado.val(),
+					}
+		        	initMod.apiCall(apiDataCoords).then(function(res){
+		        		id_source_collection = { type: 'FeatureCollection', features: [] };
+						console.log("ress coords");
+	    				console.log(res);
+	    				coords_estados = res.estados.features;
+						id_source_collection.features = id_source_collection.features.concat(coords_estados);
+
+				        getPoligonShapes(id_source_collection);
+
+				        setTimeout(function() {
+				        	coords_municipios = res.municipios.features;
+							id_source_collection.features = id_source_collection.features.concat(coords_municipios);
+				          	getPoligonShapesAddLoop(id_source_collection);
+				          	mapFlyTo(res.municipios_center, 9, 20, 30);
+				          	//map.setPaintProperty("test", 'fill-color', '#ffffcc');
+				        }, 500);
+
+				        setTimeout(function() {
+				        	coords_pp = res.agrupaciones.features;
+							id_source_collection.features = id_source_collection.features.concat(coords_pp);
+				          	getPoligonShapesAddLoop(id_source_collection);
+				          	//map.setPaintProperty("poligonccc", 'fill-color', '#f03b20');
+				        }, 3000);
+					}, function(reason, json){
+					 	initMod.debugThemes(reason, json);
+					});
+		        	
+		        }
+	        });
     	}
+    }
+
+    var getPoligonShapesAddLoop = function(jsonPol) {
+    	map.getSource('diamolical').setData(jsonPol);
+    }
+
+    var getPoligonShapesAddLoop2 = function(jsonPol) {
+    	map.addSource('dimmu', {
+            'type': 'geojson',
+            'data': jsonPol,
+            'generateId': true
+        });
+
+		map.addLayer({
+			'id': 'poligonccc',
+			'type': 'fill',
+			'source': 'dimmu',
+			'layout': {},
+			'paint': {
+				'fill-color': '#bd0026'
+			}
+		});
+    }
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZmVhbm9ycmFuZ2VsIiwiYSI6ImNrNnIxYzVmdzAwdWszaHFpcndyandwbmcifQ.0yZCD9xMEiLEAzeut0pzuw';
+	var mapProp;
+    var map;// = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+    var hoveredStateId = null;
+
+	var getPoligonShapes = function(jsonPol) {
+		map.addSource('diamolical', {
+            'type': 'geojson',
+            'data': jsonPol,
+            'generateId': true
+        });
+        map.addLayer({
+			'id': 'poligonoaaaa',
+			'type': 'fill',
+			'source': 'diamolical',
+			'layout': {},
+			//"source-layer": "waterway",
+			'paint': {
+				'fill-color': [
+					'interpolate',
+					['linear'],
+					['get', 'agalloch'],
+					1,
+					'#F2F12D',
+					2,
+					'#EED322',
+					3,
+					'#E6B71E',
+					4,
+					'#DA9C20',
+					5,
+					'#CA8323',
+					6,
+					'#B86B25',
+					7,
+					'#A25626',
+					8,
+					'#8B4225',
+					9,
+					'#723122',
+					93,
+					'#063153',
+					1349,
+					'#063153'
+				],
+				'fill-opacity': 0.75
+				}
+		});
+    }
+
+    var ventana_ancho = $(window).width(), str_len_cin = 90, str_len_ses = 160, str_len_cua = 40;
+    var allPage = $('html, body');
+
+    var mapFlyTo = function(center, z, b, p) {
+
+    	//if (ventana_ancho <= 600) {
+    		//var winTam = ventana_ancho <= 600 ? 530 : ventana_ancho < 1680 ? 530 : 530;
+			allPage.stop().animate({scrollTop: 490}, 1400);
+    	//}
+
+    	if (b > 0) {
+    		var beari = b,
+    			pit = p,
+    			offs = [-50, -50];
+    		if (ventana_ancho <= 600) {
+	    		offs = [120, 50];
+	    	}
+    	}else {
+    		var beari = 0,
+    			pit = 0,
+    			offs = [0, 0];
+    	}
+    	map.flyTo({
+			// These options control the ending camera position: centered at
+			// the target, at zoom level 9, and north up.
+			center: center,
+			zoom: z,
+			bearing: beari,
+			pitch: pit,
+			offset: offs,
+			 
+			// These options control the flight curve, making it move
+			// slowly and zoom out almost completely before starting
+			// to pan.
+			speed: 0.9, // make the flying slow
+			//curve: 1, // change the speed at which it zooms out
+			 
+			// This can be any easing function: it takes a number between
+			// 0 and 1 and returns another number between 0 and 1.
+			easing: function(t) {
+				return t;
+			},
+			 
+			// this animation is considered essential with respect to prefers-reduced-motion
+			essential: true
+		});
     }
 
     select_na = $('#select-na');
@@ -823,155 +960,7 @@ var servicioMap = (function() {
 		return all_municipios_format[x];
 	}
 
-	mapboxgl.accessToken = 'pk.eyJ1IjoiZmVhbm9ycmFuZ2VsIiwiYSI6ImNrNnIxYzVmdzAwdWszaHFpcndyandwbmcifQ.0yZCD9xMEiLEAzeut0pzuw';
-
-	var mapProp; /*= {
-      	container: 'poligonos-maps',
-        style: 'mapbox://styles/mapbox/streets-v10',
-        //center: [-99.1344835, 19.4288867],
-        //center: [-68.137343, 45.137451],
-        //center: [-71.177684852, 42.390289651],
-        center: [-91.97363682, 17.91143118],
-		zoom: 5
-    };*/
-
-    var map;// = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
-
-    var hoveredStateId = null;
-
-    var id_source_collection = { type: 'FeatureCollection', features: [] };
-
-    var getPoligonShapes = function(est_coords,mun_coords) {
-		    		console.log("enter dheippp");
-        			map.addSource('diamolical-pal', {
-		                'type': 'geojson',
-		                'data': {
-							'type': 'Feature',
-							'geometry': {
-								'type': 'Polygon',
-								// These coordinates outline Maine.
-								"coordinates": 
-							    
-							      	/*[
-										[-67.13734, 45.13745],
-										[-66.96466, 44.8097],
-										[-68.03252, 44.3252],
-										[-69.06, 43.98],
-										[-70.11617, 43.68405],
-										[-70.64573, 43.09008],
-										[-70.75102, 43.08003],
-										[-70.79761, 43.21973],
-										[-70.98176, 43.36789],
-										[-70.94416, 43.46633],
-										[-71.08482, 45.30524],
-										[-70.66002, 45.46022],
-										[-70.30495, 45.91479],
-										[-70.00014, 46.69317],
-										[-69.23708, 47.44777],
-										[-68.90478, 47.18479],
-										[-68.2343, 47.35462],
-										[-67.79035, 47.06624],
-										[-67.79141, 45.70258],
-										[-67.13734, 45.13745]
-									]*/
-									est_coords
-							}
-						}
-		                //'generateId': true
-		            });
-
-		            map.addLayer({
-						'id': 'poligono-patrimonial',
-						'type': 'fill',
-						'source': 'diamolical-pal',
-						'layout': {},
-						'paint': {
-							'fill-color': '#e22624',
-							'fill-opacity': [
-								'case',
-								['boolean', ['feature-state', 'hover'], false],
-								0.9,
-								0.6
-							]
-						}
-					});
-
-					
-
-				  	 
-
-				  	console.log("enter dheippp 22");
-
-				  	id_source_collection.features = id_source_collection.features.concat(mun_coords);
-
-				  	console.log(id_source_collection);
-
-				  	var teee = {
-						'type': 'Polygon',
-						'coordinates': mun_coords
-					}
-
-					map.addSource('bbb', {
-				    	type: 'geojson',
-					    data: {
-					      "type": "FeatureCollection",
-					      "features": []
-					    }
-				  	});
-
-				  	return;
-				  	setTimeout(function() {
-			          	map.getSource('diamolical-pal').setData(
-			          		{
-						      "type": "FeatureCollection",
-						      "features": mun_coords
-					  	});
-			          	console.log("fuckkk bit");
-			          	/*map.addSource('bbb', {
-					    	type: 'geojson',
-						    data: {
-						      "type": "FeatureCollection",
-						      "features": mun_coords
-						    }
-					  	});*/
-
-					  	map.addLayer({
-							/*'id': 'poligono-borders',
-							'type': 'line',
-							'source': 'diamolical-pal',
-							'layout': {},
-							'paint': {
-								'line-color': '#ec4242',
-								'line-width': 0.1,
-							}*/
-							"id": "poligono-borders",
-						    "source": "diamolical-pal",
-						    'type': 'line',
-						    'paint': {
-						    	'line-color': '#4924dc',
-						      'line-width': 2
-						    }
-						});
-			        }, 2000);
-		            /*map.addLayer({
-						'id': 'poligono-borders',
-						'type': 'line',
-						'source': 'diamolical-pal',
-						'layout': {},
-						'paint': {
-							'line-color': '#ec4242',
-							'line-width': 0.1,
-						}
-						"id": "poligono-borders",
-					    "source": "bbb",
-					    'type': 'line',
-					    'paint': {
-					    	'line-color': '#4924dc',
-					      'line-width': 2
-					    }
-					});*/
-					console.log("enter dheippp 333");
-			    }
+	
 
 	var l;
 

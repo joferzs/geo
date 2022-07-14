@@ -173,12 +173,13 @@ var select = (function() {
 					var width = 100; 
 					if (i == "ID") {
 						width = 20;
-					}
-			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
-					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
-					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
-			        if (ii > 4) yeison.breakpoints = "all";
-			        header.push(yeison);
+					}else {
+				        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
+						/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
+						if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+				        if (ii > 4) yeison.breakpoints = "all";
+				        header.push(yeison);
+				    }
 			        ii++;
 			    });
 			}else {

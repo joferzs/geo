@@ -236,7 +236,7 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getNa($x) {
-		$sql = 'SELECT "nom_nucleo","cve_nucleo","cve_mun","cve_ent" FROM public.na';
+		$sql = 'SELECT "NOM_NUCLEO","CVE_NUCLEO","CVE_MUN","CVE_ENT" FROM public.na';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -261,36 +261,56 @@ class ApiServicioMap extends ApiMain {
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
-			$this->items_arr['estados'] = array();//se debe llamar segun nuestro modulo
-			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-			foreach ($result as $row) {*/
+			$count_id = 1001349;
+			$features = array();
+			$count = 0;
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 				$row['COORDS'] = json_decode($row['COORDS']);
-				$this->items_arr['estados'][] = $row;
+				$test = $row['COORDS']->coordinates;
+				$c_test = count($test);
+				if ($c_test > 1) {
+					for ($i=0; $i < $c_test; $i++) { 
+						$features[$count] = array(
+							"type" => "Feature",
+					        "properties" => array(
+					            "id_poligono" => $count_id,
+					            "featureclass" => "Urban area",
+					            "agalloch" => 93
+					        ),
+					        "geometry" => array(
+					            "type" => "Polygon",
+					            "coordinates" => array(
+					            	$test[$i][0]
+					            )
+					        )
+						);
+						$count++;
+					}
+				}else {
+					$features[$count] = array(
+						"type" => "Feature",
+				        "properties" => array(
+				            "id_poligono" => $count_id,
+				            "featureclass" => "Urban area",
+				            "agalloch" => 93
+				        ),
+				        "geometry" => array(
+				            "type" => "Polygon",
+				            "coordinates" => array(
+				            	$row['COORDS']->coordinates[0][0]
+				            )
+				        )
+					);
+					$count++;
+				}
+				$count_id++;
 			}
+			$this->items_arr['estados']['features'] = $features;
 		}else{
 			$this->items_arr['estados'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
 
-		$sql = 'SELECT "NOMGEO","CVE_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
-		FROM edo_mun.estados WHERE "CVE_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
-		$sth = $this->conn->prepare($sql);
-		$sth->bindValue(':id_estado', "20", PDO::PARAM_STR);
-		$sth->execute();
-		$rows = $sth->rowCount();
-		if ($rows > 0) {
-			$this->items_arr['estados_g'] = array();//se debe llamar segun nuestro modulo
-			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-			foreach ($result as $row) {*/
-			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				$row['COORDS'] = json_decode($row['COORDS']);
-				$this->items_arr['estados_g'][] = $row;
-			}
-		}else{
-			$this->items_arr['estados_g'] = array("mensaje" => "Sin coincidencias encontradas.");
-		}
-		$sth = null;
 
 		$sql = 'SELECT "NOMGEO","CVE_MUN",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
 		FROM edo_mun.municipios WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ORDER BY "NOMGEO" ASC';
@@ -300,17 +320,136 @@ class ApiServicioMap extends ApiMain {
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
-			$this->items_arr['municipios'] = array();//se debe llamar segun nuestro modulo
-			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-			foreach ($result as $row) {*/
+			$count_id = 2001349;
+			$features = array();
+			$count = 0;
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 				$row['COORDS'] = json_decode($row['COORDS']);
-				$this->items_arr['municipios'][] = $row;
+				$test = $row['COORDS']->coordinates;
+				$c_test = count($test);
+				if ($c_test > 1) {
+					for ($i=0; $i < $c_test; $i++) { 
+						$features[$count] = array(
+							"type" => "Feature",
+					        "properties" => array(
+					            "id_poligono" => $count_id,
+					            "featureclass" => "Urban area",
+					            "agalloch" => 1349
+					        ),
+					        "geometry" => array(
+					            "type" => "Polygon",
+					            "coordinates" => array(
+					            	$test[$i][0]
+					            )
+					        )
+						);
+						$count++;
+					}
+					$center = $row['COORDS']->coordinates[0][0][0];
+				}else {
+					$features[$count] = array(
+						"type" => "Feature",
+				        "properties" => array(
+				            "id_poligono" => $count_id,
+				            "featureclass" => "Urban area",
+				            "agalloch" => 1349
+				        ),
+				        "geometry" => array(
+				            "type" => "Polygon",
+				            "coordinates" => array(
+				            	$row['COORDS']->coordinates[0][0]
+				            )
+				        )
+					);
+					$count++;
+					$center = $row['COORDS']->coordinates[0][0][0];
+				}
+
+				$count_id++;
 			}
+
+			$this->items_arr['municipios_center'] = $center;
+
+
+			$this->items_arr['municipios']['features'] = $features;
+
 		}else{
 			$this->items_arr['municipios'] = array("mensaje" => "Sin coincidencias encontradas.");
 		}
 		$sth = null;
+
+		self::propiedadPrivada($x['id_estado'], $x['id_municipio']);
+	}
+
+	public function propiedadPrivada($estado, $municipio) {
+		$sql = 'SELECT "ID","LABEL",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM public.agrupaciones_pp WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', $estado, PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $municipio, PDO::PARAM_STR);
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$features = array();
+			$count = 0;
+
+			$peps = ["C" => 1,
+					"E" => 2,
+					"N" => 3,
+					"NE" => 4,
+					"NO" => 5,
+					"O" => 6,
+					"S" => 7,
+					"SE" => 8,
+					"SO" => 9];
+			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+				$row['COORDS'] = json_decode($row['COORDS']);
+				$test = $row['COORDS']->coordinates;
+				$c_test = count($test);
+				if ($c_test > 1) {
+					for ($i=0; $i < $c_test; $i++) {
+						$features[$count] = array(
+							"type" => "Feature",
+					        "properties" => array(
+					            "id_poligono" => $row['ID'],
+					            "featureclass" => "Urban area",
+					            //"isPepe": true,
+					            "agalloch" => $peps[$row['LABEL']]
+					        ),
+					        "geometry" => array(
+					            "type" => "Polygon",
+					            "coordinates" => array(
+					            	$test[$i][0]
+					            )
+					        )
+						);
+						$count++;
+					}
+				}else {
+					$features[$count] = array(
+						"type" => "Feature",
+				        "properties" => array(
+				            "id_poligono" => $row['ID'],
+				            "featureclass" => "Urban area",
+				            //"isPepe": true,
+				            "agalloch" => $peps[$row['LABEL']]
+				        ),
+				        "geometry" => array(
+				            "type" => "Polygon",
+				            "coordinates" => array(
+				            	$row['COORDS']->coordinates[0]
+				            )
+				        )
+					);
+					$count++;
+				}
+			}
+			$this->items_arr['agrupaciones']['features'] = $features;
+		}else{
+			$this->items_arr['agrupaciones'] = array("mensaje" => "Sin coincidencias encontradas.");
+		}
+		$sth = null;
+
 	}
 
 	public function getDescSubtemas($x) {
