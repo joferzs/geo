@@ -24,7 +24,7 @@ class ApiServicioMap extends ApiMain {
 		parent::__construct();
 	}
 
-	public function getAllFilterSelect($x) {
+	public function getAllFilterServicioMap($x) {
 		//print_r($x);
 		//exit;
 		/*exit;*/
@@ -148,11 +148,10 @@ class ApiServicioMap extends ApiMain {
 		$sth = null;
 	}
 
-	public function getLocalidades($x) {
-		//$sql = 'SELECT "NOM_LOC","CVE_MUN","CGLOC" FROM loc.localidades  WHERE "CVE_MUN" = :id_municipio ORDER BY "NOM_LOC" ASC';
-		$sql = 'SELECT "NOM_LOC","CVE_MUN","CVE_ENT","CGLOC" FROM loc.localidades ORDER BY "NOM_LOC" ASC';
+	public function getSomeLocalidades($x) {
+		$sql = 'SELECT "CGLOC" FROM loc.loc_grupos_pp  WHERE "ID" = :id';
 		$sth = $this->conn->prepare($sql);
-		//$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_INT);
+		$sth->bindValue(':id', $x['id'], PDO::PARAM_STR);
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
@@ -160,7 +159,7 @@ class ApiServicioMap extends ApiMain {
 			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 			foreach ($result as $row) {*/
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				$this->items_arr['localidades'][] = $row;
+				$this->items_arr['localidades'][] = $row['CGLOC'];
 			}
 		}else{
 			$this->items_arr['localidades'] = array("mensaje" => "Sin coincidencias encontradas.");
@@ -236,19 +235,26 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getNa($x) {
-		$sql = 'SELECT "NOM_NUCLEO","CVE_NUCLEO","CVE_MUN","CVE_ENT" FROM public.na';
+		if ($x['anio'] == 2010) {
+			$ann = "na_" . 2010;
+		}else {
+			$ann = "na_" . 2020;
+		}
+		$sql = 'SELECT "ID","CVE_NUCLEO" FROM ivp.' . $ann . '';
 		$sth = $this->conn->prepare($sql);
+		/*$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);*/
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
-			$this->items_arr['na'] = array();//se debe llamar segun nuestro modulo
+			$this->items_arr["na"] = array();//se debe llamar segun nuestro modulo
 			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 			foreach ($result as $row) {*/
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				$this->items_arr['na'][] = $row;
+				$this->items_arr["na"][] = $row;
 			}
 		}else{
-			$this->items_arr['na'] = array("mensaje" => "Sin coincidencias encontradas.");
+			$this->items_arr["na"] = array("mensaje" => "Sin coincidencias encontradass.");
 		}
 		$sth = null;
 	}
@@ -411,7 +417,7 @@ class ApiServicioMap extends ApiMain {
 						$features[$count] = array(
 							"type" => "Feature",
 					        "properties" => array(
-					            "id_poligono" => $row['ID'],
+					            "id_poligono_pp" => $row['ID'] . "-" .$row['LABEL'],
 					            "featureclass" => "Urban area",
 					            //"isPepe": true,
 					            "agalloch" => $peps[$row['LABEL']]
@@ -429,7 +435,7 @@ class ApiServicioMap extends ApiMain {
 					$features[$count] = array(
 						"type" => "Feature",
 				        "properties" => array(
-				            "id_poligono" => $row['ID'],
+				            "id_poligono_pp" => $row['ID'] . "-" .$row['LABEL'],
 				            "featureclass" => "Urban area",
 				            //"isPepe": true,
 				            "agalloch" => $peps[$row['LABEL']]

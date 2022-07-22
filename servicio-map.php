@@ -45,54 +45,67 @@ if (isset($_GET["x"])) {
                             <div class="head-filter">Seleccione el método de consulta</div>
                             <select name="id_metodo" id="select-metodo" placeholder="metodo">
                                 <option value="">Seleccione una opción</option>
-                                <option value="1">Por núcleo agrario</option>
-                                <option value="2">Por área de control</option>
+                                <option value="1">Por propiedad social</option>
+                                <option value="2">Por propiedad privada</option>
+                            </select>
+                        </div>
+                        <div class="anio-na">
+                            <div class="head-filter">Seleccione el año de consulta</div>
+                            <select name="anio_na" id="anio-na">
+                                <option value="2010">2010</option>
+                                <option value="2020">2020</option>
+                                <!--<option value="20102020">2010-2020</option>-->
                             </select>
                         </div>
                         <div class="na hide-depend-nucleo">
                             <div class="head-filter">Seleccione el Núcleo agrario</div>
-                            <select name="id_na" id=select-na placeholder=" Municipio">
+                            <select name="id_na" id=select-na placeholder="Núcleo agrario">
                                 <option value="">Seleccione una opción</option>
                             </select>
                         </div>
+
                         <div class="mapats hide-depend-nucleo">
                             <div id="poligonos-maps"> meipin</div>
-                        </div>
-                        <!--<div>
-                            <div class="head-filter">Seleccione el año de consulta</div>
-                            <select name="anio" id=anio>
-                                <option value="2010">2010</option>
-                                <option value="2020">2020</option>
-                                <option value="20102020">2010-2020</option>
-                            </select>
-                        </div>-->
-                        <div>
-                            <div class="head-filter">Seleccione un tema</div>
-                            <select name="id_tema" id="select-tema">
-                            </select>
-                        </div>
-                        <div class="subtema">
-                            <div class="head-filter">Subtema</div>
-                            <!--<select name="id_subtema" id="select-subtema1" disabled>
-                            </select>-->
-                            <input name="subtema" id="select-subtema"  readonly="readonly">
-                            <input type="hidden" name="id_subtema" id="select-subtema-id">
-                        </div>
-                        <div class="descsubtema">
-                            <div class="head-filter">Seleccione un subtema</div>
-                            <select name="id_descsubtema" id="select-descsubtema">
-                            </select>
-                        </div>
-                        <div>
-                            <div class="head-filter head-indicadores">Seleccione los indicadores a consultar</div>
-                            <div class="content-indicadores">
-                                <div><input type="checkbox" class="indicadores-check" id="check-all">Seleccionar todos</div>
-                                <div id="check-indicadores"></div>
+                            <div class="conentent-click-map">
+                                <div id="res-click-map">
+                                    Results
+                                </div>
                             </div>
                         </div>
-                        <div class="btn-indicadores">
-                            <button id="btn-buscar">Ver indicadores</button>
-                        </div>
+                        
+                        
+                        <figure class="depend-content">
+                            <div>
+                                <div class="head-filter">Seleccione un tema</div>
+                                <select name="id_tema" id="select-tema">
+                                </select>
+                            </div>
+                            <div class="anio">
+                                <div class="head-filter">Seleccione el año de consulta</div>
+                                <select name="anio" id=anio>
+                                    <option value="2010">2010</option>
+                                    <option value="2020">2020</option>
+                                    <!--<option value="20102020">2010-2020</option>-->
+                                </select>
+                            </div>
+                            <div class="subtema">
+                                <div class="head-filter">Subtema</div>
+                                <!--<select name="id_subtema" id="select-subtema1" disabled>
+                                </select>-->
+                                <input name="subtema" id="select-subtema"  readonly="readonly">
+                                <input type="hidden" name="id_subtema" id="select-subtema-id">
+                            </div>
+                            <div>
+                                <div class="head-filter head-indicadores">Seleccione los indicadores a consultar</div>
+                                <div class="content-indicadores">
+                                    <div><input type="checkbox" class="indicadores-check" id="check-all">Seleccionar todos</div>
+                                    <div id="check-indicadores"></div>
+                                </div>
+                            </div>
+                            <div class="btn-indicadores">
+                                <button id="btn-buscar">Ver indicadores</button>
+                            </div>
+                        </figure>
                     </div>
 
                     <div class="res-x"></div>

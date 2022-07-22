@@ -32,11 +32,24 @@ var servicioMap = (function() {
 			methods: {
 				'estados': '',
 				'municipios': '',
-				'localidades': '',
+				//'localidades': '',
 				'temas': '',
 				'subtemas': '',
 				'indicadores': '',
-				'na': '',
+            	'json': ''
+            },
+		},
+		apiDataLateNA = {
+			controller: module_upper,
+			methods: {
+				'na':  { data: ''},
+            	'json': ''
+            },
+		},
+		apiDataLateMore = {
+			controller: module_upper,
+			methods: {
+				'some_localidades':  { data: ''},
             	'json': ''
             },
 		},
@@ -112,12 +125,14 @@ var servicioMap = (function() {
 		select_subtema = $("#select-subtema"),
 		select_subtema_id = $("#select-subtema-id"),
 		select_anio = $("#anio"),
+		select_anio_na = $("#anio-na"),
 		select_metodo = $("#select-metodo"),
 		select_na = $("#select-na"),
 		btn_excel = $("#icono-excel"),
 		btn_pdf = $("#icono-pdf"),
 		btn_export = $("#icono-export"),
 		check_all = $("#check-all"),
+		loc_pp,
 		check_indicadores = $("#check-indicadores");
 
 	var limit_in,
@@ -166,6 +181,7 @@ var servicioMap = (function() {
 			console.log("res de nuestro nuevo modulo" + module_upper);
 			console.log(res);
 			$(".res-error").hide();
+			$(".res-x").show(500);
 			if ($("#debug").val() == 'debug') {
 				$(".res-x").html("send: " + JSON.stringify(res.x));
 				$(".res-sql").html("sql: " + res.sql);
@@ -330,7 +346,7 @@ var servicioMap = (function() {
 	    			select_metodo.val("");
 	      			console.log("change select");
 	      			console.log(ui.item.value);
-	      			selectNa();
+	      			//selectNa();
 	      		}
 		        select_municipio.val( ui.item.label );
 		        $("#select-municipio-id").val( ui.item.value );
@@ -506,19 +522,49 @@ var servicioMap = (function() {
     }
 
     var changeAnio = function() {
-    	selectTema();
-    	select_tema.val(1).trigger('change');
+    	selectSubtema(1);
+    	//selectSubtema.val(1).trigger('change');
+    }
+
+    var changeAnioNA = function() {
+    	apiDataLateNA.methods['na']['data'] = {
+    		anio: select_anio_na.val(),
+			id_estado: select_estado.val(),
+			id_municipio: $("#select-municipio-id").val()
+		}
+		console.log("apiDataLateNA na");
+    	console.log(apiDataLateNA);
+
+    	initMod.apiCall(apiDataLateNA).then(function(res){
+    		console.log("res na");
+    		console.log(res);
+    		$(".na").show(500);
+    		all_na = res.na;
+    		selectNa();
+		}, function(reason, json){
+		 	initMod.debugThemes(reason, json);
+		});
     }
 
     var id_source_collection;
+
+    var active_map_btns = true;
 
     var changeMetodo = function() {
     	var id_n = $(this).val();
     	$(".na").hide();
 	    $(".mapats").hide();
+	    $(".depend-anio").hide();
+	    $("figure.depend-content").hide();
+	    $('#footable-list').hide();
+	    $('.anio-na').hide();
     	if (id_n == 1) {
-    		$(".na").show(500);
-	    	selectNa();
+    		
+	    	//selectNa();
+	    	$('.anio-na').show(500);
+	    	changeAnioNA();
+
+	    	
     	}else if (id_n == 2) {
 	    	$(".mapats").show(500, function() {
 	    		console.log("bout");
@@ -533,6 +579,12 @@ var servicioMap = (function() {
 		    	var coords_estados;
 		    	var coords_municipios;
 		    	var coords_pp;
+		    	if (1) {
+		    		active_map_btns = false;
+			    	map.on('mousemove', 'poligonoaaaa', map_mousemove);
+			        map.on('mouseleave', 'poligonoaaaa', map_mouseleave);
+			        map.on('click', 'poligonoaaaa', map_click);
+			    }
 
 		        if ($("#select-municipio-id").val() != "" && select_estado.val() != "") {
 		        	apiDataCoords.methods['coords']['data'] = {
@@ -552,8 +604,9 @@ var servicioMap = (function() {
 				        	coords_municipios = res.municipios.features;
 							id_source_collection.features = id_source_collection.features.concat(coords_municipios);
 				          	getPoligonShapesAddLoop(id_source_collection);
-				          	mapFlyTo(res.municipios_center, 9, 20, 30);
+				          	mapFlyTo(res.municipios_center, 9, 0, 0);
 				          	//map.setPaintProperty("test", 'fill-color', '#ffffcc');
+				          	
 				        }, 500);
 
 				        setTimeout(function() {
@@ -568,6 +621,7 @@ var servicioMap = (function() {
 		        	
 		        }
 	        });
+
     	}
     }
 
@@ -691,23 +745,87 @@ var servicioMap = (function() {
 		});
     }
 
+    var map_mousemove = function(e) {
+    	console.log("moussss");
+    	map.getCanvas().style.cursor = 'pointer';
+		if (e.features.length > 0) {
+			if (hoveredStateId) {
+				map.setFeatureState(
+					{ source: 'diamolical', id: hoveredStateId },
+					{ hover: false }
+				);
+			}
+			hoveredStateId = e.features[0].id;
+			map.setFeatureState(
+				{ source: 'diamolical', id: hoveredStateId },
+				{ hover: true }
+			);
+		}
+	};
+
+	var map_mouseleave =  function() {
+		console.log("moussss 2click");
+		map.getCanvas().style.cursor = '';
+		if (hoveredStateId) {
+			map.setFeatureState(
+				{ source: 'diamolical', id: hoveredStateId },
+				{ hover: false }
+			);
+		}
+		hoveredStateId = null;
+	};
+
+	var html_done,
+    	listenerValidation = false,
+    	center_ring;
+
+	var map_click = function(e) {
+		console.log("moussss lclick");
+
+  		/*map.getSource('diamolical').setData({
+	      "type": "FeatureCollection",
+	      "features": e.features
+	    });*/
+        var id_ = e.features[0].properties.id_poligono_pp;
+        console.log("id_ isengard");
+  		console.log(id_);
+  		if (typeof id_ === 'undefined') {
+  			return;
+  		}
+  		var label = id_.split("-");
+  		$("#res-click-map").html(label[1]);
+
+  		btn_export.hide();
+		$('#footable-list').hide(200);
+    	if (listenerValidation) {
+  			//return;
+  		}else {
+  			listenerValidation = true;
+  		}
+  		
+
+		apiDataLateMore.methods['some_localidades']['data'] = {
+				id: label[0]
+			}
+
+  		initMod.apiCall(apiDataLateMore).then(function(res){
+  			console.log("res one norvid");
+  			console.log(res);
+  			$("figure.depend-content").show(500);
+  			loc_pp = res.localidades;
+		}, function(reason, json){
+		 	debugThemes(reason, json);
+		});
+    };
+
     select_na = $('#select-na');
     var selectNa = function() {
-    	console.log("municipio  aaaaaaaa");
-    	console.log($("#select-municipio-id").val());
-    	console.log("select_estado.val()bbbbb");
-    	console.log(select_estado.val());
     	var indata = $.map(all_na, function( item ) {
-            if ($("#select-municipio-id").val() == item.cve_mun && select_estado.val() == item.cve_ent) {
-				return {
-	             	nucleo: item.nom_nucleo,
-		            id_nucleo: item.cve_nucleo,
-	            }
-			}
+			return {
+             	nucleo: item.CVE_NUCLEO,
+	            id_nucleo: item.ID,
+            }
         });
-        console.log("indata.val()cccc");
-    	console.log(indata);
-        select_na.prop("disabled", false);
         var keys = ['id_nucleo', 'nucleo', select_na,indata];
         var selectForm = resetSelect(keys[2]);
         selectForm.selectize({
@@ -745,9 +863,6 @@ var servicioMap = (function() {
 	       	select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
 	        i++
 	    }
-	    if ($("#anio").val() == 2020) {
-	    	select_tema.append(new Option("Desarrollo local", "desarrollo_local"));
-	    }
     }
 
     var choice_tab = "";
@@ -768,17 +883,12 @@ var servicioMap = (function() {
     	}else {
     		select_subtema.prop("disabled", true);
     	}
-    	if (value != "desarrollo_local") {
-			select_subtema.val(select_subtema.val()).trigger('change');
-		}else {
-			select_descsubtema.val(select_descsubtema.val()).trigger('change');
-		}
+		select_subtema.val(select_subtema.val()).trigger('change');
     }
 
     var selectSubtema = function(x) {
     	var anio_selected = select_anio.val();
 		select_subtema.html("");
-		select_descsubtema.html("");
         /*$.each(all_subtemas, function(i, v) {
 
          	if (v.subtema != null) {
@@ -794,16 +904,8 @@ var servicioMap = (function() {
 		    }
 	    });*/
 
-	    if (choice_tab == "desarrollo_local") {
-	    	console.log("dessss");
-	    	var res_subtema = all_na;
-	    	$(".subtema").hide();
-	    	$(".descsubtema").show();
-	    }else {
-	    	var res_subtema = all_subtemas;
-	    	$(".subtema").show();
-	    	$(".descsubtema").hide();
-	    }
+    	var res_subtema = all_subtemas;
+    	$(".subtema").show();
 
         var i = 0, len = res_subtema.length;
 
@@ -811,27 +913,15 @@ var servicioMap = (function() {
         console.log(res_subtema);
 
 	    while (i < len) {
-	    	if (choice_tab == "desarrollo_local") {
-	    		/*select_descsubtema.val(res_subtema[i].subtema);
-	        	indicadores(res_subtema[i].cve_sub);
-	        	check_all.prop('checked', false);
-				$("#indicadores-0").prop('checked', true);*/
-
-			    select_descsubtema.append(new Option(res_subtema[i].subtema, res_subtema[i].cve_sub));
-			    //indicadores(res_subtema[i].cve_sub);
-	        	/*check_all.prop('checked', false);
-				$("#indicadores-0").prop('checked', true);*/
-	    	}else {
-		       	if (res_subtema[i].subtema != null) {
-			        if (res_subtema[i].cve_tem == x && anio_selected == res_subtema[i].anio) {
-			        	select_subtema.val(res_subtema[i].subtema);
-			        	select_subtema_id.val(res_subtema[i].cve_sub);
-			        	indicadores(res_subtema[i].cve_sub);
-			        	check_all.prop('checked', false);
-	    				$("#indicadores-0").prop('checked', true);
-			        }
-			    }
-			}
+	       	if (res_subtema[i].subtema != null) {
+		        if (res_subtema[i].cve_tem == x && anio_selected == res_subtema[i].anio) {
+		        	select_subtema.val(res_subtema[i].subtema);
+		        	select_subtema_id.val(res_subtema[i].cve_sub);
+		        	indicadores(res_subtema[i].cve_sub);
+		        	check_all.prop('checked', false);
+    				$("#indicadores-0").prop('checked', true);
+		        }
+		    }
 	        i++
 	    }
     }
@@ -910,12 +1000,12 @@ var servicioMap = (function() {
 			console.log("res alter a");
 			console.log(res);
         	all_municipios = res.municipios;
-        	all_localidades = res.localidades;
+        	//all_localidades = res.localidades;
         	all_estados = res.estados;
         	all_temas = res.temas;
         	all_subtemas = res.subtemas;
         	all_indicadores = res.indicadores;
-        	all_na = res.na;
+        	
         	selectEstado();
         	selectTema();
         	select_tema.val(1).trigger('change');
@@ -937,15 +1027,6 @@ var servicioMap = (function() {
 					});*/
 				});
 			});
-			/*initMod.apiCall(apiDataLateFormat).then(function(res){
-				console.log("res alter 222");
-				console.log(res);
-				all_municipios_format = res.municipios_format;
-	        	all_estados_format = res.estados_format;
-			}, function(reason, json){
-				console.log("non");
-			 	initMod.debugThemes(reason, json);
-			});*/
         }, function(reason, json){
 			console.log("non");
 		 	initMod.debugThemes(reason, json);
@@ -960,14 +1041,14 @@ var servicioMap = (function() {
 		return all_municipios_format[x];
 	}
 
-	
-
 	var l;
 
 	var buscarRes = function() {
 		/*btn_excel.hide();
 		btn_pdf.hide();*/
 		btn_export.hide();
+		$('#footable-list').show(300);
+		$('#footable-list').empty();
 		l = $(this).ladda();
 		l.ladda( 'start' );
 		var sList = [];
@@ -983,9 +1064,11 @@ var servicioMap = (function() {
 			anio: $("#anio").val(),
 			indicadores: in_end,
 			debug: $("#debug").val(),
-			tab: choice_tab,
-			localidades: $("#select-localidad").val()
+			tab: "none",
+			localidades: loc_pp
 		}
+		console.log("apiDataAllFilterapiDataAllFilter");
+		console.log(apiDataAllFilter);
 		if (choice_tab == "desarrollo_local") {
 			getInitResponseCube();//
 		}else {
@@ -1073,11 +1156,12 @@ var servicioMap = (function() {
 		});
 		var in_end= sList.join(",");
 		apiDataExport.methods['export']['data'] = {
-			id_localidad: $("#select-localidad-id").val(),
+			//id_localidad: $("#select-localidad-id").val(),
 			anio: $("#anio").val(),
 			indicadores: in_end,
 			debug: $("#debug").val(),
-			localidades: $("#select-localidad").val()
+			tab: "none",
+			localidades: loc_pp
 		}
 		var l = $(this).ladda();
 		l.ladda( 'start' );
@@ -1108,6 +1192,7 @@ var servicioMap = (function() {
         $("#btn-buscar").on("click", buscarRes);
         select_estado.on("change", changeEstado);
         select_anio.on("change", changeAnio);
+        select_anio_na.on("change", changeAnioNA);
         select_metodo.on("change", changeMetodo);
         select_tema.on("change", changeTema);
         select_subtema.on("change", changeSubtema);
@@ -1117,6 +1202,10 @@ var servicioMap = (function() {
         /*btn_excel.on('click', generateExcel);
         btn_pdf.on('click', generatePdf);*/
         btn_export.on('click', generateExport);
+
+        $(document).on('mousemove', 'poligonoaaaa', map_mousemove);
+        $(document).on('mouseleave', 'poligonoaaaa', map_mouseleave);
+        $(document).on('click', 'poligonoaaaa', map_click);
     };
 
 	var init = function () {

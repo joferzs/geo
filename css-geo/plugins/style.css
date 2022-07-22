@@ -137,6 +137,9 @@ body.modal-open {
 .content-filters>div {
   margin: 1%;
 }
+.content-filters>figure>div {
+  margin: 1%;
+}
 .content-service {
   color: black;
 }
@@ -778,6 +781,18 @@ body#app-site-2 {
 .hide-depend-nucleo {
   display: none;
 }
+.conentent-click-map {
+  bottom: 0;
+  border-radius: 0px 6px 0px 0px;
+  background: gainsboro;
+  padding: 3px 12px;
+  position: absolute;
+  width: 125px;
+  z-index: 99;
+}
+.mapats {
+  position: relative;
+}
 #poligonos-maps {
   height: 500px;
   width: 100%;
@@ -786,4 +801,10 @@ body#app-site-2 {
   border-top: 2px solid #9c9c9c;
   margin-top: 2%;
   padding-top: 2%;
+}
+figure.depend-content {
+  display: none;
+}
+.anio-na {
+  display: none;
 }
