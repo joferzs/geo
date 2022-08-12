@@ -49,6 +49,13 @@ var select = (function() {
             	'json': ''
             },
 		},
+		apiDataCoords = {
+			controller: module_upper,
+			methods: {
+            	['coords']: { data: ""},
+            	'json': ''
+            },
+		},
 		apiDataForm = {
 			controller: module_upper,
 			methods: {
@@ -96,8 +103,8 @@ var select = (function() {
 		all_descindicadores,
 		all_estados_format,
 		all_municipios_format,
-		//nom_ind = {ID: "ID", CGLOC: "CGLOC", NOM_LOC : "LOCALIDAD", CVE_ENT : "estado", clave_estado : "clave estado", CVE_MUN : "municipio", clave_municipio : "clave municipio"},
-		nom_ind = {ID: "ID", NOM_LOC : "LOCALIDAD"},
+		//nom_ind = {ID: "ID", CGLOC: "CGLOC", NOM_LOC : "LOCALIDAD", ID_ENT : "estado", clave_estado : "clave estado", ID_MUN : "municipio", clave_municipio : "clave municipio"},
+		nom_ind = { NOM_LOC : "LOCALIDAD"},
 		select_estado = $("#select-estado"),
 		select_municipio = $("#select-municipio"),
 		select_localidad = $("#select-localidad"),
@@ -175,15 +182,15 @@ var select = (function() {
 						width = 20;
 					}else {
 				        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
-						/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
-						if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+						/*if (i == "ID_ENT") yeison.formatter = "select.getEstadoFormat";
+						if (i == "ID_MUN") yeison.formatter = "select.getMunicipioFormat";*/
 				        if (ii > 4) yeison.breakpoints = "all";
 				        header.push(yeison);
 				    }
 			        ii++;
 			    });
 			}else {
-				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
+				header = [{ name: "", title: "", "style":{"width":20,"maxWidth":20} }];
 			}
 
 			$('#footable-list').empty();
@@ -192,6 +199,7 @@ var select = (function() {
 			var ft = FooTable.init('#footable-list', {
 				"columns": header,
 				"rows": all_data_tab,
+				"empty": "La selección no arroja ninguna localidad",
                 'on': {
                     'postdraw.ft.table': function(e, ft) {
                     	console.log("kam");
@@ -236,8 +244,8 @@ var select = (function() {
 						width = 20;
 					}
 			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
-					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
-					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+					/*if (i == "ID_ENT") yeison.formatter = "select.getEstadoFormat";
+					if (i == "ID_MUN") yeison.formatter = "select.getMunicipioFormat";*/
 			        if (ii > 4) yeison.breakpoints = "all";
 			        header.push(yeison);
 			        ii++;
@@ -275,14 +283,14 @@ var select = (function() {
 
 	var selectEstado = function(x) {
 	    /*$.each(all_estados, function(i, v) {
-	        select_estado.append(new Option(v.NOMGEO, v.CVE_ENT));
+	        select_estado.append(new Option(v.NOMGEO, v.ID_ENT));
 	    });*/
 
 	    var i = 0, len = all_estados.length;
 	    while (i < len) {
 	    	console.log("esttta oo");
 	    	console.log(all_estados[i]);
-	       	select_estado.append(new Option(all_estados[i].NOMGEO, all_estados[i].CVE_ENT));
+	       	select_estado.append(new Option(all_estados[i].NOMGEO, all_estados[i].ID_ENT));
 	        i++
 	    }
     }
@@ -306,10 +314,10 @@ var select = (function() {
 
     var selectMunicipio = function(x) {
 		var indata = $.map(all_municipios, function( item ) {
-			if (x == item.CVE_ENT) {
+			if (x == item.ID_ENT) {
 				return {
 	             	label: item.NOMGEO,
-		            value: item.CVE_MUN,
+		            value: item.ID_MUN,
 	            }
 			}
         });
@@ -353,7 +361,7 @@ var select = (function() {
     var selectLocalidad_ = function(x) {
     	$("#select-localidad").html("");
 		var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
+            if (x == item.ID_MUN && select_estado.val() == item.ID_ENT) {
 				return {
 	             	label: item.NOM_LOC,
 		            value: item.CGLOC,
@@ -422,7 +430,7 @@ var select = (function() {
     select_localidad = $('#select-localidad');
     var selectLocalidad = function(x) {
     	var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
+            if (x == item.ID_MUN && select_estado.val() == item.ID_ENT) {
 				return {
 	             	localidad: item.NOM_LOC,
 		            id_localidad: item.CGLOC,
@@ -466,6 +474,244 @@ var select = (function() {
         });
     };
 
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZmVhbm9ycmFuZ2VsIiwiYSI6ImNrNnIxYzVmdzAwdWszaHFpcndyandwbmcifQ.0yZCD9xMEiLEAzeut0pzuw';
+
+    
+
+    var callMapPrint = function() {
+    	/*var coords_estados = res.estados.features;
+		id_source_collection.features = id_source_collection.features.concat(coords_estados);
+    	getPoligonShapes(id_source_collection);*/
+    	apiDataCoords.methods['coords']['data'] = {
+			localidades: $("#select-localidad").val(),
+			id_municipio: $("#select-municipio-id").val(),
+			id_estado: select_estado.val(),
+			anio: $("#anio").val()
+		}
+		mapProp = {
+	      	container: 'poligonos-maps',
+	        style: 'mapbox://styles/mapbox/streets-v10',
+	        center: [-91.97363682, 17.91143118],
+			zoom: 5,
+			preserveDrawingBuffer: true
+	    };
+    	map = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+		var id_source_collection = { type: 'FeatureCollection', features: [] };
+    	initMod.apiCall(apiDataCoords).then(function(res){
+    		console.log("res mmm");
+    		console.log(res);
+    		var coords_municipios = res.municipios.features;
+
+    		$(".title-map-edo span").html($('#select-estado').find(":selected").text());
+    		$(".title-map-mun span").html($('#select-municipio').val());
+
+    		id_source_collection.features = id_source_collection.features.concat(coords_municipios);
+
+    		setTimeout(function() {
+	        	getPoligonShapes(id_source_collection);
+	    		mapFlyTo(res.municipios_center, 10.5, 0, 0);
+	        }, 1000);
+
+
+	        /*setTimeout(function() {
+	        	var coords_estado = res.estados.features;
+
+    			id_source_collection.features = id_source_collection.features.concat(coords_estado);
+	        	getPoligonShapesAddLoop(id_source_collection);
+	        }, 1500);*/
+
+    		
+
+	    	setTimeout(function() {
+	        	var coords_loc = res.lodalidades_1349.features;
+				id_source_collection.features = id_source_collection.features.concat(coords_loc);
+	          	getPoligonShapesAddLoop(id_source_collection);
+	        }, 1200);
+	        //return;
+	        setTimeout(function(){
+	        	var mapsyeahyeahs = $('#poligonos-maps');
+	            html2canvas([mapsyeahyeahs.get(0)], {
+	            	useCORS: true,
+			        optimized: false,
+			        allowTaint: false,
+			      	onrendered: function (canvas) {
+			        	/*document.body.appendChild(canvas);
+			        	var a = document.createElement('a');
+			        	// toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+			        	a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+			        	a.download = 'somefilename.jpg';
+			        	a.click();*/
+
+			        	var tempcanvas=document.createElement('canvas');
+			            tempcanvas.width=700;
+			            tempcanvas.height=500;
+			            var context=tempcanvas.getContext('2d');
+			            context.drawImage(canvas,0,0,1350,700,0,0,1350,700);
+			            var link=document.createElement("a");
+			            link.href=tempcanvas.toDataURL('image/jpg');   //function blocks CORS
+			            link.download = 'screenshot.jpg';
+			            link.click();
+			      	}
+			    });
+	        },2000);
+    		
+		}, function(reason, json){
+		 	initMod.debugThemes(reason, json);
+		});
+		return;
+    	setTimeout(function(){
+            html2canvas([mapsyeahyeahs.get(0)], {
+            	useCORS: true,
+		        optimized: false,
+		        allowTaint: false,
+		      	onrendered: function (canvas) {
+		        	/*document.body.appendChild(canvas);
+		        	var a = document.createElement('a');
+		        	// toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+		        	a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+		        	a.download = 'somefilename.jpg';
+		        	a.click();*/
+
+		        	var tempcanvas=document.createElement('canvas');
+		            tempcanvas.width=1350;
+		            tempcanvas.height=700;
+		            var context=tempcanvas.getContext('2d');
+		            context.drawImage(canvas,0,0,1350,700,0,0,1350,700);
+		            var link=document.createElement("a");
+		            link.href=tempcanvas.toDataURL('image/jpg');   //function blocks CORS
+		            link.download = 'screenshot.jpg';
+		            link.click();
+		      	}
+		    });
+        },3000);
+    }
+
+    
+    var getPoligonShapesAddLoop = function(jsonPol) {
+    	map.getSource('diamolical').setData(jsonPol);
+		/*map.addLayer({
+			'id': 'poligonobbb',
+			'type': 'fill',
+			'source': 'diamolical',
+			'layout': {},
+			//"source-layer": "waterway",
+			'paint': {
+				'fill-color': [
+					'interpolate',
+					['linear'],
+					['get', 'agalloch'],
+					2,
+					'#23527c'
+				],
+				'fill-opacity': 0.5
+				},
+				'circle-radius': 4,
+		      	//'circle-color': '#063153'
+		});*/
+    }
+    
+	var mapProp;
+    var map;// = $("#poligonos-maps").length ?  new mapboxgl.Map(mapProp) : false;
+    var hoveredStateId = null;
+
+    var getPoligonShapes = function(jsonPol) {
+		map.addSource('diamolical', {
+            'type': 'geojson',
+            'data': jsonPol,
+            'generateId': true
+        });
+        /*map.addLayer({
+			'id': 'poligonoaaaa',
+			'type': 'fill',
+			'source': 'diamolical',
+			'layout': {},
+			//"source-layer": "waterway",
+			'paint': {
+				'fill-color': [
+					'interpolate',
+					['linear'],
+					['get', 'agalloch'],
+					1,
+					'#ff2204',
+					93,
+					'#276252',
+				],
+				'fill-opacity': 0.5
+			},
+			//'circle-radius': 4,
+	      	//'circle-color': '#063153'
+		});*/
+		map.addLayer({
+		  'id': 'poligonoaaaa',
+		  'type': 'line',
+		  'source': 'diamolical',
+		  'layout': {},
+		  'paint': {
+				'line-width': 1,
+				'line-color':'#525252'
+			},
+			//'filter': ['==', '$type', 'Point']
+		});        
+		map.addLayer({
+		  	'id': 'poligonobbbbb',
+		  	'type': 'circle',
+		  	'source': 'diamolical',
+		  	'layout': {},
+		  	'circle-radius': .1,
+		  	'circle-stroke-width': .1,
+	      	'circle-color': '#393838',
+	      	'filter': ['==', '$type', 'Point']
+		});
+    }
+
+    var ventana_ancho = $(window).width(), str_len_cin = 90, str_len_ses = 160, str_len_cua = 40;
+    var allPage = $('html, body');
+
+    var mapFlyTo = function(center, z, b, p) {
+
+    	//if (ventana_ancho <= 600) {
+    		//var winTam = ventana_ancho <= 600 ? 530 : ventana_ancho < 1680 ? 530 : 530;
+			//allPage.stop().animate({scrollTop: 490}, 1400);
+    	//}
+
+    	if (b > 0) {
+    		var beari = b,
+    			pit = p,
+    			offs = [-50, -50];
+    		if (ventana_ancho <= 600) {
+	    		offs = [120, 50];
+	    	}
+    	}else {
+    		var beari = 0,
+    			pit = 0,
+    			offs = [0, 0];
+    	}
+    	map.flyTo({
+			// These options control the ending camera position: centered at
+			// the target, at zoom level 9, and north up.
+			center: center,
+			zoom: z,
+			bearing: beari,
+			pitch: pit,
+			offset: offs,
+			 
+			// These options control the flight curve, making it move
+			// slowly and zoom out almost completely before starting
+			// to pan.
+			speed: 5, // make the flying slow
+			//curve: 1, // change the speed at which it zooms out
+			 
+			// This can be any easing function: it takes a number between
+			// 0 and 1 and returns another number between 0 and 1.
+			easing: function(t) {
+				return t;
+			},
+			 
+			// this animation is considered essential with respect to prefers-reduced-motion
+			essential: true
+		});
+    }
+
     var split = function( val ) {
 		return val.split( /,\s*/ );
 	}
@@ -496,15 +742,21 @@ var select = (function() {
     }
 
     var changeAnio = function() {
-    	selectSubtema(1);
+    	selectSubtema(2);
     	//selectSubtema.val(1).trigger('change');
     }
 
     var selectTema = function(x) {
     	select_tema.html("");
-	    var i = 0, len = all_temas.length;
+	    var i = 1, len = all_temas.length;
+	    console.log("len");
+	    console.log(len);
+	    console.log("all_temas");
+	    console.log(all_temas);
 	    while (i < len) {
-	       	select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
+	    	//if (i != 0) {
+	       		select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
+	       	//}
 	        i++
 	    }
 	    /*if ($("#anio").val() == 2020) {
@@ -633,10 +885,7 @@ var select = (function() {
 
     var indicadores = function(x ="") {
     	if (choice_tab == "desarrollo_local") {
-	    	console.log("des llll");
-	    	console.log(x);
 	    	var res_indi = all_descindicadores;
-	    	console.log(res_indi);
 	    }else {
 	    	var res_indi = all_indicadores;
 	    }
@@ -649,8 +898,6 @@ var select = (function() {
 	            }
 			}
         });
-        console.log("indataindataindataindata");
-	    console.log(indata);
         check_indicadores.html("");
         check_indicadores_var.html("");
 
@@ -668,10 +915,6 @@ var select = (function() {
 					}
 			        
 			    });
-			    console.log("sssssss");
-			    console.log($(".indicadores-check"));
-			    console.log("sssssssvvvvvvv");
-			    console.log($(".indicadores-check-var"));
 			    if ($(".indicadores-check").length > 1) check_ind_none.show(600);
 			    if ($(".indicadores-check-var").length > 1) check_ind_var.show(600);
 			    
@@ -699,7 +942,6 @@ var select = (function() {
 			check_all.prop('checked', false);
 			$("#indicadores-0").prop('checked', true);
 		}
-
     }
 
     var checkVisibleVar = function() {
@@ -736,7 +978,7 @@ var select = (function() {
         	all_descindicadores = res.descindicadores;
         	selectEstado();
         	selectTema();
-        	select_tema.val(1).trigger('change');
+        	select_tema.val(2).trigger('change');
 
 			for (var i = all_indicadores.length - 1; i >= 0; i--) {
 				nom_ind[all_indicadores[i].cve_ind] = all_indicadores[i].indicadores;
@@ -785,6 +1027,8 @@ var select = (function() {
 	var l;
 
 	var buscarRes = function() {
+		
+		//return;
 		/*btn_excel.hide();
 		btn_pdf.hide();*/
 		btn_export.hide();
@@ -892,6 +1136,7 @@ var select = (function() {
 	}
 
 	var generateExport = function() {
+		callMapPrint();
 		var sList = [];
 		$('#check-indicadores input').each(function () {
 		    if (this.checked) {

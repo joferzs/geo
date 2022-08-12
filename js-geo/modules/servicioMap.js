@@ -53,6 +53,13 @@ var servicioMap = (function() {
             	'json': ''
             },
 		},
+		apiDataInfografia = {
+			controller: module_upper,
+			methods: {
+            	['infografias']: { data: ""},
+            	'json': ''
+            },
+		},
 		apiDataLateFormat = {
 			controller: module_upper,
 			methods: {
@@ -115,8 +122,7 @@ var servicioMap = (function() {
 		all_descindicadores,
 		all_estados_format,
 		all_municipios_format,
-		//nom_ind = {ID: "ID", CGLOC: "CGLOC", NOM_LOC : "LOCALIDAD", CVE_ENT : "estado", clave_estado : "clave estado", CVE_MUN : "municipio", clave_municipio : "clave municipio"},
-		nom_ind = {ID: "ID", NOM_LOC : "LOCALIDAD"},
+		nom_ind = {NOM_LOC : "LOCALIDAD"},
 		select_estado = $("#select-estado"),
 		select_municipio = $("#select-municipio"),
 		select_localidad = $("#select-localidad"),
@@ -193,16 +199,17 @@ var servicioMap = (function() {
 					var width = 100; 
 					if (i == "ID") {
 						width = 20;
+						return;
 					}
 			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
-					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
-					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+					/*if (i == "ID_ENT") yeison.formatter = "select.getEstadoFormat";
+					if (i == "ID_MUN") yeison.formatter = "select.getMunicipioFormat";*/
 			        if (ii > 4) yeison.breakpoints = "all";
 			        header.push(yeison);
 			        ii++;
 			    });
 			}else {
-				header = [{ name: "id", title: "ID", "style":{"width":20,"maxWidth":20} }];
+				header = [{ name: "", title: "", "style":{"width":20,"maxWidth":20} }];
 			}
 
 			$('#footable-list').empty();
@@ -211,6 +218,7 @@ var servicioMap = (function() {
 			var ft = FooTable.init('#footable-list', {
 				"columns": header,
 				"rows": all_data_tab,
+				"empty": "La selección no arroja ninguna localidad",
                 'on': {
                     'postdraw.ft.table': function(e, ft) {
                     	console.log("kam");
@@ -255,8 +263,8 @@ var servicioMap = (function() {
 						width = 20;
 					}
 			        var yeison = { "name": i,"title": nom_ind[i], "style":{"width":width,"maxWidth":width} };
-					/*if (i == "CVE_ENT") yeison.formatter = "select.getEstadoFormat";
-					if (i == "CVE_MUN") yeison.formatter = "select.getMunicipioFormat";*/
+					/*if (i == "ID_ENT") yeison.formatter = "select.getEstadoFormat";
+					if (i == "ID_MUN") yeison.formatter = "select.getMunicipioFormat";*/
 			        if (ii > 4) yeison.breakpoints = "all";
 			        header.push(yeison);
 			        ii++;
@@ -294,14 +302,14 @@ var servicioMap = (function() {
 
 	var selectEstado = function(x) {
 	    /*$.each(all_estados, function(i, v) {
-	        select_estado.append(new Option(v.NOMGEO, v.CVE_ENT));
+	        select_estado.append(new Option(v.NOMGEO, v.ID_ENT));
 	    });*/
 
 	    var i = 0, len = all_estados.length;
 	    while (i < len) {
 	    	console.log("esttta oo");
 	    	console.log(all_estados[i]);
-	       	select_estado.append(new Option(all_estados[i].NOMGEO, all_estados[i].CVE_ENT));
+	       	select_estado.append(new Option(all_estados[i].NOMGEO, all_estados[i].ID_ENT));
 	        i++
 	    }
     }
@@ -329,10 +337,10 @@ var servicioMap = (function() {
 
     var selectMunicipio = function(x) {
 		var indata = $.map(all_municipios, function( item ) {
-			if (x == item.CVE_ENT) {
+			if (x == item.ID_ENT) {
 				return {
 	             	label: item.NOMGEO,
-		            value: item.CVE_MUN,
+		            value: item.ID_MUN,
 	            }
 			}
         });
@@ -379,7 +387,7 @@ var servicioMap = (function() {
     var selectLocalidad_ = function(x) {
     	$("#select-localidad").html("");
 		var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
+            if (x == item.ID_MUN && select_estado.val() == item.ID_ENT) {
 				return {
 	             	label: item.NOM_LOC,
 		            value: item.CGLOC,
@@ -448,7 +456,7 @@ var servicioMap = (function() {
     select_localidad = $('#select-localidad');
     var selectLocalidad = function(x) {
     	var indata = $.map(all_localidades, function( item ) {
-            if (x == item.CVE_MUN && select_estado.val() == item.CVE_ENT) {
+            if (x == item.ID_MUN && select_estado.val() == item.ID_ENT) {
 				return {
 	             	localidad: item.NOM_LOC,
 		            id_localidad: item.CGLOC,
@@ -536,7 +544,7 @@ var servicioMap = (function() {
     	console.log(apiDataLateNA);
 
     	initMod.apiCall(apiDataLateNA).then(function(res){
-    		console.log("res na");
+    		console.log("ressssa na");
     		console.log(res);
     		$(".na").show(500);
     		all_na = res.na;
@@ -670,29 +678,29 @@ var servicioMap = (function() {
 					['linear'],
 					['get', 'agalloch'],
 					1,
-					'#F2F12D',
+					"#73AF48",
 					2,
-					'#EED322',
+					"#EDAD08",
 					3,
-					'#E6B71E',
+					"#94346E",
 					4,
-					'#DA9C20',
+					"#E17C05",
 					5,
-					'#CA8323',
+					"#CC503E",
 					6,
-					'#B86B25',
+					"#0F8554",
 					7,
-					'#A25626',
+					"#1D6996",
 					8,
-					'#8B4225',
+					"#38A6A5",
 					9,
-					'#723122',
+					"#5F4690",
 					93,
-					'#063153',
+					'#276252',
 					1349,
-					'#063153'
+					'#e24e4d'
 				],
-				'fill-opacity': 0.75
+				'fill-opacity': 0.5
 				}
 		});
     }
@@ -814,7 +822,7 @@ var servicioMap = (function() {
   			$("figure.depend-content").show(500);
   			loc_pp = res.localidades;
 		}, function(reason, json){
-		 	debugThemes(reason, json);
+		 	initMod.debugThemes(reason, json);
 		});
     };
 
@@ -822,7 +830,7 @@ var servicioMap = (function() {
     var selectNa = function() {
     	var indata = $.map(all_na, function( item ) {
 			return {
-             	nucleo: item.CVE_NUCLEO,
+             	nucleo: item.NOM_NUCLEO,
 	            id_nucleo: item.ID,
             }
         });
@@ -852,13 +860,58 @@ var servicioMap = (function() {
 					console.log("tiene 2");
 					selectize.removeItem(-1);
 				}*/
+				console.log("value");
+				console.log(value);
+				//return;
+				apiDataInfografia.methods['infografias']['data'] = {
+					id: value,
+					anio: $("#anio").val()
+				}
+				/*console.log("changueii");
+				return;*/
+				initMod.apiCall(apiDataInfografia).then(function(res){
+      				console.log("res infograf");
+					console.log(res);
+
+					var infografia = res.infografia;
+
+      				var html_infog = ``;
+      				
+      				var color = ["#ff007d","#8800ff","#ff8b00","#930000","#005593","#00936a","#930045","#116469"],i=0;
+                    $.each(infografia, function(k, v) {
+					  	html_infog+= `
+					  	<article class="content-infografia">
+	                        <div class="title-infografia" style="background:` + color[i] + `;"><div>` + k + `</div></div>
+	                        <div class="content-data-infografia">
+	                            <!--<div class="subtitle-infografia">Factor carencia de bienes y medios de comunicación</div>-->`;
+	                            console.log("k");
+								console.log(k);
+	                            console.log("v");
+								console.log(v);
+                            	$.each(v, function(k_i, v_i) {
+                            		console.log("k_i");
+									console.log(k_i);
+									console.log("v_i");
+									console.log(v_i);
+	                              	html_infog+= `
+	                              	<div><i style="background:` + color[i] + `;"></i>` + v_i.label + `:<span>` + v_i.value + `</span></div>`;
+	                            });
+	                        html_infog+= `</div>
+	                    </article>`;
+	                    i++;
+					});
+      				$("#infografia").show().html(html_infog);
+      			}, function(reason, json){
+					console.log("non");
+				 	initMod.debugThemes(reason, json);
+				});
           	},
         });
     };
 
     var selectTema = function(x) {
     	select_tema.html("");
-	    var i = 0, len = all_temas.length;
+	    var i = 1, len = all_temas.length;
 	    while (i < len) {
 	       	select_tema.append(new Option(all_temas[i].tema, all_temas[i].cve_tem));
 	        i++
@@ -1008,7 +1061,7 @@ var servicioMap = (function() {
         	
         	selectEstado();
         	selectTema();
-        	select_tema.val(1).trigger('change');
+        	select_tema.val(2).trigger('change');
 
 			for (var i = all_indicadores.length - 1; i >= 0; i--) {
 				nom_ind[all_indicadores[i].cve_ind] = all_indicadores[i].indicadores;

@@ -152,8 +152,10 @@ class ApiMapa extends ApiMain {
 	}
 
 	public function getNa($x) {
-		$sql = 'SELECT "nom_nucleo","cve_nucleo","cve_mun","cve_ent" FROM public.na';
+		$sql = 'SELECT "NOM_NUCLEO","CVE_ENT","CVE_MUN","ID" FROM public.na WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ORDER BY "NOM_NUCLEO" ASC';
 		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {

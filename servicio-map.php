@@ -47,6 +47,7 @@ if (isset($_GET["x"])) {
                                 <option value="">Seleccione una opción</option>
                                 <option value="1">Por propiedad social</option>
                                 <option value="2">Por propiedad privada</option>
+                                <option value="3">Por municipio</option>
                             </select>
                         </div>
                         <div class="anio-na">
@@ -120,6 +121,56 @@ if (isset($_GET["x"])) {
 
                     <!--<font>NOTA:</font> Si no se encuentra el n&uacute;mero de expediente, cerci&oacute;rese de haberlo subido antes.-->
                     <table id="footable-list" class="tab-list get-module" data-module="servicioMap" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
+
+<style type="text/css">
+.content-data-infografia {
+    /*background-image: linear-gradient(to bottom right, #e9eaec, #ffffff);*/
+    border-radius: 0px 10px 10px 0px;
+    box-shadow: inset 2px 2px 0px 0px white, inset -1px -1px 10px 0px rgb(0 0 0 / 25%);
+    color: #585858;
+    display: grid;
+    font-size: 13px;
+    height: 200px;
+    line-height: 17px;
+    float: left;
+    padding: 3% 1% 2% 2%;
+    width: 70%;
+}
+#infografia article {
+    display: inline-block;
+    width: 695px;
+}
+.title-infografia {
+    border-radius: 85px 0px 0px 85px;
+    color: white;
+    display: grid;
+    float: left;
+    font-size: 15px;
+    font-family: "San Francisco Display Medium";
+    height: 200px;
+    padding: 2% 3%;
+    text-align: center;
+    width: 30%;
+}
+.title-infografia>div {
+    margin: auto;
+    text-transform: uppercase;
+}
+.content-data-infografia span {
+    font-weight: 700;
+    margin-left: 5px;
+}
+.content-data-infografia i {
+    border-radius: 2px;
+    height: 5px;
+    width: 5px !important;
+    display: inline-block;
+    margin: 0px 5px 2px 0px;
+}
+</style>
+                    <div id="infografia" class="hide-infog-for-screenshot">
+                        
+                    </div>
 
                 </div>
             </div>

@@ -25,9 +25,9 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getAllFilterServicioMap($x) {
-		//print_r($x);
-		//exit;
-		/*exit;*/
+		/*print_r($x);
+		
+		exit;*/
 		if ($x['anio'] == 2020) {
 			$anio = 2020;
 		}elseif ($x['anio'] == 2010) {
@@ -51,7 +51,7 @@ class ApiServicioMap extends ApiMain {
 			$filed_d = '';
 		}
 
-		//$sql = 'SELECT a."ID",a."CGLOC",b."CVE_ENT",b."CVE_MUN",b."NOM_LOC" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		//$sql = 'SELECT a."ID",a."CGLOC",b."ID_ENT",b."ID_MUN",b."NOM_LOC" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
 		$sql = 'SELECT a.' . $id . ' AS "ID",b."NOM_LOC" ' . $filed_d . ' ' . $x['indicadores'] . '   FROM ' . $tab . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
 		';
@@ -63,7 +63,7 @@ class ApiServicioMap extends ApiMain {
 
 		if ($x['localidades'] != "") {
 
-			if ($x['localidades'][0] == "-1") {
+			if (isset($x['localidades'][0]) AND $x['localidades'][0] == "-1") {
 				# code...
 			}else {
 				$lll = array();
@@ -103,8 +103,8 @@ class ApiServicioMap extends ApiMain {
 			//$this->items_arr['vulnerabilidad'] = $sth->fetchAll(PDO::FETCH_ASSOC);//se debe llamar segun nuestro modulo
 
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				/*$row['clave_estado'] = $row['CVE_ENT'];
-				$row['clave_municipio'] = $row['CVE_MUN'];*/
+				/*$row['clave_estado'] = $row['ID_ENT'];
+				$row['clave_municipio'] = $row['ID_MUN'];*/
 				$this->items_arr['vulnerabilidad'][] = $row;
 			}
 			//$this->items_arr['number-records'] = $rows;
@@ -113,7 +113,7 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getEstados($x) {
-		$sql = 'SELECT "NOMGEO","CVE_ENT" FROM edo_mun.estados ORDER BY "NOMGEO" ASC';
+		$sql = 'SELECT "NOMGEO","ID_ENT" FROM edo_mun.estados ORDER BY "NOMGEO" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -131,7 +131,7 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getMunicipios($x) {
-		$sql = 'SELECT "NOMGEO","CVE_MUN","CVE_ENT" FROM edo_mun.municipios ORDER BY "NOMGEO" ASC';
+		$sql = 'SELECT "NOMGEO","ID_MUN","ID_ENT" FROM edo_mun.municipios ORDER BY "NOMGEO" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -149,9 +149,9 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getSomeLocalidades($x) {
-		$sql = 'SELECT "CGLOC" FROM loc.loc_grupos_pp  WHERE "ID" = :id';
+		$sql = 'SELECT "CGLOC" FROM loc.localidades WHERE "ID_LOC" = :id';
 		$sth = $this->conn->prepare($sql);
-		$sth->bindValue(':id', $x['id'], PDO::PARAM_STR);
+		$sth->bindValue(':id', $x['id'], PDO::PARAM_INT);
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
@@ -240,10 +240,10 @@ class ApiServicioMap extends ApiMain {
 		}else {
 			$ann = "na_" . 2020;
 		}
-		$sql = 'SELECT "ID","CVE_NUCLEO" FROM ivp.' . $ann . '';
+		$sql = 'SELECT a."ID","NOM_NUCLEO" FROM ivp.' . $ann . ' a INNER JOIN public.na b ON a."ID_NA" = b."ID_NA" WHERE "ID_MUN" = :id_municipio';
 		$sth = $this->conn->prepare($sql);
-		/*$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
-		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);*/
+		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
+
 		$sth->execute();
 		$rows = $sth->rowCount();
 		if ($rows > 0) {
@@ -259,9 +259,52 @@ class ApiServicioMap extends ApiMain {
 		$sth = null;
 	}
 
+	public function getInfografias($x) {
+		/*print_r($x);
+		exit;*/
+		if ($x['anio'] == 2010) {
+			$ann = "na_" . 2010;
+		}else {
+			$ann = "na_" . 2020;
+		}
+		$sql = 'SELECT a.*,b."NOM_NUCLEO" FROM ivp.' . $ann . ' a INNER JOIN public.na b ON a."ID_NA" = b."ID_NA" WHERE "ID" = :id';
+		$sth = $this->conn->prepare($sql);
+		$sth->bindValue(':id', $x['id'], PDO::PARAM_STR);
+
+		$sth->execute();
+		$rows = $sth->rowCount();
+		if ($rows > 0) {
+			$res = array();
+			$row = $sth->fetch(PDO::FETCH_ASSOC);
+
+			//$this->items_arr["indi"] = $row;
+
+			foreach ($row as $key => $value) {
+
+				$sql1 = 'SELECT tema,indicadores FROM catalogo.indicadores a INNER JOIN catalogo.tema b ON a."cve_tem" = b."cve_tem" WHERE "cve_ind" = :key AND b."cve_tem" != 1';
+				$sth_t = $this->conn->prepare($sql1);
+				$sth_t->bindValue(':key', $key, PDO::PARAM_STR);
+				$sth_t->execute();
+				$row_t = $sth_t->fetch(PDO::FETCH_ASSOC);
+				$rows_t = $sth_t->rowCount();
+				if ($rows_t > 0) {
+					if (isset($res[$row_t['tema']])) {
+						array_push($res[$row_t['tema']], array("label" => $row_t['indicadores'], "value" => $value));
+					}else {
+						$res[$row_t['tema']][] = array("label" => $row_t['indicadores'], "value" => $value);
+					}
+				}
+				$this->items_arr["infografia"] = $res;
+			}
+		}else{
+			$this->items_arr["infografia"] = array("mensaje" => "Sin coincidencias encontradass.");
+		}
+		$sth = null;
+	}
+
 	public function getCoords($x) {
-		$sql = 'SELECT "NOMGEO","CVE_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
-		FROM edo_mun.estados WHERE "CVE_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
+		$sql = 'SELECT "NOMGEO","ID_ENT",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.estados WHERE "ID_ENT" = :id_estado ORDER BY "NOMGEO" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
 		$sth->execute();
@@ -318,8 +361,8 @@ class ApiServicioMap extends ApiMain {
 		$sth = null;
 
 
-		$sql = 'SELECT "NOMGEO","CVE_MUN",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
-		FROM edo_mun.municipios WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio ORDER BY "NOMGEO" ASC';
+		$sql = 'SELECT "NOMGEO","ID_MUN",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM edo_mun.municipios WHERE "ID_ENT" = :id_estado AND "ID_MUN" = :id_municipio ORDER BY "NOMGEO" ASC';
 		$sth = $this->conn->prepare($sql);
 		$sth->bindValue(':id_estado', $x['id_estado'], PDO::PARAM_STR);
 		$sth->bindValue(':id_municipio', $x['id_municipio'], PDO::PARAM_STR);
@@ -388,8 +431,10 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function propiedadPrivada($estado, $municipio) {
-		$sql = 'SELECT "ID","LABEL",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
-		FROM public.agrupaciones_pp WHERE "CVE_ENT" = :id_estado AND "CVE_MUN" = :id_municipio';
+		$sql = 'SELECT "ID_LOC","LABEL",ST_AsGeoJSON(ST_Transform("GEOM",4326)) AS "COORDS"
+		FROM public.agrupaciones_pp a
+		INNER JOIN loc.loc_in_agrupaciones b ON a."ID_GROUPS" = b."ID_GROUPS"
+		WHERE "ID_ENT" = :id_estado AND "ID_MUN" = :id_municipio';
 		$sth = $this->conn->prepare($sql);
 		$sth->bindValue(':id_estado', $estado, PDO::PARAM_STR);
 		$sth->bindValue(':id_municipio', $municipio, PDO::PARAM_STR);
@@ -417,7 +462,7 @@ class ApiServicioMap extends ApiMain {
 						$features[$count] = array(
 							"type" => "Feature",
 					        "properties" => array(
-					            "id_poligono_pp" => $row['ID'] . "-" .$row['LABEL'],
+					            "id_poligono_pp" => $row['ID_LOC'] . "-" .$row['LABEL'],
 					            "featureclass" => "Urban area",
 					            //"isPepe": true,
 					            "agalloch" => $peps[$row['LABEL']]
@@ -435,7 +480,7 @@ class ApiServicioMap extends ApiMain {
 					$features[$count] = array(
 						"type" => "Feature",
 				        "properties" => array(
-				            "id_poligono_pp" => $row['ID'] . "-" .$row['LABEL'],
+				            "id_poligono_pp" => $row['ID_LOC'] . "-" .$row['LABEL'],
 				            "featureclass" => "Urban area",
 				            //"isPepe": true,
 				            "agalloch" => $peps[$row['LABEL']]
@@ -495,7 +540,7 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getEstadosFormat() {
-		$sql = 'SELECT "NOMGEO","CVE_ENT" FROM edo_mun.estados';
+		$sql = 'SELECT "NOMGEO","ID_ENT" FROM edo_mun.estados';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -504,7 +549,7 @@ class ApiServicioMap extends ApiMain {
 			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 			foreach ($result as $row) {*/
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				$estados_format[$row['CVE_ENT']] = $row['NOMGEO'];
+				$estados_format[$row['ID_ENT']] = $row['NOMGEO'];
 			}
 		}else{
 			$estados_format = array("mensaje" => "Sin coincidencias encontradas.");
@@ -514,7 +559,7 @@ class ApiServicioMap extends ApiMain {
 	}
 
 	public function getMunicipiosFormat() {
-		$sql = 'SELECT "NOMGEO","CVE_MUN","CVE_ENT" FROM edo_mun.municipios';
+		$sql = 'SELECT "NOMGEO","ID_MUN","ID_ENT" FROM edo_mun.municipios';
 		$sth = $this->conn->prepare($sql);
 		$sth->execute();
 		$rows = $sth->rowCount();
@@ -523,7 +568,7 @@ class ApiServicioMap extends ApiMain {
 			/*$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 			foreach ($result as $row) {*/
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				$kee = $row['CVE_ENT'] . "-" . $row['CVE_MUN'];
+				$kee = $row['ID_ENT'] . "-" . $row['ID_MUN'];
 				$municipios_format[$kee] = $row['NOMGEO'];
 			}
 		}else{
@@ -556,8 +601,11 @@ class ApiServicioMap extends ApiMain {
 			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
-		$sql = 'SELECT a."ID",b."CVE_ENT" AS "Estado",b."CVE_MUN" AS "Municipio",b."NOM_LOC" AS "Localidad" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		$sql = 'SELECT a."ID",d."ID_ENT" AS "Estado",c."ID_MUN" AS "Municipio",b."NOM_LOC" AS "Localidad" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
+		INNER JOIN edo_mun.municipios c ON b."ID_MUN" = c."ID_MUN"
+		INNER JOIN edo_mun.estados d ON c."ID_ENT" = d."ID_ENT"
+		
 		';
 
 		/*if ($x['id_localidad'] != "") {
@@ -577,6 +625,7 @@ class ApiServicioMap extends ApiMain {
 				$sql.= ' WHERE a."CGLOC" IN (' . $loc_join . ')';
 			}
 		}
+
 
 		$sql.= ' ORDER BY a."ID" ';
 
@@ -616,8 +665,8 @@ class ApiServicioMap extends ApiMain {
 		$this->items_arr['vulnerabilidad'][] = array('Municipio', 'Municipio', '');
 		$this->items_arr['vulnerabilidad'][] = array('Localidad', 'Localidad', '');
 		$this->items_arr['vulnerabilidad'][] = array('NOM_LOC', 'Localidad', '');
-		$this->items_arr['vulnerabilidad'][] = array('CVE_ENT', 'Estado', '');
-		$this->items_arr['vulnerabilidad'][] = array('CVE_MUN', 'Municipio', '');
+		$this->items_arr['vulnerabilidad'][] = array('ID_ENT', 'Estado', '');
+		$this->items_arr['vulnerabilidad'][] = array('ID_MUN', 'Municipio', '');
 
 		if ($x['indicadores'] != "") {
 			$ind = explode(",", $ind_fi);
@@ -708,8 +757,10 @@ class ApiServicioMap extends ApiMain {
 			$x['indicadores'] = "," . $x['indicadores'];
 		}
 
-		$sql = 'SELECT a."ID",b."NOM_LOC" , "CVE_ENT", "CVE_MUN" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
+		$sql = 'SELECT a."ID",b."NOM_LOC" , d."ID_ENT", c."ID_MUN" ' . $x['indicadores'] . '  FROM ivp.loc_rur_' . $anio . ' a 
 		INNER JOIN loc.localidades b ON a."CGLOC" = b."CGLOC"
+		INNER JOIN edo_mun.municipios c ON b."ID_MUN" = c."ID_MUN"
+		INNER JOIN edo_mun.estados d ON c."ID_ENT" = d."ID_ENT"
 		';
 
 		/*if ($x['id_localidad'] != "") {
@@ -739,8 +790,8 @@ class ApiServicioMap extends ApiMain {
 		$this->items_arr['vals'] = array();//se debe llamar segun nuestro modulo
 		if ($rows > 0) {
 			while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-				$kee = $row['CVE_ENT'] . "-" . $row['CVE_MUN'];
-				$row['Estado'] = utf8_decode($estado[$row['CVE_ENT']]);
+				$kee = $row['ID_ENT'] . "-" . $row['ID_MUN'];
+				$row['Estado'] = utf8_decode($estado[$row['ID_ENT']]);
 				$row['Municipio'] = utf8_decode($municipio[$kee]);
 				$row['Localidad'] = utf8_decode($row['NOM_LOC']);
 				$row['NOM_LOC'] = utf8_decode($row['NOM_LOC']);
@@ -775,8 +826,8 @@ class ApiServicioMap extends ApiMain {
 		$this->items_arr['vulnerabilidad'][] = array('Municipio', 'Municipio', '');
 		$this->items_arr['vulnerabilidad'][] = array('Localidad', 'Localidad', '');
 		/*$this->items_arr['vulnerabilidad'][] = array('NOM_LOC', 'Localidad', '');
-		$this->items_arr['vulnerabilidad'][] = array('CVE_ENT', 'Estado', '');
-		$this->items_arr['vulnerabilidad'][] = array('CVE_MUN', 'Municipio', '');*/
+		$this->items_arr['vulnerabilidad'][] = array('ID_ENT', 'Estado', '');
+		$this->items_arr['vulnerabilidad'][] = array('ID_MUN', 'Municipio', '');*/
 
 		if ($x['indicadores'] != "") {
 			$ind = explode(",", $ind_fi);

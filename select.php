@@ -108,8 +108,16 @@ if (isset($_GET["x"])) {
 
                     <table id="footable-list-cube" class="tab-lis" data-paging="true" data-filtering="true" data-sorting="true" data-filter-placeholder="Buscar"></table>
 
+                    <div class="hide-for-screenshot">
+                        <div id="poligonos-maps">
+                            <div class="title-map-edo">Estado de <span></span></div>
+                            <div class="title-map-mun">Municipio de <span></span></div>
+                            <div class="title-map-carto"><img src="images/brujula.jpg"></div>
+                            <div class="title-map-fuente">Fuente de datos: ADESUR</div>
+                        </div>
+                    </div>
 
-
+                    
 
                 </div>
             </div>
