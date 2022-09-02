@@ -810,9 +810,18 @@ figure.depend-content {
   display: none;
 }
 .hide-for-screenshot,.hide-infog-for-screenshot {
+  height: 862px;
   opacity: 0.0;
   position: absolute;
+  top: 0;
+  width: 1450px;
   z-index: -1;
+}
+#infografia {
+  background: white;
+  height: 862px;
+  padding: 20px;
+  width: 1450px;
 }
 .title-map-carto {
   height: 40px;
@@ -845,4 +854,22 @@ figure.depend-content {
   right: 0%;
   width: 24%;
   z-index: 99;
+}
+.content-tab-problemas {
+  display: none;
+  margin-bottom: -30px;
+  width: 80%;
+}
+.content-tab-problemas>div {
+  border: 1px solid #989898;
+  display: table-cell;
+  font-size: 12px;
+  padding: 2px 4px;
+  text-align: center;
+  width: max-content;
+}
+div.tab-prob-title {
+  display: block;
+  font-size: 16px;
+  width: 100%;
 }

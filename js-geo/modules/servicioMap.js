@@ -900,7 +900,8 @@ var servicioMap = (function() {
 	                    </article>`;
 	                    i++;
 					});
-      				$("#infografia").show().html(html_infog);
+      				$("#infografia").html(html_infog);
+      				printInfog();
       			}, function(reason, json){
 					console.log("non");
 				 	initMod.debugThemes(reason, json);
@@ -908,6 +909,36 @@ var servicioMap = (function() {
           	},
         });
     };
+
+    var printInfog = function() {
+    	setTimeout(function(){
+        	var mapsyeahyeahs = $('#infografia');
+            html2canvas([mapsyeahyeahs.get(0)], {
+            	useCORS: true,
+		        optimized: false,
+		        allowTaint: false,
+		      	onrendered: function (canvas) {
+		        	/*document.body.appendChild(canvas);
+		        	var a = document.createElement('a');
+		        	// toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+		        	a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+		        	a.download = 'somefilename.jpg';
+		        	a.click();*/
+
+		        	var tempcanvas=document.createElement('canvas');
+		            tempcanvas.width=1450;
+		            tempcanvas.height=620;
+		            var context=tempcanvas.getContext('2d');
+		            context.drawImage(canvas,0,0,1350,700,0,0,1350,700);
+		            var link=document.createElement("a");
+		            link.href=tempcanvas.toDataURL('image/jpg');   //function blocks CORS
+		            link.download = 'infografia.jpg';
+		            link.click();
+		            generateExport();
+		      	}
+		    });
+        },1000);
+    }
 
     var selectTema = function(x) {
     	select_tema.html("");
@@ -1158,7 +1189,7 @@ var servicioMap = (function() {
 			if ($("#debug").val() == 'debug') {
 				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
 			}else {
-				$(".res-error-2").html("Error en la consulta").show(1000);
+				//$(".res-error-2").html("Error en la consulta").show(1000);
 			}
 		 	initMod.debugThemes(reason, json);
 
@@ -1192,7 +1223,7 @@ var servicioMap = (function() {
 			if ($("#debug").val() == 'debug') {
 				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
 			}else {
-				$(".res-error-2").html("Error en la consulta").show(1000);
+				//$(".res-error-2").html("Error en la consulta").show(1000);
 			}
 		 	initMod.debugThemes(reason, json);
 
@@ -1233,7 +1264,7 @@ var servicioMap = (function() {
 			if ($("#debug").val() == 'debug') {
 				$(".res-error-2").html("Error-2 msg: " + reason.responseText).show(1000);
 			}else {
-				$(".res-error-2").html("Error en la consulta").show(1000);
+				//$(".res-error-2").html("Error en la consulta").show(1000);
 			}
 		 	initMod.debugThemes(reason, json);
 

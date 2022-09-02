@@ -510,7 +510,7 @@ var select = (function() {
     		setTimeout(function() {
 	        	getPoligonShapes(id_source_collection);
 	    		mapFlyTo(res.municipios_center, 10.5, 0, 0);
-	        }, 1000);
+	        }, 300);
 
 
 	        /*setTimeout(function() {
@@ -526,7 +526,7 @@ var select = (function() {
 	        	var coords_loc = res.lodalidades_1349.features;
 				id_source_collection.features = id_source_collection.features.concat(coords_loc);
 	          	getPoligonShapesAddLoop(id_source_collection);
-	        }, 1200);
+	        }, 600);
 	        //return;
 	        setTimeout(function(){
 	        	var mapsyeahyeahs = $('#poligonos-maps');
@@ -549,11 +549,12 @@ var select = (function() {
 			            context.drawImage(canvas,0,0,1350,700,0,0,1350,700);
 			            var link=document.createElement("a");
 			            link.href=tempcanvas.toDataURL('image/jpg');   //function blocks CORS
-			            link.download = 'screenshot.jpg';
+			            link.download = 'mapa.jpg';
 			            link.click();
+			            generateExport();
 			      	}
 			    });
-	        },2000);
+	        },1000);
     		
 		}, function(reason, json){
 		 	initMod.debugThemes(reason, json);
@@ -579,7 +580,7 @@ var select = (function() {
 		            context.drawImage(canvas,0,0,1350,700,0,0,1350,700);
 		            var link=document.createElement("a");
 		            link.href=tempcanvas.toDataURL('image/jpg');   //function blocks CORS
-		            link.download = 'screenshot.jpg';
+		            link.download = 'fdsa.jpg';
 		            link.click();
 		      	}
 		    });
@@ -1031,6 +1032,7 @@ var select = (function() {
 		//return;
 		/*btn_excel.hide();
 		btn_pdf.hide();*/
+		$(".content-tab-problemas").show(500);
 		btn_export.hide();
 		l = $(this).ladda();
 		l.ladda( 'start' );
@@ -1136,7 +1138,7 @@ var select = (function() {
 	}
 
 	var generateExport = function() {
-		callMapPrint();
+		//callMapPrint();
 		var sList = [];
 		$('#check-indicadores input').each(function () {
 		    if (this.checked) {
@@ -1199,7 +1201,7 @@ var select = (function() {
         $(document).on('click','#check-ind-var input:checkbox', checkOneVar);
         /*btn_excel.on('click', generateExcel);
         btn_pdf.on('click', generatePdf);*/
-        btn_export.on('click', generateExport);
+        btn_export.on('click', callMapPrint);
     };
 
 	var init = function () {
